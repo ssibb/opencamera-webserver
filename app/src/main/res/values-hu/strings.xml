@@ -217,7 +217,7 @@
     <string name="preference_record_audio_src">Hangforrás</string>
     <string name="preference_record_audio_src_summary">Hangrögzítésre használandó mikrofon\n%s</string>
     <string name="preference_record_audio_channels">Hangcsatornák</string>
-    <string name="preference_record_audio_channels_summary">Monó vagy sztereó hangfelvétel készítése (sztereó felvételre nem minden eszköz képes)</string>
+    <string name="preference_record_audio_channels_summary">Monó vagy sztereó hangfelvétel készítése (sztereó felvételre nem minden eszköz képes)\n%s</string>
     <string name="preference_video_flash">Villogás felvétel alatt</string>
     <string name="preference_video_flash_summary">Ha engedélyezve van, a vaku ki-be kapcsol a felvétel alatt (ezzel jelezhető, hogy egy kamera épp rögzít a távolban)</string>
     

@@ -216,7 +216,7 @@
     <string name="preference_record_audio_src">Πηγή ήχου</string>
     <string name="preference_record_audio_src_summary">Χρήση μικροφώνου για την καταγραφή ήχου\n%s</string>
     <string name="preference_record_audio_channels">Κανάλια ήχου</string>
-    <string name="preference_record_audio_channels_summary">Καθορισμός μονοφωνικής ή στερεοφωνικής καταγραφής ήχου (ο ήχος στέρεο υποστηρίζεται μόνο σε ορισμένες συσκευές)</string>
+    <string name="preference_record_audio_channels_summary">Καθορισμός μονοφωνικής ή στερεοφωνικής καταγραφής ήχου (ο ήχος στέρεο υποστηρίζεται μόνο σε ορισμένες συσκευές)\n%s</string>
     <string name="preference_video_flash">Φλας κατά την καταγραφή βίντεο</string>
     <string name="preference_video_flash_summary">Ενεργοποίηση τού φλας κατά την καταγραφή των βίντεο (μπορεί να χρησιμοποιηθεί αν γίνεται καταγραφή από απόσταση)</string>
     

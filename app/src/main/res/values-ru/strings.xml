@@ -218,7 +218,7 @@
     <string name="preference_record_audio_src">Источник звука</string>
     <string name="preference_record_audio_src_summary">Микрофон для записи звука\n%s</string>
     <string name="preference_record_audio_channels">Число каналов</string>
-    <string name="preference_record_audio_channels_summary">Настройка моно или стереозвука (стерео доступно не на всех устройствах)</string>
+    <string name="preference_record_audio_channels_summary">Настройка моно или стереозвука (стерео доступно не на всех устройствах)\n%s</string>
     <string name="preference_video_flash">Вспышка во время записи видео</string>
     <string name="preference_video_flash_summary">Если включено, вспышка будет включаться/выключаться при записи видео (можно использовать, чтобы выполнить запись на расстоянии)</string>
     

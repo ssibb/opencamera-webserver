@@ -250,4 +250,8 @@
         <item>不镜像</item>
         <item>镜像</item>
     </string-array>
+    <string-array name="preference_video_subtitle_entries">
+        <item>无字幕</item>
+        <item>记录字幕</item>
+    </string-array>
 </resources>

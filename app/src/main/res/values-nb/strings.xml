@@ -217,7 +217,7 @@
     <string name="preference_record_audio_src">Lydkilde</string>
     <string name="preference_record_audio_src_summary">Mikrofonen som skal brukes til lydopptak\n%s</string>
     <string name="preference_record_audio_channels">Lydkanaler</string>
-    <string name="preference_record_audio_channels_summary">Velg mono eller stereo for opptak av lyd (Stereo støttes kun på noen enheter).</string>
+    <string name="preference_record_audio_channels_summary">Velg mono eller stereo for opptak av lyd (Stereo støttes kun på noen enheter).\n%s</string>
     <string name="preference_video_flash">Blits under videoopptak</string>
     <string name="preference_video_flash_summary">Hvis dette er aktivert, vil blitsen skru seg av/på under videoopptak (Kan brukes til å se på avstand om kameraet fortsatt tar opp).</string>
     

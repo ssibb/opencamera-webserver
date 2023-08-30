@@ -217,7 +217,7 @@
     <string name="preference_record_audio_src">Fonte de áudio</string>
     <string name="preference_record_audio_src_summary">O microfone usado na gravação de áudio\n%s</string>
     <string name="preference_record_audio_channels">Canais de áudio</string>
-    <string name="preference_record_audio_channels_summary">Especificar mono ou estéreo para a gravação de áudio (estéreo apenas é suportado em alguns dispositivos)</string>
+    <string name="preference_record_audio_channels_summary">Especificar mono ou estéreo para a gravação de áudio (estéreo apenas é suportado em alguns dispositivos)\n%s</string>
     <string name="preference_video_flash">Flash durante a gravação de vídeo</string>
     <string name="preference_video_flash_summary">Se ativado, o flash será ligado/desligado durante a gravação de vídeo (pode ser usado para verificar à distância se câmara ainda está a gravar)</string>
     

@@ -153,8 +153,8 @@
     <string name="grid">网格</string> <!-- short form of Show a grid -->
     <string name="preference_crop_guide">显示裁剪框</string>
     <string name="preference_crop_guide_summary">屏幕上显示一个预设比例的矩形框体。\n如果你拍照后会裁剪照片/视频为不同长宽比的照片，这就很有用了。\n%s</string>
-    <string name="preference_show_toasts">显示 \"toast\" 消息</string>
-    <string name="preference_show_toasts_summary">是否显示弹出的 \"toast\" 消息</string>
+    <string name="preference_show_toasts">显示toast消息</string>
+    <string name="preference_show_toasts_summary">是否显示弹出的toast消息</string>
     <string name="preference_thumbnail_animation">显示缩略图动画</string>
     <string name="preference_thumbnail_animation_summary">当拍照时显示移动缩略图动画</string>
     <string name="preference_keep_display_on">保持屏幕常亮</string>
@@ -209,8 +209,8 @@
     <string name="preference_record_audio_summary">录像时录音</string>
     <string name="preference_record_audio_src">音频源</string>
     <string name="preference_record_audio_src_summary">麦克风用于录制音频\n%s</string>
-    <string name="preference_record_audio_channels">音频声道</string>
-    <string name="preference_record_audio_channels_summary">规定使用单声道或者立体声进行录音（仅部分设备支持立体声）。</string>
+    <string name="preference_record_audio_channels">录音通道数</string>
+    <string name="preference_record_audio_channels_summary">规定使用单声道或者立体声进行录音（仅部分设备支持立体声）\n%s</string>
     <string name="preference_video_flash">录像时闪光</string>
     <string name="preference_video_flash_summary">如果启用，录像时闪光将开启/关闭 (在一段距离外可以用来告诉相机仍然在录制)。</string>
     
@@ -424,7 +424,7 @@
     <string name="preference_show_geo_direction_lines_summary">显示罗盘方向线</string>
     <string name="video_pause">暂停录像</string>
     <string name="video_resume">继续录像</string>
-    <string name="preference_show_take_photo">显示“拍照按钮”</string>
+    <string name="preference_show_take_photo">显示拍照按钮</string>
     <string name="preference_show_take_photo_summary">显示拍照、录像按钮。除非你有其他方法（比如硬件快门、使用音量键），否则不应该取消勾选</string>
 
 

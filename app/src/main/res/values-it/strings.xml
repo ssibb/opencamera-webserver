@@ -218,7 +218,7 @@
     <string name="preference_record_audio_src">Sorgente audio</string>
     <string name="preference_record_audio_src_summary">Il microfono da usare per la registrazione dell\'audio\n%s</string>
     <string name="preference_record_audio_channels">Canali audio</string>
-    <string name="preference_record_audio_channels_summary">Specifica modalità mono o stereo per la registrazione audio (modalità stereo supportata solo su alcuni modelli)</string>
+    <string name="preference_record_audio_channels_summary">Specifica modalità mono o stereo per la registrazione audio (modalità stereo supportata solo su alcuni modelli)\n%s</string>
     <string name="preference_video_flash">Flash durante la registrazione video</string>
     <string name="preference_video_flash_summary">Se abilitato, il flash sarà acceso/spento quando si registra il video (può essere usato per capire a distanza se la telecamera sta ancora registrando)</string>
     

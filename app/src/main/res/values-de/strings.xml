@@ -218,7 +218,7 @@
     <string name="preference_record_audio_src">Audio-Quelle</string>
     <string name="preference_record_audio_src_summary">Einstellung der Mikrofonquelle für die Tonaufnahme\n%s</string>
     <string name="preference_record_audio_channels">Audio-Kanäle</string>
-    <string name="preference_record_audio_channels_summary">Mono- oder Stereo-Aufnahme (Stereo wird nur von einigen Geräten unterstützt)</string>
+    <string name="preference_record_audio_channels_summary">Mono- oder Stereo-Aufnahme (Stereo wird nur von einigen Geräten unterstützt)\n%s</string>
     <string name="preference_video_flash">Blitzlicht während der Videoaufnahme</string>
     <string name="preference_video_flash_summary">Wenn aktiviert, blinkt der Blitz während der Videoaufnahme.</string>
     

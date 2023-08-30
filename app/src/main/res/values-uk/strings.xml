@@ -218,7 +218,7 @@
     <string name="preference_record_audio_src">Джерело звуку</string>
     <string name="preference_record_audio_src_summary">Мікрофон для запису звуку\n%s</string>
     <string name="preference_record_audio_channels">Число каналів</string>
-    <string name="preference_record_audio_channels_summary">Налаштування моно чи стереозвуку (стерео доступно не для всіх пристроїв)</string>
+    <string name="preference_record_audio_channels_summary">Налаштування моно чи стереозвуку (стерео доступно не для всіх пристроїв)\n%s</string>
     <string name="preference_video_flash">Спалах під час запису відео</string>
     <string name="preference_video_flash_summary">Якщо увімкнуто, спалах буде вмикатися/вимикатися під час запису відео (можна використовувати, аби виконувати запис на відстані)</string>
 

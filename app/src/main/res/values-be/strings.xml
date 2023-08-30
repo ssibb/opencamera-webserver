@@ -200,7 +200,7 @@
     <string name="preference_record_audio_src">Крыніца гуку</string>
     <string name="preference_record_audio_src_summary">Мікрафон падчас запісу аўдыё\n%s</string>
     <string name="preference_record_audio_channels">Аўдыяканалы</string>
-    <string name="preference_record_audio_channels_summary">Мона або стэрэа падчас запісу аўдыё (стэрэа падтрымліваецца толькі на некаторых прыладах)</string>
+    <string name="preference_record_audio_channels_summary">Мона або стэрэа падчас запісу аўдыё (стэрэа падтрымліваецца толькі на некаторых прыладах)\n%s</string>
     <string name="preference_video_flash">Выьліск падчас запісу відэа</string>
     <string name="preference_video_flash_summary">Калі ўключана, то можна будзе ўкл / выкл выбліск падчас запісу відэа </string>
 
