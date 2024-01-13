@@ -14,7 +14,6 @@ import java.util.HashSet;
  */
 public class PreferenceSubScreen extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "PreferenceSubScreen";
-    private boolean enable_settings_on_back_callback = false;
 
     // see note for dialogs in MyPreferenceFragment
     protected final HashSet<AlertDialog> dialogs = new HashSet<>();
@@ -25,12 +24,6 @@ public class PreferenceSubScreen extends PreferenceFragment implements SharedPre
             Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        // need to disable the SettingsOnBackPressedCallback (as don't want MainActivity.settingsClosing() to be called when exiting a sub-screen)
-        enable_settings_on_back_callback = ((MainActivity)getActivity()).isSettingsOnBackPressedCallbackEnabled();
-        if( MyDebug.LOG )
-            Log.d(TAG, "enable_settings_on_back_callback: " + enable_settings_on_back_callback);
-        ((MainActivity)getActivity()).enableSettingsOnBackPressedCallback(false);
-
         if( MyDebug.LOG )
             Log.d(TAG, "onCreate done");
     }
@@ -40,11 +33,6 @@ public class PreferenceSubScreen extends PreferenceFragment implements SharedPre
         if( MyDebug.LOG )
             Log.d(TAG, "onDestroy");
         super.onDestroy();
-
-        // if the screen we're returning to is the top screen, need to reenable the SettingsOnBackPressedCallback
-        if( MyDebug.LOG )
-            Log.d(TAG, "enable_settings_on_back_callback: " + enable_settings_on_back_callback);
-        ((MainActivity)getActivity()).enableSettingsOnBackPressedCallback(enable_settings_on_back_callback);
 
         MyPreferenceFragment.dismissDialogs(getFragmentManager(), dialogs);
     }
