@@ -43,6 +43,8 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.hardware.camera2.params.TonemapCurve;
 import android.location.Location;
 import android.media.AudioManager;
+
+import androidx.annotation.IntRange;
 import androidx.exifinterface.media.ExifInterface;
 import android.media.Image;
 import android.media.ImageReader;
@@ -3067,6 +3069,11 @@ public class CameraController2 extends CameraController {
                             for(CaptureResult.Key<?> key : extension_supported_result_keys) {
                                 if( MyDebug.LOG )
                                     Log.d(TAG, "    supported capture result key: " + key.getName());
+                            }
+                        }
+                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ) {
+                            if( MyDebug.LOG ) {
+                                Log.d(TAG, "    isCaptureProcessProgressAvailable: " + extension_characteristics.isCaptureProcessProgressAvailable(extension));
                             }
                         }
                     }
@@ -7988,6 +7995,25 @@ public class CameraController2 extends CameraController {
         @Override
         public void onCaptureResultAvailable(@NonNull CameraExtensionSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             previewCaptureCallback.updateCachedCaptureResult(result);
+        }
+
+        @Override
+        public void onCaptureProcessProgressed(@NonNull CameraExtensionSession session,
+                                               @NonNull CaptureRequest request, @IntRange(from = 0, to = 100) int progress) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "onCaptureProcessProgressed: " + progress);
+
+            final Activity activity = (Activity)context;
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "onCaptureProcessProgressed UI thread: " + progress);
+                    if( picture_cb != null ) {
+                        picture_cb.onExtensionProgress(progress);
+                    }
+                }
+            });
         }
     }
 
