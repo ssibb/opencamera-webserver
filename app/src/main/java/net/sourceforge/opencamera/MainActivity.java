@@ -4355,7 +4355,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             // have had Google Play NoClassDefFoundError crashes from getThumbnail() for Galaxy Ace4 (vivalto3g), Galaxy S Duos3 (vivalto3gvn)
                             // also NegativeArraySizeException - best to catch everything
                             if( MyDebug.LOG )
-                                Log.e(TAG, "exif orientation exception");
+                                Log.e(TAG, "thumbnail exception");
                             exception.printStackTrace();
                         }
                     }
