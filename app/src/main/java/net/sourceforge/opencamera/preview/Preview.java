@@ -8776,6 +8776,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         }
     }
 
+    /** Whether we are in video mode, or photo mode.
+     */
     public boolean isVideo() {
         return is_video;
     }
