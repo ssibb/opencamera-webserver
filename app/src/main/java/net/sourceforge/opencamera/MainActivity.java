@@ -5479,7 +5479,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             Log.d(TAG, "zoom onProgressChanged: " + progress);
                         // note we zoom even if !fromUser, as various other UI controls (multitouch, volume key zoom, -/+ zoomcontrol)
                         // indirectly set zoom via this method, from setting the zoom slider
-                        preview.zoomTo(preview.getMaxZoom() - progress);
+                        // if hasSmoothZoom()==true, then the preview already handled zooming to the current value
+                        if( !preview.hasSmoothZoom() )
+                            preview.zoomTo(preview.getMaxZoom() - progress, false);
                     }
 
                     @Override
