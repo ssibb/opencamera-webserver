@@ -95,6 +95,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private final ToastBoxer store_location_toast = new ToastBoxer();
     private boolean block_startup_toast = false; // used when returning from Settings/Popup - if we're displaying a toast anyway, don't want to display the info toast too
     private String push_info_toast_text; // can be used to "push" extra text to the info text for showPhotoVideoToast()
+    private boolean push_switched_camera = false; // whether to display animation for switching front/back cameras
 
     // application shortcuts:
     static private final String ACTION_SHORTCUT_CAMERA = "net.sourceforge.opencamera.SHORTCUT_CAMERA";
@@ -1622,6 +1624,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
 
+        push_switched_camera = false; // just in case
+
         if( MyDebug.LOG ) {
             Log.d(TAG, "onResume: total time to resume: " + (System.currentTimeMillis() - debug_time));
         }
@@ -2406,6 +2410,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 preview.clearActiveFakeToast();
             }
             userSwitchToCamera(cameraId);
+
+            push_switched_camera = true;
         }
     }
 
@@ -4050,6 +4056,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         // similarly we close the camera
         preview.onPause(false);
+
+        push_switched_camera = false; // just in case
     }
 
     private void showWhenLocked(boolean show) {
@@ -5705,6 +5713,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             Log.d(TAG, "cameraSetup: total time for cameraSetup: " + (System.currentTimeMillis() - debug_time));
 
         this.getApplicationInterface().getDrawPreview().setDimPreview(false);
+
+        if( push_switched_camera ) {
+            push_switched_camera = false;
+            View switchCameraButton = findViewById(R.id.switch_camera);
+            switchCameraButton.animate().rotationBy(180).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        }
     }
 
     private void setManualFocusSeekbar(final boolean is_target_distance) {

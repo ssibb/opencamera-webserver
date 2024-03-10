@@ -99,7 +99,7 @@ on screen in the viewport. -->
 
 <p><a name="quickstart"><b>Quickstart</b></a></p>
 
-<p>Simply point, and press the blue camera icon <img src="take_photo.png" alt="Take Photo icon" width="32" height="32"> to take a photo.
+<p>Simply point, and press the blue circular camera icon to take a photo.
 If your device supports focus areas, you can touch the part of the screen you want to focus. Touching an area will also
 (if your device supports it) control the exposure level (e.g., so clicking on a bright area will adjust the exposure
 so that it becomes less bright). To zoom, use the slider next to the take photo button, or do a multi-touch "pinch"
@@ -115,7 +115,7 @@ you want to switch off the display, do so on your device manually).</p>
 
 <p><a name="user_interface"><b>On-Screen User Interface</b></a></p>
 
-<p><img src="take_photo.png" alt="Take Photo icon" width="32" height="32"><b>Take photo</b> - Click to take
+<p><b>Shutter button</b> - Click the blue circular icon to take
 a photo. In some cases, you can also hold (long press) for a continuous burst:</p>
 <ul>
     <li>Photo mode must be Standard or Fast Burst</li>
@@ -124,10 +124,20 @@ a photo. In some cases, you can also hold (long press) for a continuous burst:</
 </ul>
 
 <p><img src="take_video.png" alt="Switch to video icon" width="32" height="32"><b>Switch to video mode</b> - Clicking the
-    smaller video icon will switch to video mode. The photo and video icons will then swap: click the larger video icon to
-    start/stop video recording, and click the smaller photo icon to switch back to photo mode.</p>
+    smaller video icon next to the shutter button will switch to video mode. The shutter button will now show a smaller
+    blue dot in a white circle to indicate video mode. Pressing the shutter button will now start and stop video recording.
+    You can return to photo mode by clicking the
+    smaller photo icon<img src="take_photo.png" alt="Switch to video icon" width="32" height="32">.</p>
+<ul>
+    <li>When recording video, the main shutter button will turn red to indicate this. A smaller blue shutter button will show,
+        pressing this will take a photo while recording video. Note that different
+        photo modes are not supported when taking photos while recording video, nor is RAW supported. The photo resolution will not
+        in general match the resolution set in preferences, rather it will be set automatically (usually to match the aspect ratio
+        of the video resolution).
+    </li>
+</ul>
 
-<p><img src="baseline_switch_camera_white_48.png" alt="Switch Camera icon" width="32" height="32"><b>Switch camera</b> - Switches between front and back camera (if your
+<p><img src="switch_camera.png" alt="Switch Camera icon" width="32" height="32"><b>Switch camera</b> - Switches between front and back camera (if your
 device has both front and back cameras). If your device has more than one front and/or back camera, then this will switch
 between the first front and back camera.</p>
 
@@ -290,12 +300,6 @@ dialog to choose a save location if additional locations have yet been defined. 
 <p><b><img src="ic_pause_circle_outline_white_48dp.png" alt="Pause video icon" width="32" height="32">Pause video</b> - When recording
 video, this icon allows you to pause and then resume video recording. (Requires Android 7.0 or higher.)</p>
 
-<p><b><img src="take_photo_when_video_recording.png" alt="Take photo snapshot icon" width="32" height="32">Take photo snapshot</b> - When recording
-video, the switch to photo mode icon turns white - selecting it will now take a photo while recording video. Note that different
-    photo modes are not supported when taking photos while recording video, nor is RAW supported. The photo resolution will not
-    in general match the resolution set in preferences, rather it will be set automatically (usually to match the aspect ratio
-    of the video resolution).</p>
-
 <p>In continuous focus mode, a white circle shows to indicate that the camera is focusing. When touching to focus, or in
     autofocus mode, a white square is shown (depending on the focus mode), which turns green to indicate that the auto-focus was
     successful, or red if it was not.</p>
@@ -315,8 +319,8 @@ cached location). If the location isn't available, a dash will be shown through 
 photos look right whether you hold the device in "portrait" or "landscape" mode. But Open Camera has the option to rotate the
 photos so they are perfectly level, so your shots come out looking perfectly level every time!</p>
 
-<p><a href="auto_level_v_1_49_web.jpg">
-<img src="auto_level_v_1_49_web.jpg" style="max-width:100%" alt="Screenshots demonstrating auto-level" title="Screenshots demonstrating auto-level">
+<p><a href="auto_level_v_1_53_web.jpg">
+<img src="auto_level_v_1_53_web.jpg" style="max-width:100%" alt="Screenshots demonstrating auto-level" title="Screenshots demonstrating auto-level">
 </a></p>
 
 <p>The above shows a rather exaggerated example - in practice, you can probably take better photos, but this feature ensures they
@@ -781,9 +785,8 @@ flash modes won't show on the popup menu. Also note that it is not possible to e
 
 <p><b>Show zoom slider controls</b> - Whether to display to a slider to control zoom.</p>
 
-<p><b>Show "Take Photo" icon</b> - Whether to display the
-<img src="take_photo.png" alt="Take Photo icon" width="16" height="16">
-icon for taking a photo (or recording video). Uncheck if you'd
+<p><b>Show "Take Photo" icon</b> - Whether to display the shutter button
+for taking a photo (or recording video). Uncheck if you'd
 rather take photos by other methods (e.g., if your device has a hardware shutter button, or using the volume keys).</p>
 
 <p><b>Show on-screen messages</b> - Open Camera will sometimes display temporary on-screen text with information (in some
