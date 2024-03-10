@@ -41,6 +41,15 @@
 
     <!--  if we move this to another PreferenceGroup, we should update code to remove this Preference -->
     <CheckBoxPreference
+        android:key="preference_show_focus_peaking"
+        android:title="@string/preference_show_focus_peaking"
+        android:summary="@string/preference_show_focus_peaking_summary"
+        android:icon="@drawable/key_visualizer"
+        android:defaultValue="false"
+        />
+
+    <!--  if we move this to another PreferenceGroup, we should update code to remove this Preference -->
+    <CheckBoxPreference
         android:key="preference_show_auto_level"
         android:title="@string/preference_show_auto_level"
         android:summary="@string/preference_show_auto_level_summary"

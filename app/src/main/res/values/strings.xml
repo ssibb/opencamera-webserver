@@ -1020,6 +1020,11 @@
 
     <string name="choose_camera">Choose camera:</string>
 
+    <string name="preference_show_focus_peaking">Show focus peaking icon</string>
+    <string name="preference_show_focus_peaking_summary">Whether to show an on-screen icon for enabling or disabling focus peaking. When focus peaking is enabled, highlights will be shown on in-focus edges (contours). See Settings/Camera preview/"Focus peaking".</string>
+    <string name="focus_peaking_enable">Enable focus peaking</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+    <string name="focus_peaking_disable">Disable focus peaking</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+
     <!-- The following strings should not be translated (and shouldn't be included in language-specific strings.xml), in case they need updating -->
 
     <string name="preference_privacy_policy" translatable="false">Privacy policy</string>

@@ -34,6 +34,10 @@ public class PreferenceSubGUI extends PreferenceSubScreen {
         if( MyDebug.LOG )
             Log.d(TAG, "supports_flash: " + supports_flash);
 
+        final boolean supports_preview_bitmaps = bundle.getBoolean("supports_preview_bitmaps");
+        if( MyDebug.LOG )
+            Log.d(TAG, "supports_preview_bitmaps: " + supports_preview_bitmaps);
+
         final boolean supports_auto_stabilise = bundle.getBoolean("supports_auto_stabilise");
         if( MyDebug.LOG )
             Log.d(TAG, "supports_auto_stabilise: " + supports_auto_stabilise);
@@ -75,6 +79,13 @@ public class PreferenceSubGUI extends PreferenceSubScreen {
 
         if( !supports_flash ) {
             Preference pref = findPreference("preference_show_cycle_flash");
+            //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_gui");
+            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
+            pg.removePreference(pref);
+        }
+
+        if( !supports_preview_bitmaps ) {
+            Preference pref = findPreference("preference_show_focus_peaking");
             //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_gui");
             PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
             pg.removePreference(pref);

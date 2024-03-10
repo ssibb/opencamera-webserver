@@ -453,6 +453,7 @@ public class MainUI {
             buttons_permanent.add(main_activity.findViewById(R.id.store_location));
             buttons_permanent.add(main_activity.findViewById(R.id.text_stamp));
             buttons_permanent.add(main_activity.findViewById(R.id.stamp));
+            buttons_permanent.add(main_activity.findViewById(R.id.focus_peaking));
             buttons_permanent.add(main_activity.findViewById(R.id.auto_level));
             buttons_permanent.add(main_activity.findViewById(R.id.cycle_flash));
             buttons_permanent.add(main_activity.findViewById(R.id.face_detection));
@@ -1278,6 +1279,13 @@ public class MainUI {
         return sharedPreferences.getBoolean(PreferenceKeys.ShowStampPreferenceKey, false);
     }
 
+    public boolean showFocusPeakingIcon() {
+        if( !main_activity.supportsPreviewBitmaps() )
+            return false;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
+        return sharedPreferences.getBoolean(PreferenceKeys.ShowFocusPeakingPreferenceKey, false);
+    }
+
     public boolean showAutoLevelIcon() {
         if( !main_activity.supportsAutoStabilise() )
             return false;
@@ -1328,6 +1336,7 @@ public class MainUI {
                 View storeLocationButton = main_activity.findViewById(R.id.store_location);
                 View textStampButton = main_activity.findViewById(R.id.text_stamp);
                 View stampButton = main_activity.findViewById(R.id.stamp);
+                View focusPeakingButton = main_activity.findViewById(R.id.focus_peaking);
                 View autoLevelButton = main_activity.findViewById(R.id.auto_level);
                 View cycleFlashButton = main_activity.findViewById(R.id.cycle_flash);
                 View faceDetectionButton = main_activity.findViewById(R.id.face_detection);
@@ -1358,6 +1367,8 @@ public class MainUI {
                     textStampButton.setVisibility(visibility);
                 if( showStampIcon() )
                     stampButton.setVisibility(visibility);
+                if( showFocusPeakingIcon() )
+                    focusPeakingButton.setVisibility(visibility);
                 if( showAutoLevelIcon() )
                     autoLevelButton.setVisibility(visibility);
                 if( showCycleFlashIcon() )
@@ -1452,6 +1463,7 @@ public class MainUI {
                 View storeLocationButton = main_activity.findViewById(R.id.store_location);
                 View textStampButton = main_activity.findViewById(R.id.text_stamp);
                 View stampButton = main_activity.findViewById(R.id.stamp);
+                View focusPeakingButton = main_activity.findViewById(R.id.focus_peaking);
                 View autoLevelButton = main_activity.findViewById(R.id.auto_level);
                 View cycleFlashButton = main_activity.findViewById(R.id.cycle_flash);
                 View faceDetectionButton = main_activity.findViewById(R.id.face_detection);
@@ -1476,6 +1488,8 @@ public class MainUI {
                     textStampButton.setVisibility(visibility);
                 if( showStampIcon() )
                     stampButton.setVisibility(visibility);
+                if( showFocusPeakingIcon() )
+                    focusPeakingButton.setVisibility(visibility);
                 if( showAutoLevelIcon() )
                     autoLevelButton.setVisibility(visibility);
                 if( showCycleFlashIcon() )
@@ -1558,6 +1572,13 @@ public class MainUI {
         view.setContentDescription( main_activity.getResources().getString(enabled ? R.string.stamp_disable : R.string.stamp_enable) );
     }
 
+    public void updateFocusPeakingIcon() {
+        ImageButton view = main_activity.findViewById(R.id.focus_peaking);
+        boolean enabled = main_activity.getApplicationInterface().getFocusPeakingPref();
+        view.setImageResource(enabled ? R.drawable.key_visualizer_red : R.drawable.key_visualizer);
+        view.setContentDescription( main_activity.getResources().getString(enabled ? R.string.focus_peaking_disable : R.string.focus_peaking_enable) );
+    }
+
     public void updateAutoLevelIcon() {
         ImageButton view = main_activity.findViewById(R.id.auto_level);
         boolean enabled = main_activity.getApplicationInterface().getAutoStabilisePref();
@@ -1619,6 +1640,7 @@ public class MainUI {
         this.updateStoreLocationIcon();
         this.updateTextStampIcon();
         this.updateStampIcon();
+        this.updateFocusPeakingIcon();
         this.updateAutoLevelIcon();
         this.updateCycleFlashIcon();
         this.updateFaceDetectionIcon();

@@ -788,8 +788,7 @@ public class DrawPreview {
         String zebra_stripes_color_background_value = sharedPreferences.getString(PreferenceKeys.ZebraStripesBackgroundColorPreferenceKey, "#ffffffff");
         zebra_stripes_color_background = Color.parseColor(zebra_stripes_color_background_value);
 
-        String focus_peaking_pref = sharedPreferences.getString(PreferenceKeys.FocusPeakingPreferenceKey, "preference_focus_peaking_off");
-        want_focus_peaking = !focus_peaking_pref.equals("preference_focus_peaking_off") && main_activity.supportsPreviewBitmaps();
+        want_focus_peaking = applicationInterface.getFocusPeakingPref();
         String focus_peaking_color = sharedPreferences.getString(PreferenceKeys.FocusPeakingColorPreferenceKey, "#ffffff");
         focus_peaking_color_pref = Color.parseColor(focus_peaking_color);
 

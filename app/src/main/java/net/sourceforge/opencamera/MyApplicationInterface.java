@@ -1247,6 +1247,11 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         return sharedPreferences.getString(PreferenceKeys.RecordAudioSourcePreferenceKey, "audio_src_camcorder");
     }
 
+    public boolean getFocusPeakingPref() {
+        String focus_peaking_pref = sharedPreferences.getString(PreferenceKeys.FocusPeakingPreferenceKey, "preference_focus_peaking_off");
+        return !focus_peaking_pref.equals("preference_focus_peaking_off") && main_activity.supportsPreviewBitmaps();
+    }
+
     public boolean getAutoStabilisePref() {
         boolean auto_stabilise = sharedPreferences.getBoolean(PreferenceKeys.AutoStabilisePreferenceKey, false);
         return auto_stabilise && main_activity.supportsAutoStabilise();

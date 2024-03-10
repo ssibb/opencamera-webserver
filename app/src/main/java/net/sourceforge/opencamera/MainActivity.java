@@ -2127,6 +2127,25 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         preview.showToast(stamp_toast, value ? R.string.stamp_enabled : R.string.stamp_disabled, true);
     }
 
+    public void clickedFocusPeaking(View view) {
+        clickedFocusPeaking();
+    }
+
+    public void clickedFocusPeaking() {
+        if( MyDebug.LOG )
+            Log.d(TAG, "clickedFocusPeaking");
+        boolean value = applicationInterface.getFocusPeakingPref();
+        value = !value;
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PreferenceKeys.FocusPeakingPreferenceKey, value ? "preference_focus_peaking_on" : "preference_focus_peaking_off");
+        editor.apply();
+
+        mainUI.updateFocusPeakingIcon();
+        applicationInterface.getDrawPreview().updateSettings(); // needed to update focus peaking
+    }
+
     public void clickedAutoLevel(View view) {
         clickedAutoLevel();
     }
@@ -3315,6 +3334,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         if( !mainUI.showStampIcon() ) {
             View button = findViewById(R.id.stamp);
+            changed = changed || (button.getVisibility() != View.GONE);
+            button.setVisibility(View.GONE);
+        }
+        if( !mainUI.showFocusPeakingIcon() ) {
+            View button = findViewById(R.id.focus_peaking);
             changed = changed || (button.getVisibility() != View.GONE);
             button.setVisibility(View.GONE);
         }

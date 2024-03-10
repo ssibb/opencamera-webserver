@@ -346,6 +346,21 @@
         />
 
     <ImageButton
+        android:id="@+id/focus_peaking"
+        android:layout_width="@dimen/onscreen_button_size"
+        android:layout_height="@dimen/onscreen_button_size"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/focus_peaking_enable"
+        app:srcCompat="@drawable/key_visualizer"
+        android:background="@color/icons_background"
+        android:backgroundTint="@color/icons_background_tint"
+        android:backgroundTintMode="src_in"
+        android:onClick="clickedFocusPeaking"
+        android:visibility="gone"
+        />
+
+    <ImageButton
         android:id="@+id/auto_level"
         android:layout_width="@dimen/onscreen_button_size"
         android:layout_height="@dimen/onscreen_button_size"
