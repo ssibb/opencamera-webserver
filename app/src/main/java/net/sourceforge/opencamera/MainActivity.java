@@ -831,6 +831,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     void setDeviceDefaults() {
         if( MyDebug.LOG )
             Log.d(TAG, "setDeviceDefaults");
+        boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
         //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         //boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
         //boolean is_oneplus = Build.MANUFACTURER.toLowerCase(Locale.US).contains("oneplus");
@@ -864,9 +865,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 			if( MyDebug.LOG )
 				Log.d(TAG, "disable fast burst for camera2");
 			SharedPreferences.Editor editor = sharedPreferences.edit();
-			editor.putBoolean(PreferenceKeys.getCamera2FastBurstPreferenceKey(), false);
+			editor.putBoolean(PreferenceKeys.Camera2FastBurstPreferenceKey, false);
 			editor.apply();
 		}*/
+        if( is_samsung && !is_test ) {
+            // Samsung Galaxy devices (including S10e, S24) have problems with HDR/expo - base images come out with wrong exposures.
+            // This can be fixed by not using fast bast, allowing us to adjust the preview exposure to match.
+            if( MyDebug.LOG )
+                Log.d(TAG, "disable fast burst for camera2");
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(PreferenceKeys.Camera2FastBurstPreferenceKey, false);
+            editor.apply();
+        }
         if( supports_camera2 && !is_test ) {
             // n.b., when testing, we explicitly decide whether to run with Camera2 API or not
             CameraControllerManager2 manager2 = new CameraControllerManager2(this);
@@ -884,7 +895,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 boolean default_to_camera2 = false;
                 boolean is_google = Build.MANUFACTURER.toLowerCase(Locale.US).contains("google");
                 boolean is_nokia = Build.MANUFACTURER.toLowerCase(Locale.US).contains("hmd global");
-                boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
                 if( is_google && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S )
                     default_to_camera2 = true;
                 else if( is_nokia && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P )
