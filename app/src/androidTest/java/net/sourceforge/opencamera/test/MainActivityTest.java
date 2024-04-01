@@ -5632,14 +5632,10 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         subTestTakePhotoAutoLevelAngles();
     }
 
-    private interface VideoTestCallback {
-        int doTest(); // return expected number of new files (or -1 to indicate not to check this)
-    }
-
     /**
      * @return The number of resultant video files
      */
-    private int subTestTakeVideo(boolean test_exposure_lock, boolean test_focus_area, boolean allow_failure, boolean immersive_mode, VideoTestCallback test_cb, long time_ms, boolean max_filesize, int n_non_video_files) throws InterruptedException {
+    private int subTestTakeVideo(boolean test_exposure_lock, boolean test_focus_area, boolean allow_failure, boolean immersive_mode, TestUtils.VideoTestCallback test_cb, long time_ms, boolean max_filesize, int n_non_video_files) throws InterruptedException {
         if( test_exposure_lock && !mPreview.supportsExposureLock() ) {
             return 0;
         }
@@ -5877,7 +5873,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             updateForSettings();
         }
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 // wait for location
@@ -5933,7 +5929,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         final View pauseVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
         assertEquals(pauseVideoButton.getVisibility(), View.GONE);
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 View takePhotoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
@@ -6041,7 +6037,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         final View pauseVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
         assertEquals(pauseVideoButton.getVisibility(), View.GONE);
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 View takePhotoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
@@ -6112,7 +6108,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         final View takePhotoVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
         assertEquals(takePhotoVideoButton.getVisibility(), View.GONE);
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 View takePhotoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
@@ -6272,7 +6268,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             updateForSettings();
         }
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 // wait until automatically stops
@@ -6312,7 +6308,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         mActivity.getApplicationInterface().test_set_available_memory = true;
         mActivity.getApplicationInterface().test_available_memory = 5000000;
 
-        subTestTakeVideo(false, false, true, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, true, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 // wait until automatically stops
@@ -6358,7 +6354,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         editor.apply();
         updateForSettings();
 
-        int n_new_files = subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        int n_new_files = subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
@@ -6495,7 +6491,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         editor.apply();
         updateForSettings();
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 // wait until automatically stops
@@ -6542,7 +6538,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         editor.apply();
         updateForSettings();
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 // wait until we should have stopped - 2x7s, but add 6s for each of 4 restarts
@@ -6582,7 +6578,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         editor.apply();
         updateForSettings();
 
-        subTestTakeVideo(false, false, false, false, new VideoTestCallback() {
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
             @Override
             public int doTest() {
                 assertTrue(mPreview.isVideoRecording());

@@ -1650,4 +1650,8 @@ public class TestUtils {
 
         assertTrue( preview.getCameraController() == null || preview.getCameraController().count_camera_parameters_exception == 0 );
     }
+
+    public interface VideoTestCallback {
+        int doTest(); // return expected number of new files (or -1 to indicate not to check this)
+    }
 }
