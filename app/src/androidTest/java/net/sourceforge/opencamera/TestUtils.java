@@ -1480,4 +1480,174 @@ public class TestUtils {
             inputStream.close();
         }
     }
+
+    public static void preTakeVideoChecks(MainActivity activity, boolean immersive_mode) {
+        Preview preview = activity.getPreview();
+
+        assertTrue(preview.isPreviewStarted());
+        if( preview.usingCamera2API() ) {
+            assertEquals(preview.getCurrentPreviewSize().width, preview.getCameraController().test_texture_view_buffer_w);
+            assertEquals(preview.getCurrentPreviewSize().height, preview.getCameraController().test_texture_view_buffer_h);
+        }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        boolean has_audio_control_button = !sharedPreferences.getString(PreferenceKeys.AudioControlPreferenceKey, "none").equals("none");
+
+        View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+        View pauseVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
+        View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+        View switchVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
+        View switchCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_camera);
+        View switchMultiCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_multi_camera);
+        View audioControlButton = activity.findViewById(net.sourceforge.opencamera.R.id.audio_control);
+        View popupButton = activity.findViewById(net.sourceforge.opencamera.R.id.popup);
+        View trashButton = activity.findViewById(net.sourceforge.opencamera.R.id.trash);
+        View shareButton = activity.findViewById(net.sourceforge.opencamera.R.id.share);
+
+        if( preview.isVideo() ) {
+            assertEquals((int) (Integer) takePhotoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_video_selector);
+            assertEquals((int) (Integer) switchVideoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_photo);
+            assertEquals(takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.start_video));
+            assertEquals(pauseVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video));
+            assertEquals(switchVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.switch_to_photo));
+        }
+        else {
+            assertEquals((int) (Integer) takePhotoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_photo_selector);
+            assertEquals((int) (Integer) switchVideoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_video);
+            assertEquals(takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.take_photo));
+            assertEquals(pauseVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video));
+            assertEquals(switchVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.switch_to_video));
+        }
+        assertEquals(pauseVideoButton.getVisibility(), View.GONE);
+        assertEquals(takePhotoVideoButton.getVisibility(), View.GONE);
+
+        assertEquals(switchCameraButton.getVisibility(), (immersive_mode ? View.GONE : (preview.getCameraControllerManager().getNumberOfCameras() > 1 ? View.VISIBLE : View.GONE)));
+        assertEquals(switchMultiCameraButton.getVisibility(), (immersive_mode ? View.GONE : (activity.showSwitchMultiCamIcon() ? View.VISIBLE : View.GONE)));
+        assertEquals(switchVideoButton.getVisibility(), (immersive_mode ? View.GONE : View.VISIBLE));
+        assertEquals(audioControlButton.getVisibility(), ((has_audio_control_button && !immersive_mode) ? View.VISIBLE : View.GONE));
+        assertEquals(popupButton.getVisibility(), (immersive_mode ? View.GONE : View.VISIBLE));
+        assertEquals(trashButton.getVisibility(), View.GONE);
+        assertEquals(shareButton.getVisibility(), View.GONE);
+    }
+
+    public static void takeVideoRecordingChecks(MainActivity activity, boolean immersive_mode, int exposureVisibility, int exposureLockVisibility) {
+        Preview preview = activity.getPreview();
+
+        View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+        View pauseVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
+        View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+        View switchVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
+        View switchCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_camera);
+        View switchMultiCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_multi_camera);
+        View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+        View exposureLockButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_lock);
+        View audioControlButton = activity.findViewById(net.sourceforge.opencamera.R.id.audio_control);
+        View popupButton = activity.findViewById(net.sourceforge.opencamera.R.id.popup);
+        View trashButton = activity.findViewById(net.sourceforge.opencamera.R.id.trash);
+        View shareButton = activity.findViewById(net.sourceforge.opencamera.R.id.share);
+
+        assertEquals((int) (Integer) takePhotoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_video_recording);
+        assertEquals((int) (Integer) switchVideoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_photo);
+        assertEquals(takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video));
+        assertEquals(pauseVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video));
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N )
+            assertEquals(pauseVideoButton.getVisibility(), View.VISIBLE);
+        else
+            assertEquals(pauseVideoButton.getVisibility(), View.GONE);
+        if( preview.supportsPhotoVideoRecording() )
+            assertEquals(takePhotoVideoButton.getVisibility(), View.VISIBLE);
+        else
+            assertEquals(takePhotoVideoButton.getVisibility(), View.GONE);
+        assertEquals(switchCameraButton.getVisibility(), View.GONE);
+        assertEquals(switchMultiCameraButton.getVisibility(), View.GONE);
+        //assertTrue(switchVideoButton.getVisibility() == (immersive_mode ? View.GONE : View.VISIBLE));
+        assertEquals(switchVideoButton.getVisibility(), View.GONE);
+        assertEquals(audioControlButton.getVisibility(), View.GONE);
+        assertEquals(popupButton.getVisibility(), (!immersive_mode && preview.supportsFlash() ? View.VISIBLE : View.GONE)); // popup button only visible when recording video if flash supported
+        assertEquals(exposureButton.getVisibility(), exposureVisibility);
+        assertEquals(exposureLockButton.getVisibility(), exposureLockVisibility);
+        assertEquals(trashButton.getVisibility(), View.GONE);
+        assertEquals(shareButton.getVisibility(), View.GONE);
+    }
+
+    public static void checkFilesAfterTakeVideo(MainActivity activity, boolean allow_failure, boolean has_cb, long time_ms, int n_non_video_files, boolean failed_to_start, int exp_n_new_files, int n_new_files) {
+        if( !has_cb ) {
+            if( time_ms <= 500 ) {
+                // if quick, should have deleted corrupt video - but may be device dependent, sometimes we manage to record a video anyway!
+                assertTrue(n_new_files == 0 || n_new_files == 1);
+            }
+            else if( failed_to_start ) {
+                // if video recording failed to start, we should have deleted any file created!
+                assertEquals(0, n_new_files);
+            }
+            else {
+                assertEquals(n_non_video_files+1, n_new_files);
+            }
+        }
+        else {
+            Log.d(TAG, "exp_n_new_files: " + exp_n_new_files);
+            if( exp_n_new_files >= 0 ) {
+                assertEquals(exp_n_new_files, n_new_files);
+            }
+        }
+
+        Log.d(TAG, "test_n_videos_scanned: " + activity.getApplicationInterface().test_n_videos_scanned);
+        if( !allow_failure ) {
+            assertEquals(n_new_files-n_non_video_files, activity.getApplicationInterface().test_n_videos_scanned);
+        }
+    }
+
+    public static void postTakeVideoChecks(MainActivity activity, boolean immersive_mode, boolean max_filesize, int exposureVisibility, int exposureLockVisibility) {
+        Preview preview = activity.getPreview();
+
+        assertTrue(preview.isPreviewStarted()); // check preview restarted
+
+        if( preview.usingCamera2API() ) {
+            assertNotNull(preview.getCameraController());
+            assertEquals(preview.getCurrentPreviewSize().width, preview.getCameraController().test_texture_view_buffer_w);
+            assertEquals(preview.getCurrentPreviewSize().height, preview.getCameraController().test_texture_view_buffer_h);
+        }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        boolean has_audio_control_button = !sharedPreferences.getString(PreferenceKeys.AudioControlPreferenceKey, "none").equals("none");
+
+        View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+        View pauseVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
+        View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+        View switchVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
+        View switchCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_camera);
+        View switchMultiCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_multi_camera);
+        View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+        View exposureLockButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_lock);
+        View audioControlButton = activity.findViewById(net.sourceforge.opencamera.R.id.audio_control);
+        View popupButton = activity.findViewById(net.sourceforge.opencamera.R.id.popup);
+        View trashButton = activity.findViewById(net.sourceforge.opencamera.R.id.trash);
+        View shareButton = activity.findViewById(net.sourceforge.opencamera.R.id.share);
+
+        if( !max_filesize ) {
+            // if doing restart on max filesize, we may have already restarted by now (on Camera2 API at least)
+            Log.d(TAG, "switchCameraButton.getVisibility(): " + switchCameraButton.getVisibility());
+            assertEquals(switchCameraButton.getVisibility(), (immersive_mode ? View.GONE : (preview.getCameraControllerManager().getNumberOfCameras() > 1 ? View.VISIBLE : View.GONE)));
+            assertEquals(switchMultiCameraButton.getVisibility(), (immersive_mode ? View.GONE : (activity.showSwitchMultiCamIcon() ? View.VISIBLE : View.GONE)));
+            assertEquals(audioControlButton.getVisibility(), ((has_audio_control_button && !immersive_mode) ? View.VISIBLE : View.GONE));
+        }
+        assertEquals(switchVideoButton.getVisibility(), (immersive_mode ? View.GONE : View.VISIBLE));
+        assertEquals(exposureButton.getVisibility(), exposureVisibility);
+        assertEquals(exposureLockButton.getVisibility(), exposureLockVisibility);
+        assertEquals(popupButton.getVisibility(), (immersive_mode ? View.GONE : View.VISIBLE));
+        // trash/share only shown when preview is paused after taking a photo
+        assertEquals(trashButton.getVisibility(), View.GONE);
+        assertEquals(shareButton.getVisibility(), View.GONE);
+
+        assertFalse( preview.isVideoRecording() );
+        assertEquals((int) (Integer) takePhotoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_video_selector);
+        assertEquals((int) (Integer) switchVideoButton.getTag(), net.sourceforge.opencamera.R.drawable.take_photo);
+        assertEquals( takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.start_video) );
+        assertEquals(pauseVideoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video));
+        Log.d(TAG, "pauseVideoButton.getVisibility(): " + pauseVideoButton.getVisibility());
+        assertEquals(pauseVideoButton.getVisibility(), View.GONE);
+        assertEquals(takePhotoVideoButton.getVisibility(), View.GONE);
+
+        assertTrue( preview.getCameraController() == null || preview.getCameraController().count_camera_parameters_exception == 0 );
+    }
 }
