@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
@@ -13,6 +14,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -24,6 +26,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import net.sourceforge.opencamera.preview.Preview;
 import net.sourceforge.opencamera.ui.DrawPreview;
 import net.sourceforge.opencamera.ui.PopupView;
 
@@ -36,10 +39,13 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 interface PhotoTests {}
+
+interface VideoTests {}
 
 interface HDRTests {}
 
@@ -134,6 +140,34 @@ public class InstrumentedTest {
             Thread.sleep(100); // sleep a bit just to be safe
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void waitUntilTimer() {
+        Log.d(TAG, "wait until timer stopped");
+        boolean done = false;
+        while( !done ) {
+            done = getActivityValue(activity -> !activity.getPreview().isOnTimer());
+        }
+    }
+
+    private void pauseAndResume() {
+        Log.d(TAG, "pauseAndResume");
+        boolean camera_is_open = getActivityValue(activity -> activity.getPreview().getCameraController() != null);
+        pauseAndResume(camera_is_open);
+    }
+
+    private void pauseAndResume(boolean wait_until_camera_opened) {
+        Log.d(TAG, "pauseAndResume: " + wait_until_camera_opened);
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            Log.d(TAG, "pause...");
+            getInstrumentation().callActivityOnPause(activity);
+            Log.d(TAG, "resume...");
+            getInstrumentation().callActivityOnResume(activity);
+        });
+        if( wait_until_camera_opened ) {
+            waitUntilCameraOpened();
         }
     }
 
@@ -6333,6 +6367,256 @@ public class InstrumentedTest {
                 e.printStackTrace();
                 fail();
             }
+        });
+    }
+
+    private int getNFiles() {
+        // count initial files in folder
+        String [] files = getActivityValue(activity -> TestUtils.filesInSaveFolder(activity));
+        Log.d(TAG, "getNFiles: " + Arrays.toString(files));
+        return files == null ? 0 : files.length;
+    }
+
+    /**
+     * @return The number of resultant video files
+     */
+    private int subTestTakeVideo(boolean test_exposure_lock, boolean test_focus_area, boolean allow_failure, boolean immersive_mode, TestUtils.VideoTestCallback test_cb, long time_ms, boolean max_filesize, int n_non_video_files) throws InterruptedException {
+        boolean supports_exposure_lock = getActivityValue(activity -> activity.getPreview().supportsExposureLock());
+        if( test_exposure_lock && !supports_exposure_lock ) {
+            return 0;
+        }
+
+        Thread.sleep(500); // needed for Pixel 6 Pro with Camera 2 API
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            TestUtils.preTakeVideoChecks(activity, immersive_mode);
+
+            if( !activity.getPreview().isVideo() ) {
+                View switchVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
+                clickView(switchVideoButton);
+            }
+        });
+
+        waitUntilCameraOpened();
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertTrue(activity.getPreview().isVideo());
+            TestUtils.preTakeVideoChecks(activity, immersive_mode);
+            // reset:
+            activity.getApplicationInterface().test_n_videos_scanned = 0;
+        });
+
+        // count initial files in folder
+        int n_files = getNFiles();
+        Log.d(TAG, "n_files at start: " + n_files);
+
+        // store status to compare with later
+        int exposureVisibility = getActivityValue(activity -> {
+            View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+            return exposureButton.getVisibility();
+        });
+        int exposureLockVisibility = getActivityValue(activity -> {
+            View exposureLockButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_lock);
+            return exposureLockButton.getVisibility();
+        });
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            Log.d(TAG, "about to click take video");
+            View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+            clickView(takePhotoButton);
+            Log.d(TAG, "done clicking take video");
+        });
+        getInstrumentation().waitForIdleSync();
+        Log.d(TAG, "after idle sync");
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            Preview preview = activity.getPreview();
+            if( preview.usingCamera2API() ) {
+                assertEquals(preview.getCurrentPreviewSize().width, preview.getCameraController().test_texture_view_buffer_w);
+                assertEquals(preview.getCurrentPreviewSize().height, preview.getCameraController().test_texture_view_buffer_h);
+            }
+        });
+
+        waitUntilTimer();
+
+        int exp_n_new_files = 0;
+        boolean failed_to_start = false;
+        boolean is_video_recording = getActivityValue(activity -> activity.getPreview().isVideoRecording());
+        if( is_video_recording ) {
+            mActivityRule.getScenario().onActivity(activity -> {
+                TestUtils.takeVideoRecordingChecks(activity, immersive_mode, exposureVisibility, exposureLockVisibility);
+            });
+
+            if( test_cb == null ) {
+                if( !immersive_mode && time_ms > 500 ) {
+                    // test turning torch on/off (if in immersive mode, popup button will be hidden)
+                    switchToFlashValue("flash_torch");
+                    Thread.sleep(500);
+                    switchToFlashValue("flash_off");
+                }
+
+                Thread.sleep(time_ms);
+                mActivityRule.getScenario().onActivity(activity -> {
+                    TestUtils.takeVideoRecordingChecks(activity, immersive_mode, exposureVisibility, exposureLockVisibility);
+
+                    Preview preview = activity.getPreview();
+                    assertFalse(preview.hasFocusArea());
+                    if( !allow_failure ) {
+                        assertNull(preview.getCameraController().getFocusAreas());
+                        assertNull(preview.getCameraController().getMeteringAreas());
+                    }
+                });
+
+                if( test_focus_area ) {
+                    // touch to auto-focus with focus area
+                    Log.d(TAG, "touch to focus");
+                    onView(anyOf(ViewMatchers.withClassName(endsWith("MySurfaceView")), ViewMatchers.withClassName(endsWith("MyTextureView")))).perform(click());
+                    Log.d(TAG, "done touch to focus");
+                    Thread.sleep(1000); // wait for autofocus
+                    mActivityRule.getScenario().onActivity(activity -> {
+                        Preview preview = activity.getPreview();
+                        if( preview.supportsFocus() ) {
+                            assertTrue(preview.hasFocusArea());
+                            assertNotNull(preview.getCameraController().getFocusAreas());
+                            assertEquals(1, preview.getCameraController().getFocusAreas().size());
+                            assertNotNull(preview.getCameraController().getMeteringAreas());
+                            assertEquals(1, preview.getCameraController().getMeteringAreas().size());
+                        }
+                    });
+
+                    // this time, don't wait
+                    Log.d(TAG, "touch again to focus");
+                    onView(anyOf(ViewMatchers.withClassName(endsWith("MySurfaceView")), ViewMatchers.withClassName(endsWith("MyTextureView")))).perform(click());
+                    Log.d(TAG, "done touch to focus");
+                }
+
+                if( test_exposure_lock ) {
+                    mActivityRule.getScenario().onActivity(activity -> {
+                        Log.d(TAG, "test exposure lock");
+                        assertFalse(activity.getPreview().getCameraController().getAutoExposureLock());
+                        View exposureLockButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_lock);
+                        clickView(exposureLockButton);
+                    });
+                    getInstrumentation().waitForIdleSync();
+                    Log.d(TAG, "after idle sync");
+                    mActivityRule.getScenario().onActivity(activity -> {
+                        assertTrue( activity.getPreview().getCameraController().getAutoExposureLock() );
+                    });
+                    Thread.sleep(2000);
+                }
+
+                mActivityRule.getScenario().onActivity(activity -> {
+                    TestUtils.takeVideoRecordingChecks(activity, immersive_mode, exposureVisibility, exposureLockVisibility);
+
+                    Log.d(TAG, "about to click stop video");
+                    View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+                    clickView(takePhotoButton);
+                    Log.d(TAG, "done clicking stop video");
+                });
+                getInstrumentation().waitForIdleSync();
+                Log.d(TAG, "after idle sync");
+            }
+            else {
+                exp_n_new_files = test_cb.doTest();
+
+                mActivityRule.getScenario().onActivity(activity -> {
+                    if( activity.getPreview().isVideoRecording() ) {
+                        Log.d(TAG, "about to click stop video");
+                        View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+                        clickView(takePhotoButton);
+                        Log.d(TAG, "done clicking stop video");
+                    }
+                });
+                getInstrumentation().waitForIdleSync();
+                Log.d(TAG, "after idle sync");
+            }
+        }
+        else {
+            Log.d(TAG, "didn't start video");
+            assertTrue(allow_failure);
+            failed_to_start = true;
+        }
+
+        int n_new_files = getNFiles() - n_files;
+        Log.d(TAG, "n_new_files: " + n_new_files);
+        int exp_n_new_files_f = exp_n_new_files;
+        boolean failed_to_start_f = failed_to_start;
+        mActivityRule.getScenario().onActivity(activity -> {
+            TestUtils.checkFilesAfterTakeVideo(activity, allow_failure, test_cb != null, time_ms, n_non_video_files, failed_to_start_f, exp_n_new_files_f, n_new_files);
+
+            TestUtils.postTakeVideoChecks(activity, immersive_mode, max_filesize, exposureVisibility, exposureLockVisibility);
+        });
+
+        return n_new_files;
+    }
+
+    /*@Category(VideoTests.class)
+    @Test
+    public void testTakeVideo() throws InterruptedException {
+        Log.d(TAG, "testTakeVideo");
+
+        setToDefault();
+
+        int n_new_files = subTestTakeVideo(false, false, false, false, null, 5000, false, 0);
+
+        assertEquals(1, n_new_files);
+    }*/
+
+    /** Test for bug fix made on 20221112, to do with Pixel 6 Pro and video resolution larger than
+     *  FullHD but smaller than 4K. Problem that we selected 60fps because that's supported at
+     *  FullHD (and is in the CamcorderProfile for FullHD), but the larger non-4K resolution does
+     *  not support 60fps.
+     */
+    @Category(VideoTests.class)
+    @Test
+    public void testTakeVideoAltResolution() throws InterruptedException {
+        Log.d(TAG, "testTakeVideoAltResolution");
+
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            return;
+        }
+
+        String chosen_video_quality = getActivityValue(activity -> {
+            String return_quality = null;
+            CamcorderProfile best_profile = null;
+            List<String> supported_video_quality = activity.getPreview().getVideoQualityHander().getSupportedVideoQuality();
+            if(  supported_video_quality != null ) {
+                for(String quality : supported_video_quality) {
+                    CamcorderProfile profile = activity.getPreview().getCamcorderProfile(quality);
+                    if( profile.videoFrameWidth > 1920 && profile.videoFrameHeight > 1080 && profile.videoFrameWidth < 3840 && profile.videoFrameHeight < 2160 ) {
+                        if( best_profile == null || profile.videoFrameWidth*profile.videoFrameHeight < best_profile.videoFrameWidth*best_profile.videoFrameHeight ) {
+                            return_quality = quality;
+                            best_profile = profile;
+                        }
+                    }
+                }
+            }
+            if( return_quality != null ) {
+                Log.d(TAG, "video_quality: " + return_quality);
+                Log.d(TAG, "best_profile: " + best_profile.videoFrameWidth + " x " + best_profile.videoFrameHeight);
+            }
+            return return_quality;
+        });
+        if( chosen_video_quality ==  null ) {
+            Log.d(TAG, "can't find desired video resolution");
+            return;
+        }
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.getApplicationInterface().setVideoQualityPref(chosen_video_quality);
+        });
+
+        int n_new_files = subTestTakeVideo(false, false, false, false, null, 5000, false, 0);
+
+        assertEquals(1, n_new_files);
+
+        pauseAndResume();
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            String video_quality = activity.getApplicationInterface().getVideoQualityPref();
+            Log.d(TAG, "video_quality: " + video_quality);
+            assertEquals(chosen_video_quality, video_quality);
         });
     }
 }

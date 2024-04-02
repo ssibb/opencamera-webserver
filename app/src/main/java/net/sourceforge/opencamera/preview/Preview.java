@@ -3391,7 +3391,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
      *  this might be called even in slow motion mode), since we use this for things like setting up
      *  available preferences.
      */
-    private CamcorderProfile getCamcorderProfile(String quality) {
+    public CamcorderProfile getCamcorderProfile(String quality) {
         if( MyDebug.LOG )
             Log.d(TAG, "getCamcorderProfile(): " + quality);
         if( camera_controller == null ) {
