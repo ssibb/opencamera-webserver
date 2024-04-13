@@ -14,6 +14,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.hardware.camera2.CameraExtensionCharacteristics;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.Looper;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 interface PhotoTests {}
@@ -171,13 +173,15 @@ public class InstrumentedTest {
         }
     }
 
-    private void updateForSettings(MainActivity activity) {
+    private void updateForSettings() {
         Log.d(TAG, "updateForSettings");
-        assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); // check on UI thread
-        // updateForSettings has code that must run on UI thread
-        activity.initLocation(); // initLocation now called via MainActivity.setWindowFlagsForCamera() rather than updateForSettings()
-        activity.getApplicationInterface().getDrawPreview().updateSettings();
-        activity.updateForSettings(true);
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); // check on UI thread
+            // updateForSettings has code that must run on UI thread
+            activity.initLocation(); // initLocation now called via MainActivity.setWindowFlagsForCamera() rather than updateForSettings()
+            activity.getApplicationInterface().getDrawPreview().updateSettings();
+            activity.updateForSettings(true);
+        });
 
         waitUntilCameraOpened(); // may need to wait if camera is reopened, e.g., when changing scene mode - see testSceneMode()
         // but we also need to wait for the delay if instead we've stopped and restarted the preview, the latter now only happens after dim_effect_time_c
@@ -6294,8 +6298,8 @@ public class InstrumentedTest {
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(PreferenceKeys.RemoveDeviceExifPreferenceKey, "preference_remove_device_exif_on");
             editor.apply();
-            updateForSettings(activity);
         });
+        updateForSettings();
 
         subTestTakePhoto(false, false, true, true, false, false, false, false);
 
@@ -6325,8 +6329,8 @@ public class InstrumentedTest {
             editor.putString(PreferenceKeys.RemoveDeviceExifPreferenceKey, "preference_remove_device_exif_on");
             editor.putBoolean(PreferenceKeys.AutoStabilisePreferenceKey, true);
             editor.apply();
-            updateForSettings(activity);
         });
+        updateForSettings();
 
         subTestTakePhoto(false, false, true, true, false, false, false, false);
 
@@ -6354,8 +6358,8 @@ public class InstrumentedTest {
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(PreferenceKeys.RemoveDeviceExifPreferenceKey, "preference_remove_device_exif_keep_datetime");
             editor.apply();
-            updateForSettings(activity);
         });
+        updateForSettings();
 
         subTestTakePhoto(false, false, true, true, false, false, false, false);
 
@@ -6368,6 +6372,114 @@ public class InstrumentedTest {
                 fail();
             }
         });
+    }
+
+    @Category(PhotoTests.class)
+    @Test
+    public void testTakePhotoVendorExtensions() throws InterruptedException {
+        Log.d(TAG, "testTakePhotoVendorExtensions");
+        setToDefault();
+
+        List<String> supported_extension_modes = new ArrayList<>();
+        mActivityRule.getScenario().onActivity(activity -> {
+            if( activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_AUTOMATIC) )
+                supported_extension_modes.add("preference_photo_mode_x_auto");
+            if( activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_HDR) )
+                supported_extension_modes.add("preference_photo_mode_x_hdr");
+            if( activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_NIGHT) )
+                supported_extension_modes.add("preference_photo_mode_x_night");
+            if( activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_BOKEH) )
+                supported_extension_modes.add("preference_photo_mode_x_bokeh");
+            if( activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_BEAUTY) )
+                supported_extension_modes.add("preference_photo_mode_x_beauty");
+        });
+
+        if( supported_extension_modes.size() == 0 ) {
+            Log.d(TAG, "test requires camera extensions");
+            return;
+        }
+
+        boolean check_exif = true;
+        boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
+        if( is_samsung && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ) {
+            // Samsung Galaxy S10e Android 12 doesn't store various exif tags with vendor extensions
+            // unclear if this is Samsung specific or Android version specific
+            check_exif = false;
+        }
+
+        for(String photo_mode : supported_extension_modes) {
+            mActivityRule.getScenario().onActivity(activity -> {
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(PreferenceKeys.PhotoModePreferenceKey, photo_mode);
+                editor.apply();
+            });
+            updateForSettings();
+
+            subTestTakePhoto(false, false, false, false, false, false, false, false);
+
+            if( check_exif ) {
+                mActivityRule.getScenario().onActivity(activity -> {
+                    try {
+                        TestUtils.testExif(activity, activity.test_last_saved_image, activity.test_last_saved_imageuri, true, true, false);
+                    }
+                    catch(IOException e) {
+                        e.printStackTrace();
+                        fail();
+                    }
+                });
+            }
+        }
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std");
+            editor.apply();
+        });
+        updateForSettings();
+
+        if( getActivityValue(activity -> activity.getPreview().getCameraControllerManager().getNumberOfCameras()) > 1 ) {
+            Log.d(TAG, "test front camera");
+            mActivityRule.getScenario().onActivity(activity -> {
+                Log.d(TAG, "switch camera");
+                View switchCameraButton = activity.findViewById(net.sourceforge.opencamera.R.id.switch_camera);
+                clickView(switchCameraButton);
+            });
+            waitUntilCameraOpened();
+
+            for(String photo_mode : supported_extension_modes) {
+                mActivityRule.getScenario().onActivity(activity -> {
+                    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(PreferenceKeys.PhotoModePreferenceKey, photo_mode);
+                    editor.apply();
+                });
+                updateForSettings();
+
+                subTestTakePhoto(false, false, false, false, false, false, false, false);
+
+                if( check_exif ) {
+                    mActivityRule.getScenario().onActivity(activity -> {
+                        try {
+                            TestUtils.testExif(activity, activity.test_last_saved_image, activity.test_last_saved_imageuri, true, true, false);
+                        }
+                        catch(IOException e) {
+                            e.printStackTrace();
+                            fail();
+                        }
+                    });
+                }
+            }
+
+            mActivityRule.getScenario().onActivity(activity -> {
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std");
+                editor.apply();
+            });
+            updateForSettings();
+        }
     }
 
     private int getNFiles() {
@@ -6575,6 +6687,7 @@ public class InstrumentedTest {
         setToDefault();
 
         if( !getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            Log.d(TAG, "test requires camera2 api");
             return;
         }
 

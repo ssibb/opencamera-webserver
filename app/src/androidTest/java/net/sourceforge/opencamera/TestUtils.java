@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.hardware.camera2.CameraExtensionCharacteristics;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -1132,6 +1133,7 @@ public class TestUtils {
         boolean is_expo = activity.supportsExpoBracketing() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_expo_bracketing");
         boolean is_focus_bracketing = activity.supportsFocusBracketing() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_focus_bracketing");
         boolean is_fast_burst = activity.supportsFastBurst() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_fast_burst");
+        boolean is_x_night = activity.supportsCameraExtension(CameraExtensionCharacteristics.EXTENSION_NIGHT) && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_x_night");
         String n_expo_images_s = sharedPreferences.getString(PreferenceKeys.ExpoBracketingNImagesPreferenceKey, "3");
         int n_expo_images = Integer.parseInt(n_expo_images_s);
         String n_focus_bracketing_images_s = sharedPreferences.getString(PreferenceKeys.FocusBracketingNImagesPreferenceKey, "3");
@@ -1167,6 +1169,9 @@ public class TestUtils {
             suffix = "_" + (n_fast_burst_images-1); // when burst numbering starts from _0
             //suffix = "_" + (n_fast_burst_images); // when burst numbering starts from _1
             max_time_s = 4; // takes longer to save 20 images!
+        }
+        else if( is_x_night ) {
+            suffix = "_Night";
         }
 
         if( is_raw ) {
