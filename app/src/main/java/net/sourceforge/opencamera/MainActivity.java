@@ -2567,7 +2567,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public void clickedSettings(View view) {
         if( MyDebug.LOG )
             Log.d(TAG, "clickedSettings");
-        openSettings();
+        KeyguardUtils.requireKeyguard(this, this::openSettings);
     }
 
     public boolean popupIsOpen() {
