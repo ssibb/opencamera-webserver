@@ -2504,7 +2504,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 showPreview(true);
             }
         });
-        setWindowFlagsForSettings();
+        setWindowFlagsForSettings(true); // set set_lock_protect to false - no need to protect this dialog with lock screen (fine to run above lock screen if that option is set)
         showAlert(alertDialog.create());
     }
 
