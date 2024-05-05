@@ -203,7 +203,7 @@
     <string name="preference_record_audio_src">Sesin Kaynağı</string>
     <string name="preference_record_audio_src_summary">Ses kaydetmede kullanılacak mikrofon\n%s</string>
     <string name="preference_record_audio_channels">Ses kanalları</string>
-    <string name="preference_record_audio_channels_summary">Ses kaydetmede kullanılacak kanalları mono ya da stereo özelleştir(stereo sadece bazı cihazlarda desteklenir)</string>
+    <string name="preference_record_audio_channels_summary">Ses kaydetmede kullanılacak kanalları mono ya da stereo özelleştir(stereo sadece bazı cihazlarda desteklenir)\n%s</string>
     <string name="preference_video_flash">vidyo kaydederken Flaşı aç</string>
     <string name="preference_video_flash_summary">Etkinleştirildiğinde, flaş vidyo kaydederken yanıp sönecektir(kameranın hala uzak bir yerde kayıt yaptığını anlamak için kullanılabilir)</string>
     

@@ -204,7 +204,7 @@
     <string name="preference_record_audio_src">Zdroj zvuku</string>
     <string name="preference_record_audio_src_summary">Mikrofon používaný při natáčení videa\n%s</string>
     <string name="preference_record_audio_channels">Kanály zvuku</string>
-    <string name="preference_record_audio_channels_summary">Nastavit mono nebo stereo pro nahrávání zvuku (stereo je podporováno jen na některých zařízeních)</string>
+    <string name="preference_record_audio_channels_summary">Nastavit mono nebo stereo pro nahrávání zvuku (stereo je podporováno jen na některých zařízeních)\n%s</string>
     <string name="preference_video_flash">Blikat při nahrávání videa</string>
     <string name="preference_video_flash_summary">Při zapnutí bude přisvětlovací dioda blikat při nahrávání videa (umožňuje z dálky určit, zda-li fotoaparát nahrává)</string>
     

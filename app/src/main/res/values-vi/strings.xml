@@ -217,7 +217,7 @@
     <string name="preference_record_audio_src">Nguồn âm thanh</string>
     <string name="preference_record_audio_src_summary">Micrô được sử dụng để ghi âm\n%s</string>
     <string name="preference_record_audio_channels">Kênh âm thanh</string>
-    <string name="preference_record_audio_channels_summary">Thiết lập âm thanh đơn hoặc nổi (chỉ hỗ trợ âm thanh nổi trên một số thiết bị)</string>
+    <string name="preference_record_audio_channels_summary">Thiết lập âm thanh đơn hoặc nổi (chỉ hỗ trợ âm thanh nổi trên một số thiết bị)\n%s</string>
     <string name="preference_video_flash">Nháy đèn flash khi quay video</string>
     <string name="preference_video_flash_summary">Nếu kích hoạt, đèn flash sẽ nháy khi quay video (có thể được sử dụng để cảnh báo camera vẫn đang quay ở khoảng cách xa)</string>
     

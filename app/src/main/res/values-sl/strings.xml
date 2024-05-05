@@ -218,7 +218,7 @@
     <string name="preference_record_audio_src">Vir zvoka</string>
     <string name="preference_record_audio_src_summary">Kateri mikrofon naj se uporabi za snemanje zvoka.  Upoštevajte, da je podrobno vedenje te možnosti odvisno od načina vdelave te možnosti v napravo.\n%s</string>
     <string name="preference_record_audio_channels">Zvočni kanali</string>
-    <string name="preference_record_audio_channels_summary">Določite mono ali stereo za snemanje zvoka (stereo je podprt samo na nekaterih napravah)</string>
+    <string name="preference_record_audio_channels_summary">Določite mono ali stereo za snemanje zvoka (stereo je podprt samo na nekaterih napravah)\n%s</string>
     <string name="preference_video_flash">Svetilka med snemanjem videoposnetkov</string>
     <string name="preference_video_flash_summary">Če je omogočeno, se bo ob snemanju videoposnetkov vklopila/izklopila svetilka (se lahko uporabi za prepoznavanje delovanja kamere na razdaljo)</string>
     

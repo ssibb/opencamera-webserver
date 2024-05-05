@@ -217,7 +217,7 @@
     <string name="preference_record_audio_src">Fuente del audio</string>
     <string name="preference_record_audio_src_summary">Micrófono a utilizar para grabar audio\n%s</string>
     <string name="preference_record_audio_channels">Canales de audio</string>
-    <string name="preference_record_audio_channels_summary">Especifique mono o estéreo para grabar audio (estéreo sólo es admitido en algunos dispositivos)</string>
+    <string name="preference_record_audio_channels_summary">Especifique mono o estéreo para grabar audio (estéreo sólo es admitido en algunos dispositivos)\n%s</string>
     <string name="preference_video_flash">Flash durante la grabación de video</string>
     <string name="preference_video_flash_summary">Si está activado, el flash se activará/desactivará al grabar video (se puede utilizar para indicar que la cámara sigue grabando a distancia)</string>
     

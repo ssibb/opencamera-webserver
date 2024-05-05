@@ -213,7 +213,7 @@
     <string name="preference_record_audio_src">Source audio</string>
     <string name="preference_record_audio_src_summary">Sélectionne l\'entrée audio pour l\'enregistrement\n%s</string>
     <string name="preference_record_audio_channels">Format audio</string>
-    <string name="preference_record_audio_channels_summary">Spécifiez mono ou stéréo pour l\'enregistrement audio (stéréo uniquement pris en charge sur certains appareils)</string>
+    <string name="preference_record_audio_channels_summary">Spécifiez mono ou stéréo pour l\'enregistrement audio (stéréo uniquement pris en charge sur certains appareils)\n%s</string>
     <string name="preference_video_flash">Clignoter pendant l\'enregistrement vidéo</string>
     <string name="preference_video_flash_summary">Si activé, le flash se met en marche/arrêt lors de l\'enregistrement vidéo (peut être utile pour indiquer que l\'appareil est en train d\'enregistrer à distance)</string>
     

@@ -216,7 +216,7 @@
     <string name="preference_record_audio_src">オーディオソース</string>
     <string name="preference_record_audio_src_summary">録音に使用するマイク\n%s</string>
     <string name="preference_record_audio_channels">オーディオチャンネル</string>
-    <string name="preference_record_audio_channels_summary">モノラルもしくはステレオを指定します (ステレオはサポートしている端末でのみ有効です)</string>
+    <string name="preference_record_audio_channels_summary">モノラルもしくはステレオを指定します (ステレオはサポートしている端末でのみ有効です)\n%s</string>
     <string name="preference_video_flash">録画中にライトを点滅する</string>
     <string name="preference_video_flash_summary">有効にすると撮影中にライトが点滅します (撮影中である事を相手に伝えることができます)</string>
     
