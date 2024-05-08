@@ -1,7 +1,5 @@
 package net.sourceforge.opencamera;
 
-import static java.nio.ByteBuffer.*;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
