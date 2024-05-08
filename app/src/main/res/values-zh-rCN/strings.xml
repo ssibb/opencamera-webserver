@@ -262,7 +262,7 @@
 
     <string name="audio_control_start">开始音频监听</string>
     <string name="audio_control_stop">停止音频监听</string>
-    <string name="speech_recognizer_started">说 \"cheese\"</string>
+    <string name="speech_recognizer_started">说 \"cheese\"</string> <!-- note that cheese shouldn't be translated, as we listen for this no matter what language is being used -->
     <string name="audio_listener_started">发出大的声音</string>
 
     <string name="duration_unlimited">无限</string>
@@ -952,7 +952,7 @@
 
     <string name="preference_audio_control_none">不使用</string>
     <string name="preference_audio_control_noise">大的声音</string>
-    <string name="preference_audio_control_voice">语音命令: \"cheese\"</string>
+    <string name="preference_audio_control_voice">语音命令: \"cheese\"</string> <!-- note that cheese shouldn't be translated, as we listen for this no matter what language is being used -->
     <string name="permission_rationale_storage">需要存储读/写权限才能保存照片或视频文件</string>
     <string name="permission_rationale_location">地理标记需要位置权限（将位置数据存储在照片和视频，包括水印和）。还需要位置权限（至少对于 Android 11 及更早版本）才能连接到BLE远程控制设备。</string>
     <string name="preference_hdr_tonemapping">HDR映射</string>
@@ -961,6 +961,6 @@
     <string name="preference_remove_device_exif_summary">是否删除 JPEG 照片中的设备 EXIF 信息。其他 EXIF 信息（如坐标/海拔）不受影响，RAW/DNG 和视频也不受影响。\n%s</string>
     <string name="preference_remove_device_exif_off">不删除设备 EXIF 信息</string>
     <string name="preference_remove_device_exif_on">删除设备 EXIF 信息</string>
-    <string name="preference_remove_device_exif_keep_datetime">删除日期/时间以外的信息</string> <!-- note that cheese shouldn't be translated, as we listen for this no matter what language is being used -->
+    <string name="preference_remove_device_exif_keep_datetime">删除日期/时间以外的信息</string>
 
 </resources>
