@@ -5321,7 +5321,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      */
     private class MyGestureDetector extends SimpleOnGestureListener {
         @Override
-        public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+        public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
             try {
                 if( MyDebug.LOG )
                     Log.d(TAG, "from " + e1.getX() + " , " + e1.getY() + " to " + e2.getX() + " , " + e2.getY());

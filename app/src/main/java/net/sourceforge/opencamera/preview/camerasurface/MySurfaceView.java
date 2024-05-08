@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /** Provides support for the surface used for the preview, using a SurfaceView.
  */
 public class MySurfaceView extends SurfaceView implements CameraSurface {
@@ -82,7 +84,7 @@ public class MySurfaceView extends SurfaceView implements CameraSurface {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         preview.draw(canvas);
     }
 
