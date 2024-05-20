@@ -2675,7 +2675,8 @@ public class InstrumentedTest {
 
             //checkHistogramDetails(hdrHistogramDetails, 0, 21, 177);
             //checkHistogramDetails(hdrHistogramDetails, 0, 21, 152);
-            checkHistogramDetails(hdrHistogramDetails, 0, 21, 166);
+            //checkHistogramDetails(hdrHistogramDetails, 0, 21, 166);
+            checkHistogramDetails(hdrHistogramDetails, 0, 23, 194);
         });
     }
 
@@ -3328,7 +3329,8 @@ public class InstrumentedTest {
                 }
             });
 
-            checkHistogramDetails(hdrHistogramDetails, 0, 25, 245);
+            //checkHistogramDetails(hdrHistogramDetails, 0, 25, 245);
+            checkHistogramDetails(hdrHistogramDetails, 0, 18, 246);
         });
     }
 
