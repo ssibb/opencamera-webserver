@@ -210,13 +210,24 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
             // a dependency (and indeed can't use one, as the preference_using_saf won't exist here as a Preference)
             pref = (ListPreference)findPreference("preference_video_subtitle");
             if( pref != null ) {
+                boolean using_saf = false;
+                // n.b., not safe to call main_activity.getApplicationInterface().getStorageUtils().isUsingSAF() if fragment
+                // is being recreated
+                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+                    if( sharedPreferences.getBoolean(PreferenceKeys.UsingSAFPreferenceKey, false) ) {
+                        using_saf = true;
+                    }
+                }
+                if( MyDebug.LOG )
+                    Log.d(TAG, "using_saf: " + using_saf);
+
                 //pref.setDependency("preference_using_saf");
-                MainActivity main_activity = (MainActivity)this.getActivity();
-				if( main_activity.getStorageUtils().isUsingSAF() ) {
-                    pref.setEnabled(false);
+                if( using_saf ) {
+                    pref.setEnabled(true);
                 }
                 else {
-                    pref.setEnabled(true);
+                    pref.setEnabled(false);
                 }
             }
         }
