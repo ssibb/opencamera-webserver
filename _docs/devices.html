@@ -116,32 +116,21 @@ manual controls, RAW and 120fps video.</p>
 
 <h3>OnePlus</h3>
 
-<h4>OnePlus One</h4>
+<p>I've tested Open Camera with the OnePlus Pad. Everything seems to work as far as I can tell, including Camera2 API with full
+        manual controls, and RAW.</p>
 
-<p>A reported problem for third party camera applications (including Open Camera) is photos coming out with a "split exposure"
-        effect where one half is brighter than the other - e.g., see
-        <a href="https://forums.oneplus.net/threads/half-split-photos-workaround-read-this.253160/">here</a>.</p>
-
-<h4>OnePlus 3T</h4>
-
-<p>This is a device I own, so has the advantage that I've been able to test with it.</p>
-
-<p>Mostly things work fine, but Camera2 API has some issues:</p>
+<p>The OnePlus 3T had problems related to Camera2 API and manual exposure:</p>
 <ul>
         <li>Manual exposure sometimes fails (the preview corrupts or the device may freeze for a few moments), this also
                 includes HDR.</li>
         <li>Low light scenes show the wrong ISO and shutter speed, both on-screen and in the saved Exif info (although the
                 photos themselves still come out okay); also a knock on effect of this bug is that HDR and expo bracketing
                 don't work in low light. Manual ISO also doesn't work above 799 (the images still come out with ISO at 799).</li>
-        <li>High speed (120 fps) frame rate doesn't work.</li>
 </ul>
-
-<p>See <a href="https://forums.oneplus.net/threads/camera2-api-bugs-for-3rd-party-camera-apps.506100">this thread</a> for more
+<p>See <a href="https://community.oneplus.com/thread/506100">this thread</a> for more
         details.</p>
 
-<h4>OnePlus 5</h4>
-
-<p>This seems to have the same problems with Camera2 API as the OnePlus 3T (see above). Issues with RAW images have been
+<p>The OnePlus 5 seems to have the same problems with Camera2 API as the OnePlus 3T (see above). Issues with RAW images have been
         reported for third party camera applications - see
         <a href="https://sourceforge.net/p/opencamera/discussion/general/thread/0a9b5bef/">here</a>,
         <a href="https://forums.oneplus.net/threads/pink-tint-on-dng.562049/">here</a> and
@@ -152,6 +141,8 @@ manual controls, RAW and 120fps video.</p>
         <a href="https://forums.oneplus.net/threads/raw-pictures-with-third-party-camera-app-are-greenish.727594/">additional
                 problems with RAW on Android 8.</a>
 </p>
+
+<p>The OnePlus 3T and 5 are rather old devices - as I say, the more recent OnePlus Pad does not seem to have these problems.</p>
 
 <h3>Samsung</h3>
 
