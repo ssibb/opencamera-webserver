@@ -3078,6 +3078,15 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             return;
         }
 
+        View exposureButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+        View exposureContainer = mActivity.findViewById(net.sourceforge.opencamera.R.id.exposure_container);
+        View manualWBContainer = mActivity.findViewById(net.sourceforge.opencamera.R.id.manual_white_balance_container);
+        // check manual exposure icon is available
+        assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+        // check exposure UI starts off closed
+        assertEquals(exposureContainer.getVisibility(), View.GONE);
+        assertEquals(manualWBContainer.getVisibility(), View.GONE);
+
         assertEquals("auto", mPreview.getCameraController().getWhiteBalance());
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         int initial_temperature = mPreview.getCameraController().getWhiteBalanceTemperature();
@@ -3132,6 +3141,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         // check we switched to manual mode
         assertEquals("manual", mPreview.getCameraController().getWhiteBalance());
 
+        // check exposure UI automatically opened
+        assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+        assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
+        assertEquals(manualWBContainer.getVisibility(), View.VISIBLE);
+
         // check that the wb temperature has been updated, both in preferences, and the camera controller
         int new_temperature = mPreview.getCameraController().getWhiteBalanceTemperature();
         int new_temperature_setting = settings.getInt(PreferenceKeys.WhiteBalanceTemperaturePreferenceKey, 5000);
@@ -3145,12 +3159,15 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "new_white_balance_seek_bar_pos: " + new_white_balance_seek_bar_pos);
         assertTrue(new_white_balance_seek_bar_pos != initial_white_balance_seek_bar_pos);
 
+        // close exposure UI
+        clickView(exposureButton);
+        assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+        assertEquals(exposureContainer.getVisibility(), View.GONE);
+        assertEquals(manualWBContainer.getVisibility(), View.GONE);
+
         subTestTakePhoto(false, false, true, true, false, false, false, false);
 
-        View exposureButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.exposure);
-        View exposureContainer = mActivity.findViewById(net.sourceforge.opencamera.R.id.exposure_container);
         SeekBar seekBar = mActivity.findViewById(net.sourceforge.opencamera.R.id.exposure_seekbar);
-        View manualWBContainer = mActivity.findViewById(net.sourceforge.opencamera.R.id.manual_white_balance_container);
         SeekBar seekBarWB = mActivity.findViewById(net.sourceforge.opencamera.R.id.white_balance_seekbar);
 
         assertEquals(exposureButton.getVisibility(), (mPreview.supportsExposures() ? View.VISIBLE : View.GONE));
@@ -3161,6 +3178,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             return;
         }
 
+        // reopen exposure UI
         clickView(exposureButton);
         subTestISOButtonAvailability();
 
