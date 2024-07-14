@@ -895,11 +895,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 boolean default_to_camera2 = false;
                 boolean is_google = Build.MANUFACTURER.toLowerCase(Locale.US).contains("google");
                 boolean is_nokia = Build.MANUFACTURER.toLowerCase(Locale.US).contains("hmd global");
+                boolean is_oneplus = Build.MANUFACTURER.toLowerCase(Locale.US).contains("oneplus");
                 if( is_google && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S )
                     default_to_camera2 = true;
                 else if( is_nokia && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P )
                     default_to_camera2 = true;
                 else if( is_samsung && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S )
+                    default_to_camera2 = true;
+                else if( is_oneplus && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE )
                     default_to_camera2 = true;
 
                 if( default_to_camera2 ) {
