@@ -1519,6 +1519,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "gui_location: " + Arrays.toString(gui_location));
         final int step_dist_c = 2;
         final float scale = mActivity.getResources().getDisplayMetrics().density;
+        final int offset_dist_c = (int) (80 * scale + 0.5f); // convert dps to pixels
         final int large_step_dist_c = (int) (80 * scale + 0.5f); // convert dps to pixels
         final int step_count_c = 10;
         int width = mPreview.getView().getWidth();
@@ -1530,7 +1531,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertNull(mPreview.getCameraController().getMeteringAreas());
 
         Log.d(TAG, "top-left");
-        TouchUtils.drag(MainActivityTest.this, gui_location[0] + step_dist_c, gui_location[0], gui_location[1] + step_dist_c, gui_location[1], step_count_c);
+        TouchUtils.drag(MainActivityTest.this, gui_location[0] + offset_dist_c + step_dist_c, gui_location[0] + offset_dist_c, gui_location[1] + offset_dist_c + step_dist_c, gui_location[1] + offset_dist_c, step_count_c);
         assertTrue(mPreview.hasFocusArea());
         assertNotNull(mPreview.getCameraController().getFocusAreas());
         assertEquals(1, mPreview.getCameraController().getFocusAreas().size());
@@ -2006,7 +2007,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             return;
         }
 
-        // first switch to auto-focus (if we're already in continuous picture mode, we might have already done the continuous focus moving
+        // first switch to auto-focus (if we're already in continuous picture mode, we might have already done the continuous focus moving - although also see note below)
         switchToFocusValue("focus_mode_auto");
         pauseAndResume();
         switchToFocusValue("focus_mode_continuous_picture");
@@ -2017,7 +2018,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         int new_count_cameraContinuousFocusMoving = mPreview.count_cameraContinuousFocusMoving;
         Log.d(TAG, "count_cameraContinuousFocusMoving compare saved: "+ saved_count_cameraContinuousFocusMoving + " to new: " + new_count_cameraContinuousFocusMoving);
         assertEquals(0, mPreview.getCameraController().test_af_state_null_focus);
-        assertTrue( new_count_cameraContinuousFocusMoving > saved_count_cameraContinuousFocusMoving );
+        // allow for new_count_cameraContinuousFocusMoving > 0 as some devices like OnePlus Pad won't repeat the continuous focus (even when changing focus modes), unless necessary due to scene changing
+        assertTrue( new_count_cameraContinuousFocusMoving > saved_count_cameraContinuousFocusMoving || new_count_cameraContinuousFocusMoving > 0 );
 
         // switch to video
         View switchVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
@@ -3010,8 +3012,10 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         int [] gui_location = new int[2];
         mPreview.getView().getLocationOnScreen(gui_location);
         final int step_dist_c = 2;
+        final float scale = mActivity.getResources().getDisplayMetrics().density;
+        final int offset_dist_c = (int) (80 * scale + 0.5f); // convert dps to pixels
         final int step_count_c = 10;
-        TouchUtils.drag(MainActivityTest.this, gui_location[0]+step_dist_c, gui_location[0], gui_location[1]+step_dist_c, gui_location[1], step_count_c);
+        TouchUtils.drag(MainActivityTest.this, gui_location[0] + offset_dist_c + step_dist_c, gui_location[0] + offset_dist_c, gui_location[1] + offset_dist_c + step_dist_c, gui_location[1] + offset_dist_c, step_count_c);
         assertEquals(exposureButton.getVisibility(), View.VISIBLE);
         assertEquals(exposureContainer.getVisibility(), View.GONE);
         clickView(exposureButton);
@@ -3024,7 +3028,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertEquals(mPreview.getCameraController().getExposureTime(), saved_exposure_time);
 
         // clear again so as to not interfere with take photo routine
-        TouchUtils.drag(MainActivityTest.this, gui_location[0]+step_dist_c, gui_location[0], gui_location[1]+step_dist_c, gui_location[1], step_count_c);
+        TouchUtils.drag(MainActivityTest.this, gui_location[0] + offset_dist_c + step_dist_c, gui_location[0] + offset_dist_c, gui_location[1] + offset_dist_c + step_dist_c, gui_location[1] + offset_dist_c, step_count_c);
         assertEquals(exposureButton.getVisibility(), View.VISIBLE);
         assertEquals(exposureContainer.getVisibility(), View.GONE);
 
