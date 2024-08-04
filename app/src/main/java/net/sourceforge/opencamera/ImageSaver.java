@@ -2472,6 +2472,24 @@ public class ImageSaver extends Thread {
         return new PostProcessBitmapResult(bitmap);
     }
 
+    /** Converts from Request.ImageFormat to Bitmap.CompressFormat.
+     */
+    private static Bitmap.CompressFormat getBitmapCompressFormat(Request.ImageFormat image_format) {
+        Bitmap.CompressFormat compress_format;
+        switch( image_format ) {
+            case WEBP:
+                compress_format = Bitmap.CompressFormat.WEBP;
+                break;
+            case PNG:
+                compress_format = Bitmap.CompressFormat.PNG;
+                break;
+            default:
+                compress_format = Bitmap.CompressFormat.JPEG;
+                break;
+        }
+        return compress_format;
+    }
+
     /** May be run in saver thread or picture callback thread (depending on whether running in background).
      *  The requests.images field is ignored, instead we save the supplied data or bitmap.
      *  If bitmap is null, then the supplied jpeg data is saved. If bitmap is non-null, then the bitmap is
@@ -2676,18 +2694,7 @@ public class ImageSaver extends Thread {
                     if( bitmap != null ) {
                         if( MyDebug.LOG )
                             Log.d(TAG, "compress bitmap, quality " + request.image_quality);
-                        Bitmap.CompressFormat compress_format;
-                        switch( request.image_format ) {
-                            case WEBP:
-                                compress_format = Bitmap.CompressFormat.WEBP;
-                                break;
-                            case PNG:
-                                compress_format = Bitmap.CompressFormat.PNG;
-                                break;
-                            default:
-                                compress_format = Bitmap.CompressFormat.JPEG;
-                                break;
-                        }
+                        Bitmap.CompressFormat compress_format = getBitmapCompressFormat(request.image_format);
                         bitmap.compress(compress_format, request.image_quality, outputStream);
                     }
                     else {
