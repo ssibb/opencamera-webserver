@@ -6239,20 +6239,28 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             }
         }
         else if( camera_controller.focusIsContinuous() ) {
-            if( MyDebug.LOG )
-                Log.d(TAG, "call autofocus for continuous focus mode");
-            // we call via autoFocus(), to avoid risk of taking photo while the continuous focus is focusing - risk of blurred photo, also sometimes get bug in such situations where we end of repeatedly focusing
-            // this is the case even if skip_autofocus is true (as we still can't guarantee that continuous focusing might be occurring)
-            // note: if the user touches to focus in continuous mode, we camera controller may be in auto focus mode, so we should only enter this codepath if the camera_controller is in continuous focus mode
-            CameraController.AutoFocusCallback autoFocusCallback = new CameraController.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean success) {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "continuous mode autofocus complete: " + success);
-                    takePhotoWhenFocused(continuous_fast_burst);
-                }
-            };
-            camera_controller.autoFocus(autoFocusCallback, true);
+            boolean optimise_for_latency = applicationInterface.optimiseFocusForLatency();
+            if( optimise_for_latency ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "take photo under continuous focus mode [optimise for latency]");
+                takePhotoWhenFocused(continuous_fast_burst);
+            }
+            else {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "call autofocus for continuous focus mode [optimise for quality]");
+                // we call via autoFocus(), to avoid risk of taking photo while the continuous focus is focusing - risk of blurred photo, also sometimes get bug in such situations where we end of repeatedly focusing
+                // this is the case even if skip_autofocus is true (as we still can't guarantee that continuous focusing might be occurring)
+                // note: if the user touches to focus in continuous mode, we camera controller may be in auto focus mode, so we should only enter this codepath if the camera_controller is in continuous focus mode
+                CameraController.AutoFocusCallback autoFocusCallback = new CameraController.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success) {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "continuous mode autofocus complete: " + success);
+                        takePhotoWhenFocused(continuous_fast_burst);
+                    }
+                };
+                camera_controller.autoFocus(autoFocusCallback, true);
+            }
         }
         else if( skip_autofocus || this.recentlyFocused() ) {
             if( MyDebug.LOG ) {

@@ -47,6 +47,10 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
         if( MyDebug.LOG )
             Log.d(TAG, "supports_burst_raw: " + supports_burst_raw);
 
+        final boolean supports_optimise_focus_latency = bundle.getBoolean("supports_optimise_focus_latency");
+        if( MyDebug.LOG )
+            Log.d(TAG, "supports_optimise_focus_latency: " + supports_optimise_focus_latency);
+
         final boolean supports_nr = bundle.getBoolean("supports_nr");
         if( MyDebug.LOG )
             Log.d(TAG, "supports_nr: " + supports_nr);
@@ -172,6 +176,12 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
             Preference pref = findPreference("preference_raw_expo_bracketing");
             pg.removePreference(pref);
             pref = findPreference("preference_raw_focus_bracketing");
+            pg.removePreference(pref);
+        }
+
+        if( !supports_optimise_focus_latency ) {
+            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
+            Preference pref = findPreference("preference_photo_optimise_focus");
             pg.removePreference(pref);
         }
 

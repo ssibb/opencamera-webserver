@@ -2833,6 +2833,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         bundle.putBoolean("supports_face_detection", this.preview.supportsFaceDetection());
         bundle.putBoolean("supports_raw", this.preview.supportsRaw());
         bundle.putBoolean("supports_burst_raw", this.supportsBurstRaw());
+        bundle.putBoolean("supports_optimise_focus_latency", this.supportsOptimiseFocusLatency());
         bundle.putBoolean("supports_hdr", this.supportsHDR());
         bundle.putBoolean("supports_nr", this.supportsNoiseReduction());
         bundle.putBoolean("supports_panorama", this.supportsPanorama());
@@ -5918,6 +5919,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      */
     public boolean supportsBurstRaw() {
         return( large_heap_memory >= 512 );
+    }
+
+    public boolean supportsOptimiseFocusLatency() {
+        // whether to support optimising focus for latency
+        // in theory this works on any device, as well as old or Camera2 API, but restricting this for now to avoid risk of poor default behaviour
+        // on older devices
+        return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && preview.usingCamera2API() );
     }
 
     public boolean supportsPreviewBitmaps() {

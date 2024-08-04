@@ -410,6 +410,11 @@ public abstract class BasicApplicationInterface implements ApplicationInterface 
     }
 
     @Override
+    public boolean optimiseFocusForLatency() {
+        return true;
+    }
+
+    @Override
     public boolean isTestAlwaysFocus() {
         return false;
     }

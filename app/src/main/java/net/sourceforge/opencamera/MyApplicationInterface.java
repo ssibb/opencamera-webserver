@@ -1855,6 +1855,12 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     }
 
     @Override
+    public boolean optimiseFocusForLatency() {
+        String pref = sharedPreferences.getString(PreferenceKeys.OptimiseFocusPreferenceKey, "preference_photo_optimise_focus_latency");
+        return pref.equals("preference_photo_optimise_focus_latency") && main_activity.supportsOptimiseFocusLatency();
+    }
+
+    @Override
     public boolean isTestAlwaysFocus() {
         if( MyDebug.LOG ) {
             Log.d(TAG, "isTestAlwaysFocus: " + main_activity.is_test);
