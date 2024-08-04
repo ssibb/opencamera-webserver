@@ -1392,6 +1392,42 @@ public class ImageSaver extends Thread {
         return true;
     }
 
+    private boolean processHDR(List<Bitmap> bitmaps, final Request request, long time_s) {
+        float hdr_alpha = getHDRAlpha(request.preference_hdr_contrast_enhancement, request.exposure_time, bitmaps.size());
+        if( MyDebug.LOG )
+            Log.d(TAG, "before HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
+        try {
+            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                hdrProcessor.processHDR(bitmaps, true, null, true, null, hdr_alpha, 4, true, request.preference_hdr_tonemapping_algorithm, HDRProcessor.DROTonemappingAlgorithm.DROALGORITHM_GAINGAMMA); // this will recycle all the bitmaps except bitmaps.get(0), which will contain the hdr image
+            }
+            else {
+                Log.e(TAG, "shouldn't have offered HDR as an option if not on Android 5");
+                throw new RuntimeException();
+            }
+        }
+        catch(HDRProcessorException e) {
+            Log.e(TAG, "HDRProcessorException from processHDR: " + e.getCode());
+            e.printStackTrace();
+            if( e.getCode() == HDRProcessorException.UNEQUAL_SIZES ) {
+                // this can happen on OnePlus 3T with old camera API with front camera, seems to be a bug that resolution changes when exposure compensation is set!
+                Log.e(TAG, "UNEQUAL_SIZES");
+                bitmaps.clear();
+                System.gc();
+                return false;
+            }
+            else {
+                // throw RuntimeException, as we shouldn't ever get the error INVALID_N_IMAGES, if we do it's a programming error
+                throw new RuntimeException();
+            }
+        }
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "HDR performance: time after creating HDR image: " + (System.currentTimeMillis() - time_s));
+        }
+        if( MyDebug.LOG )
+            Log.d(TAG, "after HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
+        return true;
+    }
+
     /** May be run in saver thread or picture callback thread (depending on whether running in background).
      */
     private boolean saveImageNow(final Request request) {
@@ -1638,40 +1674,13 @@ public class ImageSaver extends Thread {
             if( MyDebug.LOG ) {
                 Log.d(TAG, "HDR performance: time after decompressing base exposures: " + (System.currentTimeMillis() - time_s));
             }
-            float hdr_alpha = getHDRAlpha(request.preference_hdr_contrast_enhancement, request.exposure_time, bitmaps.size());
-            if( MyDebug.LOG )
-                Log.d(TAG, "before HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
-            try {
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                    hdrProcessor.processHDR(bitmaps, true, null, true, null, hdr_alpha, 4, true, request.preference_hdr_tonemapping_algorithm, HDRProcessor.DROTonemappingAlgorithm.DROALGORITHM_GAINGAMMA); // this will recycle all the bitmaps except bitmaps.get(0), which will contain the hdr image
-                }
-                else {
-                    Log.e(TAG, "shouldn't have offered HDR as an option if not on Android 5");
-                    throw new RuntimeException();
-                }
+
+            if( !processHDR(bitmaps, request, time_s) ) {
+                main_activity.getPreview().showToast(null, R.string.failed_to_process_hdr);
+                main_activity.savingImage(false);
+                return false;
             }
-            catch(HDRProcessorException e) {
-                Log.e(TAG, "HDRProcessorException from processHDR: " + e.getCode());
-                e.printStackTrace();
-                if( e.getCode() == HDRProcessorException.UNEQUAL_SIZES ) {
-                    // this can happen on OnePlus 3T with old camera API with front camera, seems to be a bug that resolution changes when exposure compensation is set!
-                    main_activity.getPreview().showToast(null, R.string.failed_to_process_hdr);
-                    Log.e(TAG, "UNEQUAL_SIZES");
-                    bitmaps.clear();
-                    System.gc();
-                    main_activity.savingImage(false);
-                    return false;
-                }
-                else {
-                    // throw RuntimeException, as we shouldn't ever get the error INVALID_N_IMAGES, if we do it's a programming error
-                    throw new RuntimeException();
-                }
-            }
-            if( MyDebug.LOG ) {
-                Log.d(TAG, "HDR performance: time after creating HDR image: " + (System.currentTimeMillis() - time_s));
-            }
-            if( MyDebug.LOG )
-                Log.d(TAG, "after HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
+
             Bitmap hdr_bitmap = bitmaps.get(0);
             if( MyDebug.LOG )
                 Log.d(TAG, "hdr_bitmap: " + hdr_bitmap + " is mutable? " + hdr_bitmap.isMutable());
