@@ -3527,7 +3527,7 @@ public class ImageSaver extends Thread {
         if( request.remove_device_exif == Request.RemoveDeviceExif.OFF || request.store_location ) {
             // If geotagging is enabled, we explicitly override the remove_device_exif setting.
             // Arguably we don't need an if statement here at all - but if there was some device strangely
-            // setting GPS tags even when we haven't set them, it's better to remove them if the user has
+            // setting GPS tags even when we haven't set them, it's better to remove them if the user has not
             // requested RemoveDeviceExif.OFF.
             transferDeviceExifGPS(exif, exif_new);
         }
