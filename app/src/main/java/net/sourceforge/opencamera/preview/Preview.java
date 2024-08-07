@@ -8082,40 +8082,53 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         return refreshPreviewBitmapTask != null;
     }
 
+    /** Runs the supplied runnable, but waits until the refreshPreviewBitmapTask is no longer running.
+     */
+    private void runForPreviewTask(final Runnable runnable) {
+        if( MyDebug.LOG )
+            Log.d(TAG, "runForPreviewTask");
+        if( !refreshPreviewBitmapTaskIsRunning() ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "refreshPreviewBitmapTask not running, can run runnable");
+            runnable.run();
+        }
+        else {
+            if( MyDebug.LOG )
+                Log.d(TAG, "refreshPreviewBitmapTask still running, wait before running runnable");
+            final Handler handler = new Handler();
+            final long delay = 500;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if( !refreshPreviewBitmapTaskIsRunning() ) {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "refreshPreviewBitmapTask not running now, can run runnable");
+                        runnable.run();
+                    }
+                    else {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "refreshPreviewBitmapTask still running, wait again before running runnable");
+                        handler.postDelayed(this, delay);
+                    }
+                }
+            }, delay);
+        }
+    }
+
     /* Recycles the supplied bitmap, but if the refreshPreviewBitmapTask is running, waits until
 	   it isn't running.
 	 */
     private void recycleBitmapForPreviewTask(final Bitmap bitmap) {
         if( MyDebug.LOG )
             Log.d(TAG, "recycleBitmapForPreviewTask");
-        if( !refreshPreviewBitmapTaskIsRunning() ) {
-            if( MyDebug.LOG )
-                Log.d(TAG, "refreshPreviewBitmapTask not running, can recycle bitmap");
-            bitmap.recycle();
-        }
-        else {
-            // Don't want to recycle bitmap whilst thread is running!
-            // See test testPreviewBitmap().
-            if( MyDebug.LOG )
-                Log.d(TAG, "refreshPreviewBitmapTask still running, wait before recycle bitmap");
-            final Handler handler = new Handler();
-            final long recycle_delay = 500;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if( !refreshPreviewBitmapTaskIsRunning() ) {
-                        if( MyDebug.LOG )
-                            Log.d(TAG, "refreshPreviewBitmapTask not running now, can recycle bitmap");
-                        bitmap.recycle();
-                    }
-                    else {
-                        if( MyDebug.LOG )
-                            Log.d(TAG, "refreshPreviewBitmapTask still running, wait again before recycle bitmap");
-                        handler.postDelayed(this, recycle_delay);
-                    }
-                }
-            }, recycle_delay);
-        }
+        // Don't want to recycle bitmap whilst thread is running!
+        // See test testPreviewBitmap().
+        runForPreviewTask(new Runnable() {
+            @Override
+            public void run() {
+                bitmap.recycle();
+            }
+        });
     }
 
     private void freePreviewBitmap() {
