@@ -1567,8 +1567,8 @@ public class StorageUtils {
         else if( image_media != null && video_media != null ) {
             if( MyDebug.LOG ) {
                 Log.d(TAG, "found images and videos");
-                Log.d(TAG, "latest image date: " + image_media.date);
-                Log.d(TAG, "latest video date: " + video_media.date);
+                Log.d(TAG, "latest image date: " + image_media.date + " : " + new Date(image_media.date));
+                Log.d(TAG, "latest video date: " + video_media.date + " : " + new Date(video_media.date));
             }
             if( image_media.date >= video_media.date ) {
                 if( MyDebug.LOG )
