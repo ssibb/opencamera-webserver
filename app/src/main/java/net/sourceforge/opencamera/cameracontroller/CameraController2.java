@@ -360,6 +360,8 @@ public class CameraController2 extends CameraController {
         private int scene_mode = CameraMetadata.CONTROL_SCENE_MODE_DISABLED;
         private int color_effect = CameraMetadata.CONTROL_EFFECT_MODE_OFF;
         private int white_balance = CameraMetadata.CONTROL_AWB_MODE_AUTO;
+        private boolean has_default_color_correction;
+        private Integer default_color_correction;
         private boolean has_antibanding;
         private int antibanding = CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_AUTO;
         private boolean has_edge_mode;
@@ -617,6 +619,15 @@ public class CameraController2 extends CameraController {
             else if( builder.get(CaptureRequest.CONTROL_AWB_MODE) == null || builder.get(CaptureRequest.CONTROL_AWB_MODE) != white_balance ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "setting white balance: " + white_balance);
+
+                // if we'd set COLOR_CORRECTION_MODE to non-default, now put it back to default
+                if( has_default_color_correction ) {
+                    if( builder.get(CaptureRequest.COLOR_CORRECTION_MODE) != null && !builder.get(CaptureRequest.COLOR_CORRECTION_MODE).equals(default_color_correction) ) {
+                        builder.set(CaptureRequest.COLOR_CORRECTION_MODE, default_color_correction);
+                    }
+                    has_default_color_correction = false; // set to false, as only need to set COLOR_CORRECTION_MODE back to default when changing from manual back to non-manual white balance
+                }
+
                 builder.set(CaptureRequest.CONTROL_AWB_MODE, white_balance);
                 changed = true;
             }
@@ -624,6 +635,15 @@ public class CameraController2 extends CameraController {
                 if( MyDebug.LOG )
                     Log.d(TAG, "setting white balance temperature: " + white_balance_temperature);
                 // manual white balance
+
+                if( !has_default_color_correction ) {
+                    // save the default COLOR_CORRECTION_MODE
+                    has_default_color_correction = true;
+                    default_color_correction = builder.get(CaptureRequest.COLOR_CORRECTION_MODE);
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "default_color_correction: " + default_color_correction);
+                }
+
                 RggbChannelVector rggbChannelVector = convertTemperatureToRggbVector(white_balance_temperature);
                 builder.set(CaptureRequest.COLOR_CORRECTION_MODE, CameraMetadata.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX);
                 builder.set(CaptureRequest.COLOR_CORRECTION_GAINS, rggbChannelVector);
