@@ -1028,4 +1028,12 @@
         <item>preference_photo_optimise_focus_latency</item>
         <item>preference_photo_optimise_focus_quality</item>
     </string-array>
+    <string-array name="preference_save_preshots_entries">
+        <item>@string/off</item>
+        <item>@string/on</item>
+    </string-array>
+    <string-array name="preference_save_preshots_values">
+        <item>preference_save_preshots_off</item>
+        <item>preference_save_preshots_on</item>
+    </string-array>
 </resources>

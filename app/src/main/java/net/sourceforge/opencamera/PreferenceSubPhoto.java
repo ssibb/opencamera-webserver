@@ -51,6 +51,10 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
         if( MyDebug.LOG )
             Log.d(TAG, "supports_optimise_focus_latency: " + supports_optimise_focus_latency);
 
+        final boolean supports_preshots = bundle.getBoolean("supports_preshots");
+        if( MyDebug.LOG )
+            Log.d(TAG, "supports_preshots: " + supports_preshots);
+
         final boolean supports_nr = bundle.getBoolean("supports_nr");
         if( MyDebug.LOG )
             Log.d(TAG, "supports_nr: " + supports_nr);
@@ -182,6 +186,12 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
         if( !supports_optimise_focus_latency ) {
             PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
             Preference pref = findPreference("preference_photo_optimise_focus");
+            pg.removePreference(pref);
+        }
+
+        if( !supports_preshots ) {
+            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
+            Preference pref = findPreference("preference_save_preshots");
             pg.removePreference(pref);
         }
 

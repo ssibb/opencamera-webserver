@@ -19,6 +19,15 @@
         android:defaultValue="preference_photo_optimise_focus_latency"
         />
 
+    <ListPreference
+        android:key="preference_save_preshots"
+        android:title="@string/preference_save_preshots"
+        android:summary="@string/preference_save_preshots_summary"
+        android:entries="@array/preference_save_preshots_entries"
+        android:entryValues="@array/preference_save_preshots_values"
+        android:defaultValue="preference_save_preshots_off"
+        />
+
     <net.sourceforge.opencamera.ui.ArraySeekBarPreference
         android:key="preference_quality"
         android:title="@string/preference_quality"

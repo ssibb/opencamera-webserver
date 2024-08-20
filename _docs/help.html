@@ -829,6 +829,15 @@ will cycle between all cameras.</p>
     already be in focus. If this isn't the case, select "Quality" to ensure that the scene is focused.
     (Requires Android 12+ and Camera2 API; on other devices this will default to "Quality".)</p>
 
+<p><b>Save preview shots</b> - When enabled, a short video will be saved alongside each photo,
+    containing shots from the moment before the photo was taken. Not supported for expo bracketing,
+    focus bracketing or panorama modes. Typically the video will contain 12 shots, over approximately
+    just over a second. Note that this is not intended to be a 30fps (or better) video, rather the intent
+    is to save a burst of photos. You can use various gallery apps to export individual frames (usually by
+    selecting "Edit" when viewing the video).
+    (Requires Android 8+ and Camera2 API.)
+</p>
+
 <p><b>Image quality</b> - The image quality of saved JPEG or WebP images. Higher means better quality, but the image files will take up
 more storage space. Note that 100% does not necessarily mean there is no lossy compression, rather that there is minimum
 compression. Also note this option has no effect if "Image format" is set to PNG.</p>

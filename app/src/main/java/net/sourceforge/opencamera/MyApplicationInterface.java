@@ -323,23 +323,35 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public File createOutputVideoFile(String extension) throws IOException {
-        last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, new Date());
-        return last_video_file;
+        return createOutputVideoFile(extension, new Date());
     }
 
     @Override
     public Uri createOutputVideoSAF(String extension) throws IOException {
-        last_video_file_uri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, new Date());
-        return last_video_file_uri;
+        return createOutputVideoSAF(extension, new Date());
     }
 
     @Override
     public Uri createOutputVideoMediaStore(String extension) throws IOException {
+        return createOutputVideoMediaStore(extension, new Date());
+    }
+
+    public File createOutputVideoFile(String extension, Date date) throws IOException {
+        last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
+        return last_video_file;
+    }
+
+    public Uri createOutputVideoSAF(String extension, Date date) throws IOException {
+        last_video_file_uri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
+        return last_video_file_uri;
+    }
+
+    public Uri createOutputVideoMediaStore(String extension, Date date) throws IOException {
         Uri folder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ?
                 MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY) :
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         ContentValues contentValues = new ContentValues();
-        String filename = storageUtils.createMediaFilename(StorageUtils.MEDIA_TYPE_VIDEO, "", 0, "." + extension, new Date());
+        String filename = storageUtils.createMediaFilename(StorageUtils.MEDIA_TYPE_VIDEO, "", 0, "." + extension, date);
         if( MyDebug.LOG )
             Log.d(TAG, "filename: " + filename);
         contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filename);
@@ -1250,6 +1262,15 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     public boolean getFocusPeakingPref() {
         String focus_peaking_pref = sharedPreferences.getString(PreferenceKeys.FocusPeakingPreferenceKey, "preference_focus_peaking_off");
         return !focus_peaking_pref.equals("preference_focus_peaking_off") && main_activity.supportsPreviewBitmaps();
+    }
+
+    public boolean getPreShotsPref(PhotoMode photo_mode) {
+        if( main_activity.getPreview().isVideo() || photo_mode == PhotoMode.ExpoBracketing || photo_mode == PhotoMode.FocusBracketing || photo_mode == PhotoMode.Panorama ) {
+            // pre-shots not supported for these modes
+            return false;
+        }
+        String pre_shots_pref = sharedPreferences.getString(PreferenceKeys.PreShotsPreferenceKey, "preference_save_preshots_off");
+        return !pre_shots_pref.equals("preference_save_preshots_off") && main_activity.supportsPreShots();
     }
 
     public boolean getAutoStabilisePref() {
@@ -2519,7 +2540,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     /** Called when we've finished recording to a video file, to do any necessary cleanup for the
      *  file.
      */
-    private void completeVideo(final VideoMethod video_method, final Uri uri) {
+    void completeVideo(final VideoMethod video_method, final Uri uri) {
         if( MyDebug.LOG )
             Log.d(TAG, "completeVideo");
         if( video_method == VideoMethod.MEDIASTORE ) {
@@ -2531,7 +2552,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         }
     }
 
-    private boolean broadcastVideo(final VideoMethod video_method, final Uri uri, final String filename) {
+    boolean broadcastVideo(final VideoMethod video_method, final Uri uri, final String filename) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "broadcastVideo");
             Log.d(TAG, "video_method " + video_method);
@@ -3383,6 +3404,23 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             photo_mode = PhotoMode.Standard;
         }
 
+        List<Bitmap> preshot_bitmaps = null;
+        if( !image_capture_intent && n_capture_images <= 1 && getPreShotsPref(photo_mode) ) {
+            // n.b., n_capture_images == 0 if using onBurstPictureTaken(), e.g., for photo mode HDR
+            Preview.RingBuffer ring_buffer = main_activity.getPreview().getPreShotsRingBuffer();
+
+            if( ring_buffer.getNBitmaps() >= 3 ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "save pre-shots");
+
+                preshot_bitmaps = new ArrayList<>();
+                while( ring_buffer.hasBitmaps() ) {
+                    Bitmap bitmap = ring_buffer.get();
+                    preshot_bitmaps.add(bitmap);
+                }
+            }
+        }
+
         if( !main_activity.is_test && photo_mode == PhotoMode.Panorama && gyroSensor.isRecording() && gyroSensor.hasTarget() && !gyroSensor.isTargetAchieved() ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "ignore panorama image as target no longer achieved!");
@@ -3425,6 +3463,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
                 imageSaver.startImageBatch(true,
                         photo_mode == PhotoMode.NoiseReduction ? ImageSaver.Request.ProcessType.AVERAGE : ImageSaver.Request.ProcessType.PANORAMA,
+                        preshot_bitmaps,
                         save_base,
                         image_capture_intent, image_capture_intent_uri,
                         using_camera2, using_camera_extensions,
@@ -3501,6 +3540,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                     // of images where images.size() > 1 (e.g., expo bracketing mode) where we also start from _0.)
                     force_suffix ? (n_capture_images-1) : 0,
                     save_expo, images,
+                    preshot_bitmaps,
                     image_capture_intent, image_capture_intent_uri,
                     using_camera2, using_camera_extensions,
                     image_format, image_quality,

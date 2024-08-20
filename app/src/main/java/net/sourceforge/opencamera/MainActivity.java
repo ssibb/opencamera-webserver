@@ -2834,6 +2834,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         bundle.putBoolean("supports_raw", this.preview.supportsRaw());
         bundle.putBoolean("supports_burst_raw", this.supportsBurstRaw());
         bundle.putBoolean("supports_optimise_focus_latency", this.supportsOptimiseFocusLatency());
+        bundle.putBoolean("supports_preshots", this.supportsPreShots());
         bundle.putBoolean("supports_hdr", this.supportsHDR());
         bundle.putBoolean("supports_nr", this.supportsNoiseReduction());
         bundle.putBoolean("supports_panorama", this.supportsPanorama());
@@ -5932,6 +5933,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // In practice we only use TextureView on Android 5+ (with Camera2 API enabled) anyway, but have put an explicit check here -
         // even if in future we allow TextureView pre-Android 5, we still need Android 5+ for Renderscript.
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && preview.getView() instanceof TextureView && large_heap_memory >= 128;
+    }
+
+    public boolean supportsPreShots() {
+        // Need at least Android 5+ for TextureView
+        // Need at least Android 8+ for video encoding classes
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && preview.getView() instanceof TextureView && large_heap_memory >= 512;
     }
 
     private int maxExpoBracketingNImages() {

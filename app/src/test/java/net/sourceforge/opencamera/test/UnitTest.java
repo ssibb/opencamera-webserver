@@ -1,6 +1,7 @@
 package net.sourceforge.opencamera.test;
 
 import android.media.CamcorderProfile;
+import android.util.Range;
 
 import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyApplicationInterface;
@@ -1172,5 +1173,74 @@ public class UnitTest {
         checkCameraController2ZoomRatios(0.7f, 10.0f);
         checkCameraController2ZoomRatios(0.7f, 16.0f);
         checkCameraController2ZoomRatios(0.7f, 20.0f);
+    }
+
+    private void checkAdjustResolutionForVideoCapabilities(int video_width, int video_height, ImageSaver.IntRange supported_widths, ImageSaver.IntRange supported_heights, int width_alignment, int height_alignment, int expected_width, int expected_height) {
+        Log.d(TAG, "test size: " + video_width + " x " + video_height);
+        CameraController.Size size = ImageSaver.adjustResolutionForVideoCapabilities(video_width, video_height, supported_widths, supported_heights, width_alignment, height_alignment);
+        Log.d(TAG, "    adjusted size: " + size.width + " x " + size.height);
+        assertEquals(expected_width, size.width);
+        assertEquals(expected_height, size.height);
+    }
+
+    /** Tests for ImageSaver.adjustResolutionForVideoCapabilities().
+     */
+    @Test
+    public void testAdjustResolutionForVideoCapabilities() {
+        Log.d(TAG, "testAdjustResolutionForVideoCapabilities");
+
+        checkAdjustResolutionForVideoCapabilities(1920, 1440,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1920, 1440);
+        checkAdjustResolutionForVideoCapabilities(1440, 1920,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1440, 1920);
+
+        checkAdjustResolutionForVideoCapabilities(2560, 1920,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                2560, 1920);
+        checkAdjustResolutionForVideoCapabilities(1920, 2560,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1632, 2176);
+
+        checkAdjustResolutionForVideoCapabilities(2800, 2000,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                2800, 2000);
+        checkAdjustResolutionForVideoCapabilities(2000, 2800,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1560, 2176);
+
+        checkAdjustResolutionForVideoCapabilities(3840, 2160,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                3840, 2160);
+        checkAdjustResolutionForVideoCapabilities(2160, 3840,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1224, 2176);
+
+        checkAdjustResolutionForVideoCapabilities(2560, 1280,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                2560, 1280);
+        checkAdjustResolutionForVideoCapabilities(1280, 2560,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                1088, 2176);
+
+        checkAdjustResolutionForVideoCapabilities(176, 144,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                176, 144);
+        checkAdjustResolutionForVideoCapabilities(144, 176,
+                new ImageSaver.IntRange(160, 3840), new ImageSaver.IntRange(128, 2176),
+                8, 8,
+                160, 200);
     }
 }

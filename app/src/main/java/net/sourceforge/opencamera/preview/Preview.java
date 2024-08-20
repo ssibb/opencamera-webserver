@@ -147,11 +147,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private RenderScript rs; // lazily created, so we don't take up resources if application isn't using renderscript
     private ScriptC_histogram_compute histogramScript; // lazily create for performance
     private boolean want_preview_bitmap; // whether application has requested we generate bitmap for the preview
-    private Bitmap preview_bitmap;
+    private boolean use_preview_bitmap_small, use_preview_bitmap_full; // whether we want downsized and/or full preview bitmaps
+    private Bitmap preview_bitmap; // downsided bitmap from preview
+    private int preview_bitmap_full_w = -1, preview_bitmap_full_h = -1; // for full bitmaps, we generate copies on the fly (as these need to be saved for preshots feature)
     private long last_preview_bitmap_time_ms; // time the last preview_bitmap was updated
     private RefreshPreviewBitmapTask refreshPreviewBitmapTask;
 
-    private boolean want_histogram; // whether to generate a histogram, requires want_preview_bitmap==true
+    private boolean want_histogram; // whether to generate a histogram, requires want_preview_bitmap==true and use_preview_bitmap_small==true
     public enum HistogramType {
         HISTOGRAM_TYPE_RGB,
         HISTOGRAM_TYPE_LUMINANCE,
@@ -163,17 +165,19 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private int [] histogram;
     private long last_histogram_time_ms; // time the last histogram was updated
 
-    private boolean want_zebra_stripes; // whether to generate zebra stripes bitmap, requires want_preview_bitmap==true
+    private boolean want_zebra_stripes; // whether to generate zebra stripes bitmap, requires want_preview_bitmap==true and use_preview_bitmap_small==true
     private int zebra_stripes_threshold; // pixels with max rgb value equal to or greater than this threshold are marked with zebra stripes
     private int zebra_stripes_color_foreground;
     private int zebra_stripes_color_background;
     private Bitmap zebra_stripes_bitmap_buffer;
     private Bitmap zebra_stripes_bitmap;
 
-    private boolean want_focus_peaking; // whether to generate focus peaking bitmap, requires want_preview_bitmap==true
+    private boolean want_focus_peaking; // whether to generate focus peaking bitmap, requires want_preview_bitmap==true and use_preview_bitmap_small==true
     private Bitmap focus_peaking_bitmap_buffer;
     private Bitmap focus_peaking_bitmap_buffer_temp;
     private Bitmap focus_peaking_bitmap;
+
+    private boolean want_pre_shots; // whether to store pre-shots from preview bitmap, requires want_preview_bitmap==true and use_preview_bitmap_full==true
 
     private final Matrix camera_to_preview_matrix = new Matrix();
     private final Matrix preview_to_camera_matrix = new Matrix();
@@ -1403,6 +1407,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             debug_time = System.currentTimeMillis();
         }
         removePendingContinuousFocusReset();
+        ring_buffer.flush(); // so we flush e.g. when switching cameras
         has_focus_area = false;
         focus_success = FOCUS_DONE;
         focus_started_time = -1;
@@ -4028,7 +4033,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
     /** Returns the rotation in degrees of the display relative to the natural device orientation.
      */
-    private int getDisplayRotationDegrees(boolean prefer_later) {
+    public int getDisplayRotationDegrees(boolean prefer_later) {
         int rotation = applicationInterface.getDisplayRotation(prefer_later);
         int degrees = 0;
         switch (rotation) {
@@ -8056,11 +8061,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         }
     }
 
-    public void enablePreviewBitmap() {
+    public void enablePreviewBitmap(boolean use_preview_bitmap_small, boolean use_preview_bitmap_full) {
         if( MyDebug.LOG )
             Log.d(TAG, "enablePreviewBitmap");
         if( cameraSurface instanceof TextureView ) {
             want_preview_bitmap = true;
+            this.use_preview_bitmap_small = use_preview_bitmap_small;
+            this.use_preview_bitmap_full = use_preview_bitmap_full;
             recreatePreviewBitmap();
         }
     }
@@ -8070,6 +8077,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             Log.d(TAG, "disablePreviewBitmap");
         freePreviewBitmap();
         want_preview_bitmap = false;
+        use_preview_bitmap_small = false;
+        use_preview_bitmap_full = false;
         histogramScript = null; // to help garbage collection
     }
 
@@ -8077,6 +8086,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         return this.want_preview_bitmap;
     }
 
+    public boolean usePreviewBitmapSmall() {
+        return this.want_preview_bitmap && this.use_preview_bitmap_small;
+    }
+
+    public boolean usePreviewBitmapFull() {
+        return this.want_preview_bitmap && this.use_preview_bitmap_full;
+    }
 
     public boolean refreshPreviewBitmapTaskIsRunning() {
         return refreshPreviewBitmapTask != null;
@@ -8142,6 +8158,21 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             // as it takes it's own reference. But we shouldn't recycle until the background thread is complete.
             preview_bitmap = null;
         }
+
+        // It's okay to set these to -1 even if refreshPreviewBitmapTask is currently running in the background
+        // as it takes it's own reference. But we shouldn't recycle until the background thread is complete.
+        preview_bitmap_full_w = -1;
+        preview_bitmap_full_h = -1;
+        ring_buffer.flush(); // even if we're recreating the preview_bitmap_full, it might be at a different resolution, so safest to flush the previous pre-shots
+        if( use_preview_bitmap_full ) {
+            runForPreviewTask(new Runnable() {
+                @Override
+                public void run() {
+                    ring_buffer.flush(); // important to flush again, in case the refreshPreviewBitmapTask already running in the background added a new image
+                }
+            });
+        }
+
         freeZebraStripesBitmap();
         freeFocusPeakingBitmap();
     }
@@ -8151,10 +8182,18 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             Log.d(TAG, "recreatePreviewBitmap");
             Log.d(TAG, "textureview_w: " + textureview_w);
             Log.d(TAG, "textureview_h: " + textureview_h);
+            Log.d(TAG, "want_preview_bitmap: " + want_preview_bitmap);
+            Log.d(TAG, "use_preview_bitmap_small: " + use_preview_bitmap_small);
+            Log.d(TAG, "use_preview_bitmap_full: " + use_preview_bitmap_full);
         }
         freePreviewBitmap();
 
-        if( want_preview_bitmap ) {
+        // Note we need to take into account getDisplayRotationDegrees(), as TextureView.getBitmap()
+        // returns the texture in the "natural" orientation of the device - it doesn't take the transform
+        // we've applied in configureTransform() into account.
+        if( want_preview_bitmap && use_preview_bitmap_small ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "create preview_bitmap");
             final int downscale = 4;
             int bitmap_width = textureview_w / downscale;
             int bitmap_height = textureview_h / downscale;
@@ -8183,6 +8222,26 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             }
             createZebraStripesBitmap();
             createFocusPeakingBitmap();
+        }
+        if( want_preview_bitmap && use_preview_bitmap_full ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "set up preview_bitmap_full");
+            int bitmap_width = textureview_w;
+            int bitmap_height = textureview_h;
+            int rotation = getDisplayRotationDegrees(false);
+            if( rotation == 90 || rotation == 270 ) {
+                int dummy = bitmap_width;
+                //noinspection SuspiciousNameCombination
+                bitmap_width = bitmap_height;
+                bitmap_height = dummy;
+            }
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "bitmap_width: " + bitmap_width);
+                Log.d(TAG, "bitmap_height: " + bitmap_height);
+                Log.d(TAG, "rotation: " + rotation);
+            }
+            this.preview_bitmap_full_w = bitmap_width;
+            this.preview_bitmap_full_h = bitmap_height;
         }
     }
 
@@ -8301,14 +8360,66 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         }
     }
 
+    public void enablePreShots() {
+        this.want_pre_shots = true;
+    }
+
+    public void disablePreShots() {
+        if( want_pre_shots ) {
+            this.want_pre_shots = false;
+            ring_buffer.flush(); // so we don't have old pre-shots hanging around if it's later enabled
+        }
+    }
+
     public Bitmap getFocusPeakingBitmap() {
         return this.focus_peaking_bitmap;
+    }
+
+    public static class RingBuffer {
+        final int max_size_c = 12;
+        final List<Bitmap> bitmaps = new ArrayList<>();
+
+        private void flush() {
+            if( MyDebug.LOG )
+                Log.d(TAG, "RingBuffer.flush()");
+            while( bitmaps.size() > 0 ) {
+                Bitmap bm = bitmaps.remove(0);
+                bm.recycle();
+            }
+        }
+
+        private void add(Bitmap bitmap) {
+            while( bitmaps.size() >= max_size_c ) {
+                Bitmap bm = bitmaps.remove(0);
+                bm.recycle();
+            }
+            bitmaps.add(bitmap);
+        }
+
+        public boolean hasBitmaps() {
+            return bitmaps.size() > 0;
+        }
+
+        public int getNBitmaps() {
+            return bitmaps.size();
+        }
+
+        public Bitmap get() {
+            return bitmaps.remove(0);
+        }
+    }
+
+    private final RingBuffer ring_buffer = new RingBuffer();
+
+    public RingBuffer getPreShotsRingBuffer() {
+        return ring_buffer;
     }
 
     private static class RefreshPreviewBitmapTaskResult {
         int [] new_histogram;
         Bitmap new_zebra_stripes_bitmap;
         Bitmap new_focus_peaking_bitmap;
+        Bitmap preview_bitmap_full_copy;
     }
 
     // use static class, and WeakReferences, to avoid memory leaks: https://stackoverflow.com/questions/44309241/warning-this-asynctask-class-should-be-static-or-leaks-might-occur/46166223
@@ -8322,14 +8433,20 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         private final WeakReference<Bitmap> focus_peaking_bitmap_bufferReference;
         private final WeakReference<Bitmap> focus_peaking_bitmap_buffer_tempReference;
         private final boolean update_histogram;
+        private final boolean update_preshot;
+        private final int preview_bitmap_full_w;
+        private final int preview_bitmap_full_h;
 
-        RefreshPreviewBitmapTask(Preview preview, boolean update_histogram) {
+        RefreshPreviewBitmapTask(Preview preview, boolean update_histogram, boolean update_preshot, int preview_bitmap_full_w, int preview_bitmap_full_h) {
             this.previewReference = new WeakReference<>(preview);
             this.preview_bitmapReference = new WeakReference<>(preview.preview_bitmap);
             this.zebra_stripes_bitmap_bufferReference = new WeakReference<>(preview.zebra_stripes_bitmap_buffer);
             this.focus_peaking_bitmap_bufferReference = new WeakReference<>(preview.focus_peaking_bitmap_buffer);
             this.focus_peaking_bitmap_buffer_tempReference = new WeakReference<>(preview.focus_peaking_bitmap_buffer_temp);
             this.update_histogram = update_histogram;
+            this.update_preshot = update_preshot;
+            this.preview_bitmap_full_w = preview_bitmap_full_w;
+            this.preview_bitmap_full_h = preview_bitmap_full_h;
 
             if( HDRProcessor.use_renderscript ) {
                 if( preview.rs == null ) {
@@ -8473,11 +8590,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 }
             }
             Bitmap preview_bitmap = preview_bitmapReference.get();
-            if( preview_bitmap == null ) {
-                if( MyDebug.LOG )
-                    Log.d(TAG, "preview_bitmap is null");
-                return null;
-            }
             Bitmap zebra_stripes_bitmap_buffer = zebra_stripes_bitmap_bufferReference.get();
             Bitmap focus_peaking_bitmap_buffer = focus_peaking_bitmap_bufferReference.get();
             Bitmap focus_peaking_bitmap_buffer_temp = focus_peaking_bitmap_buffer_tempReference.get();
@@ -8494,12 +8606,39 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 if( MyDebug.LOG )
                     Log.d(TAG, "time before getBitmap: " + (System.currentTimeMillis() - debug_time));
                 TextureView textureView = (TextureView)preview.cameraSurface;
-                textureView.getBitmap(preview_bitmap);
-                if( MyDebug.LOG )
-                    Log.d(TAG, "time after getBitmap: " + (System.currentTimeMillis() - debug_time));
+                if( preview_bitmap != null ) {
+                    textureView.getBitmap(preview_bitmap);
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "time after getBitmap: " + (System.currentTimeMillis() - debug_time));
+                }
+                if( preview_bitmap_full_w != -1 && preview_bitmap_full_h != -1 && update_preshot ) {
+                    // much faster to create a fresh preview_bitmap_full to read into, instead of copying it after
+                    try {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "time before creating preview_bitmap_full_copy: " + (System.currentTimeMillis() - debug_time));
+                        result.preview_bitmap_full_copy = Bitmap.createBitmap(preview_bitmap_full_w, preview_bitmap_full_h, Bitmap.Config.ARGB_8888);
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "time after creating preview_bitmap_full_copy: " + (System.currentTimeMillis() - debug_time));
+                        textureView.getBitmap(result.preview_bitmap_full_copy);
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "time after getBitmap for preview_bitmap_full_copy: " + (System.currentTimeMillis() - debug_time));
+                        // See comments below for zebra stripes for why we need to rotate
+                        // But since rotating is slower (and presumably more CPU intensive) than taking a copy, we leave this to the ImageSaver thread -
+                        // although that'll also be just as slow, better to only do it when we're actually saving pre-shots,
+                        // rather than having this run all the time.
+                        // Also see above - it's much faster to create a new bitmap to read into, than to copy a bitmap
+                    }
+                    catch(IllegalArgumentException e) {
+                        if( MyDebug.LOG )
+                            Log.e(TAG, "failed to create preview_bitmap_full_copy");
+                        e.printStackTrace();
+                    }
+                }
 
                 Allocation allocation_in = null;
-                if( !HDRProcessor.use_renderscript ) {
+                if( preview_bitmap == null ) {
+                }
+                else if( !HDRProcessor.use_renderscript ) {
                 }
                 else {
                     allocation_in = Allocation.createFromBitmap(preview.rs, preview_bitmap);
@@ -8509,7 +8648,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 if( MyDebug.LOG )
                     Log.d(TAG, "time after createFromBitmap: " + (System.currentTimeMillis() - debug_time));
 
-                if( update_histogram ) {
+                if( update_histogram && preview_bitmap != null ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "generate histogram");
 
@@ -8556,7 +8695,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                     }
                 }
 
-                if( preview.want_zebra_stripes && zebra_stripes_bitmap_buffer != null ) {
+                if( preview.want_zebra_stripes && preview_bitmap != null && zebra_stripes_bitmap_buffer != null ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "generate zebra stripes bitmap");
 
@@ -8598,7 +8737,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
                     // The original orientation of the bitmap we get from textureView.getBitmap() needs to be rotated to
                     // account for the orientation of camera vs device, but not to account for the current orientation
-                    // of the device
+                    // of the device.
+                    // This is because TextureView.getBitmap() returns the texture in the "natural" orientation of the device - it doesn't take the transform
+                    // we've applied in configureTransform() into account.
                     int rotation_degrees = preview.getDisplayRotationDegrees(false);
 					/*if( MyDebug.LOG ) {
 						Log.d(TAG, "orientation of display relative to natural orientation: " + rotation_degrees);
@@ -8634,7 +8775,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 					*/
                 }
 
-                if( preview.want_focus_peaking && focus_peaking_bitmap_buffer != null && focus_peaking_bitmap_buffer_temp != null ) {
+                if( preview.want_focus_peaking && preview_bitmap != null && focus_peaking_bitmap_buffer != null && focus_peaking_bitmap_buffer_temp != null ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "generate focus peaking bitmap");
 
@@ -8751,6 +8892,17 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             }
             preview.focus_peaking_bitmap = result.new_focus_peaking_bitmap;
 
+            if( preview.want_pre_shots && result.preview_bitmap_full_copy != null ) {
+                if( preview.isTakingPhoto() ) {
+                    // don't add pre-shots once already taking a photo (otherwise we may have pre-shots after the photo was taken)
+                    result.preview_bitmap_full_copy.recycle();
+                }
+                else {
+                    // add to ring_buffer on UI thread, to avoid threading issues
+                    preview.ring_buffer.add(result.preview_bitmap_full_copy);
+                }
+            }
+
             preview.refreshPreviewBitmapTask = null;
 
             if( MyDebug.LOG )
@@ -8769,11 +8921,17 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         }
     }
 
+    public static final int preshot_interval_ms = 100; // interval in ms between preshot frames
+
     private void refreshPreviewBitmap() {
         final int refresh_histogram_rate_ms = 200;
-        final long refresh_time = (want_zebra_stripes || want_focus_peaking) ? 83 : refresh_histogram_rate_ms;
+        // if want_pre_shots==true, this should take priority over other options as it affects the interval between the pre-shots
+        // but the value shouldn't be too long, as then zebra stripes or focus peaking (if they are enabled) would be too jerky
+        final long refresh_time = want_pre_shots ? preshot_interval_ms : (want_zebra_stripes || want_focus_peaking) ? 83 : refresh_histogram_rate_ms;
         long time_now = System.currentTimeMillis();
-        if( want_preview_bitmap && preview_bitmap != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+        if( want_preview_bitmap &&
+                ( ( use_preview_bitmap_small && preview_bitmap != null ) || ( use_preview_bitmap_full && preview_bitmap_full_w != -1 && preview_bitmap_full_h != -1 ) )
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
                 !is_paused && !applicationInterface.isPreviewInBackground() &&
                 !refreshPreviewBitmapTaskIsRunning() && time_now > last_preview_bitmap_time_ms + refresh_time ) {
             if( MyDebug.LOG )
@@ -8793,7 +8951,17 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             if( update_histogram ) {
                 this.last_histogram_time_ms = time_now;
             }
-            refreshPreviewBitmapTask = new RefreshPreviewBitmapTask(this, update_histogram);
+
+            boolean update_preshot = false;
+            if( camera_controller == null || camera_controller.shouldCoverPreview() ) {
+                // don't take preshot - instead flush
+                ring_buffer.flush();
+            }
+            else if( want_pre_shots ) {
+                update_preshot = true;
+            }
+
+            refreshPreviewBitmapTask = new RefreshPreviewBitmapTask(this, update_histogram, update_preshot, preview_bitmap_full_w, preview_bitmap_full_h);
             refreshPreviewBitmapTask.execute();
         }
     }

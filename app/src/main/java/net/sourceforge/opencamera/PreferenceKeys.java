@@ -266,6 +266,8 @@ public class PreferenceKeys {
 
     public static final String FocusPeakingColorPreferenceKey = "preference_focus_peaking_color";
 
+    public static final String PreShotsPreferenceKey = "preference_save_preshots";
+
     public static final String ShowVideoMaxAmpPreferenceKey = "preference_show_video_max_amp";
 
     public static final String ShowAnglePreferenceKey = "preference_show_angle";

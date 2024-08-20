@@ -125,6 +125,7 @@ public class DrawPreview {
     private int zebra_stripes_color_background;
     private boolean want_focus_peaking;
     private int focus_peaking_color_pref;
+    private boolean want_pre_shots;
 
     // avoid doing things that allocate memory every frame!
     private final Paint p = new Paint();
@@ -791,6 +792,8 @@ public class DrawPreview {
         want_focus_peaking = applicationInterface.getFocusPeakingPref();
         String focus_peaking_color = sharedPreferences.getString(PreferenceKeys.FocusPeakingColorPreferenceKey, "#ffffff");
         focus_peaking_color_pref = Color.parseColor(focus_peaking_color);
+
+        want_pre_shots = applicationInterface.getPreShotsPref(photoMode);
 
         last_camera_id_time = 0; // in case camera id changed
         last_view_angles_time = 0; // force view angles to be recomputed
@@ -2795,10 +2798,12 @@ public class DrawPreview {
         int ui_rotation = preview.getUIRotation();
 
         // set up preview bitmaps (histogram etc)
-        boolean want_preview_bitmap = want_histogram || want_zebra_stripes || want_focus_peaking;
-        if( want_preview_bitmap != preview.isPreviewBitmapEnabled() ) {
+        boolean want_preview_bitmap = want_histogram || want_zebra_stripes || want_focus_peaking || want_pre_shots;
+        boolean use_preview_bitmap_small = want_histogram || want_zebra_stripes || want_focus_peaking;
+        boolean use_preview_bitmap_full = want_pre_shots;
+        if( want_preview_bitmap != preview.isPreviewBitmapEnabled() || use_preview_bitmap_small != preview.usePreviewBitmapSmall() || use_preview_bitmap_full != preview.usePreviewBitmapFull() ) {
             if( want_preview_bitmap ) {
-                preview.enablePreviewBitmap();
+                preview.enablePreviewBitmap(use_preview_bitmap_small, use_preview_bitmap_full);
             }
             else
                 preview.disablePreviewBitmap();
@@ -2818,6 +2823,11 @@ public class DrawPreview {
                 preview.enableFocusPeaking();
             else
                 preview.disableFocusPeaking();
+
+            if( want_pre_shots )
+                preview.enablePreShots();
+            else
+                preview.disablePreShots();
         }
 
         // See documentation for CameraController.shouldCoverPreview().
