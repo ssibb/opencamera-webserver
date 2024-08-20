@@ -35,6 +35,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.DngCreator;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.Capability;
+import android.hardware.camera2.params.ColorSpaceTransform;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.OutputConfiguration;
@@ -626,6 +627,17 @@ public class CameraController2 extends CameraController {
                 RggbChannelVector rggbChannelVector = convertTemperatureToRggbVector(white_balance_temperature);
                 builder.set(CaptureRequest.COLOR_CORRECTION_MODE, CameraMetadata.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX);
                 builder.set(CaptureRequest.COLOR_CORRECTION_GAINS, rggbChannelVector);
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "original color_correction_transform: " + builder.get(CaptureRequest.COLOR_CORRECTION_TRANSFORM));
+                }
+                // need to set COLOR_CORRECTION_TRANSFORM on some devices (e.g. Pixel 6 Pro) as they don't have it set by default
+                ColorSpaceTransform color_space_transform = new ColorSpaceTransform(new int[]
+                        {
+                                1, 1, 0, 1, 0, 1,
+                                0, 1, 1, 1, 0, 1,
+                                0, 1, 0, 1, 1, 1
+                        });
+                builder.set(CaptureRequest.COLOR_CORRECTION_TRANSFORM, color_space_transform);
                 changed = true;
             }
             return changed;
