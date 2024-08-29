@@ -2454,7 +2454,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "longClickedSwitchMultiCamera");
 
-        showPreview(false);
+        //showPreview(false);
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.choose_camera);
 
@@ -2496,19 +2496,21 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         userSwitchToCamera(which);
                     }
                 }
-                setWindowFlagsForCamera();
-                showPreview(true);
+                //setWindowFlagsForCamera();
+                //showPreview(true);
             }
         });
-        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        /*alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface arg0) {
                 setWindowFlagsForCamera();
                 showPreview(true);
             }
-        });
-        setWindowFlagsForSettings(true); // set set_lock_protect to false - no need to protect this dialog with lock screen (fine to run above lock screen if that option is set)
-        showAlert(alertDialog.create());
+        });*/
+        //setWindowFlagsForSettings(false); // set set_lock_protect to false - no need to protect this dialog with lock screen (fine to run above lock screen if that option is set)
+        //showAlert(alertDialog.create());
+        AlertDialog dialog = alertDialog.create();
+        dialog.show();
     }
 
     /**

@@ -3068,8 +3068,8 @@ public class MainUI {
             }
         });
 
-        main_activity.showPreview(false);
-        main_activity.setWindowFlagsForSettings(false); // set set_lock_protect to false, otherwise if screen is locked, user will need to unlock to see the info dialog!
+        //main_activity.showPreview(false);
+        //main_activity.setWindowFlagsForSettings(false); // set set_lock_protect to false, otherwise if screen is locked, user will need to unlock to see the info dialog!
 
         AlertDialog alert = alertDialog.create();
         // AlertDialog.Builder.setOnDismissListener() requires API level 17, so do it this way instead
@@ -3078,11 +3078,12 @@ public class MainUI {
             public void onDismiss(DialogInterface arg0) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "info dialog dismissed");
-                main_activity.setWindowFlagsForCamera();
-                main_activity.showPreview(true);
+                //main_activity.setWindowFlagsForCamera();
+                //main_activity.showPreview(true);
             }
         });
-        main_activity.showAlert(alert);
+        //main_activity.showAlert(alert);
+        alert.show();
         return alert;
     }
 
