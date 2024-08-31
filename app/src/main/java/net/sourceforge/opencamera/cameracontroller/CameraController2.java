@@ -101,6 +101,7 @@ public class CameraController2 extends CameraController {
     private long min_exposure_time;
     private long max_exposure_time;
 
+    private boolean supports_tonemap_preset_curve;
     private final static int tonemap_log_max_curve_points_c = 64;
     private final static float [] jtvideo_values_base = new float[] {
             0.00f,    0.00f,
@@ -1090,9 +1091,8 @@ public class CameraController2 extends CameraController {
                         Log.d(TAG, "default_tonemap_mode: " + default_tonemap_mode);
                 }
 
-                final boolean use_preset_curve = true;
+                final boolean use_preset_curve = supports_tonemap_preset_curve;
                 //final boolean use_preset_curve = false; // test
-                //final boolean use_preset_curve = test_new; // test
                 if( use_preset_curve && tonemap_profile == TonemapProfile.TONEMAPPROFILE_REC709 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "set TONEMAP_PRESET_CURVE_REC709");
@@ -3358,15 +3358,42 @@ public class CameraController2 extends CameraController {
             if( tonemap_max_curve_points != null ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "tonemap_max_curve_points: " + tonemap_max_curve_points);
-                camera_features.tonemap_max_curve_points = tonemap_max_curve_points;
-                // for now we only expose supporting of custom tonemap curves if there are enough curve points for all the
-                // profiles we support
-                // remember to divide by 2 if we're comparing against the raw array length!
-                camera_features.supports_tonemap_curve =
-                    tonemap_max_curve_points >= tonemap_log_max_curve_points_c &&
-                            tonemap_max_curve_points >= jtvideo_values.length/2 &&
-                            tonemap_max_curve_points >= jtlog_values.length/2 &&
-                            tonemap_max_curve_points >= jtlog2_values.length/2;
+
+                int [] tonemap_modes = characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES);
+                if( tonemap_modes == null ) {
+                    // if no tonemap modes, can't support tonemapping
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "tonemap_modes is null");
+                }
+                else {
+                    boolean supports_tonemap_contrast_curve = false;
+                    for(int tonemap_mode : tonemap_modes) {
+                        if( tonemap_mode == CaptureRequest.TONEMAP_MODE_PRESET_CURVE ) {
+                            supports_tonemap_preset_curve = true;
+                        }
+                        else if( tonemap_mode == CaptureRequest.TONEMAP_MODE_CONTRAST_CURVE ) {
+                            supports_tonemap_contrast_curve = true;
+                        }
+                    }
+                    if( MyDebug.LOG ) {
+                        Log.d(TAG, "supports_tonemap_preset_curve: " + supports_tonemap_preset_curve);
+                        Log.d(TAG, "supports_tonemap_contrast_curve: " + supports_tonemap_contrast_curve);
+                    }
+
+                    // if supports_tonemap_contrast_curve==false, don't bother supporting tonemapping (in theory we could support the preset curves alone, but not supported for simplicity)
+                    // if supports_tonemap_contrast_curve==true but supports_tonemap_preset_curve==false, we'll still support tonemapping, but always use contrast curves
+                    if( supports_tonemap_contrast_curve ) {
+                        camera_features.tonemap_max_curve_points = tonemap_max_curve_points;
+                        // for now we only expose supporting of custom tonemap curves if there are enough curve points for all the
+                        // profiles we support
+                        // remember to divide by 2 if we're comparing against the raw array length!
+                        camera_features.supports_tonemap_curve =
+                                tonemap_max_curve_points >= tonemap_log_max_curve_points_c &&
+                                        tonemap_max_curve_points >= jtvideo_values.length/2 &&
+                                        tonemap_max_curve_points >= jtlog_values.length/2 &&
+                                        tonemap_max_curve_points >= jtlog2_values.length/2;
+                    }
+                }
             }
             else {
                 if( MyDebug.LOG )
