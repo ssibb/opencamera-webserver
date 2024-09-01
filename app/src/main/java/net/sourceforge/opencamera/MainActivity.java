@@ -5110,7 +5110,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         final int new_index = index;
         //noinspection UnusedAssignment
         items[index++] = getResources().getString(R.string.choose_another_folder);
-        alertDialog.setItems(items, new DialogInterface.OnClickListener() {
+        //alertDialog.setItems(items, new DialogInterface.OnClickListener() {
+        alertDialog.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if( which == clear_index ) {
@@ -5184,6 +5185,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     setWindowFlagsForCamera();
                     showPreview(true);
                 }
+
+                dialog.dismiss(); // need to explicitly dismiss for setSingleChoiceItems
             }
         });
         alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
