@@ -2510,6 +2510,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         //setWindowFlagsForSettings(false); // set set_lock_protect to false - no need to protect this dialog with lock screen (fine to run above lock screen if that option is set)
         //showAlert(alertDialog.create());
         AlertDialog dialog = alertDialog.create();
+        if( dialog.getWindow() != null ) {
+            dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+        }
         dialog.show();
     }
 
