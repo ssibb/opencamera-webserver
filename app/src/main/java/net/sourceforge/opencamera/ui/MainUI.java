@@ -31,7 +31,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -2067,6 +2070,8 @@ public class MainUI {
         view.setImageResource(R.drawable.ic_exposure_red_48dp);
         View sliders_container = main_activity.findViewById(R.id.sliders_container);
         sliders_container.setVisibility(View.VISIBLE);
+        Animation animation = AnimationUtils.loadAnimation(main_activity, R.anim.fade_in);
+        sliders_container.startAnimation(animation);
         ViewGroup iso_buttons_container = main_activity.findViewById(R.id.iso_buttons);
         iso_buttons_container.removeAllViews();
         List<String> supported_isos;
@@ -2726,8 +2731,14 @@ public class MainUI {
                                 break;
                         }
                         ScaleAnimation animation = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, pivot_x, Animation.RELATIVE_TO_SELF, pivot_y);
-                        animation.setDuration(100);
-                        popup_container.setAnimation(animation);
+                        animation.setDuration(200);
+                        //popup_container.setAnimation(animation);
+                        AlphaAnimation fade_animation = new AlphaAnimation(0.0f, 1.0f);
+                        fade_animation.setDuration(200);
+                        AnimationSet animation_set = new AnimationSet(false);
+                        animation_set.addAnimation(animation);
+                        animation_set.addAnimation(fade_animation);
+                        popup_container.setAnimation(animation_set);
                     }
                 }
         );
