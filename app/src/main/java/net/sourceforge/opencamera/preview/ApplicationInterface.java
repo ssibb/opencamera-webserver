@@ -54,6 +54,7 @@ public interface ApplicationInterface {
     // if you just want a default or don't really care, see the comments for each method for a default or possible options
     // if Preview doesn't support the requested setting, it will check this, and choose its own
     int getCameraIdPref(); // camera to use, from 0 to getCameraControllerManager().getNumberOfCameras()
+    String getCameraIdSPhysicalPref(); // if non-null, the Camera2 physical camera ID (must be one of Preview.getPhysicalCameras())
     String getFlashPref(); // flash_off, flash_auto, flash_on, flash_torch, flash_red_eye
     String getFocusPref(boolean is_video); // focus_mode_auto, focus_mode_infinity, focus_mode_macro, focus_mode_locked, focus_mode_fixed, focus_mode_manual2, focus_mode_edof, focus_mode_continuous_picture, focus_mode_continuous_video
     boolean isVideoPref(); // start up in video mode?
@@ -222,7 +223,7 @@ public interface ApplicationInterface {
     void requestTakePhoto(); // requesting taking a photo (due to single/double tap, if either getTouchCapturePref(), getDoubleTouchCapturePref() options are enabled)
     // the set/clear*Pref() methods are called if Preview decides to override the requested pref (because Camera device doesn't support requested pref) (clear*Pref() is called if the feature isn't supported at all)
     // the application can use this information to update its preferences
-    void setCameraIdPref(int cameraId);
+    void setCameraIdPref(int cameraId, String cameraIdSPhysical);
     void setFlashPref(String flash_value);
     void setFocusPref(String focus_value, boolean is_video);
     void setVideoPref(boolean is_video);

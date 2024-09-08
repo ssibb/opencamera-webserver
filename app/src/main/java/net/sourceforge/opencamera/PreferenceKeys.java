@@ -40,6 +40,15 @@ public class PreferenceKeys {
     public static final String CameraAPIPreferenceDefault = "preference_camera_api_old";
     public static final String CameraAPIPreferenceKey = "preference_camera_api";
 
+    private static String getCameraIDKey(int cameraId, String cameraIdSPhysical) {
+        if( cameraIdSPhysical != null )
+            return cameraId + "_" + cameraIdSPhysical;
+        else
+            return String.valueOf(cameraId);
+    }
+
+    // don't set to be specific for physical cameras, as too confusing to have lots of different flash preferences
+    // also in Preview, we don't save the flash back if not supported
     public static String getFlashPreferenceKey(int cameraId) {
         return "flash_value_" + cameraId;
     }
@@ -50,12 +59,12 @@ public class PreferenceKeys {
 
     public static final String FocusAssistPreferenceKey = "preference_focus_assist";
 
-    public static String getResolutionPreferenceKey(int cameraId) {
-        return "camera_resolution_" + cameraId;
+    public static String getResolutionPreferenceKey(int cameraId, String cameraIdSPhysical) {
+        return "camera_resolution_" + getCameraIDKey(cameraId, cameraIdSPhysical);
     }
 
-    public static String getVideoQualityPreferenceKey(int cameraId, boolean high_speed) {
-        return "video_quality_" + cameraId + (high_speed ? "_highspeed" : "");
+    public static String getVideoQualityPreferenceKey(int cameraId, String cameraIdSPhysical, boolean high_speed) {
+        return "video_quality_" + getCameraIDKey(cameraId, cameraIdSPhysical) + (high_speed ? "_highspeed" : "");
     }
 
     public static final String OptimiseFocusPreferenceKey = "preference_photo_optimise_focus";
@@ -312,14 +321,14 @@ public class PreferenceKeys {
 
     public static final String VideoBitratePreferenceKey = "preference_video_bitrate";
 
-    public static String getVideoFPSPreferenceKey(int cameraId) {
-        // for cameraId==0, we return preference_video_fps instead of preference_video_fps_0, for
+    public static String getVideoFPSPreferenceKey(int cameraId, String cameraIdSPhysical) {
+        // for cameraId==0 and cameraIdSPhysical==null, we return preference_video_fps instead of preference_video_fps_0, for
         // backwards compatibility for people upgrading
-        return "preference_video_fps" + ((cameraId==0) ? "" : ("_"+cameraId));
+        return "preference_video_fps" + ((cameraId==0 && cameraIdSPhysical==null) ? "" : ("_"+getCameraIDKey(cameraId, cameraIdSPhysical)));
     }
 
-    public static String getVideoCaptureRatePreferenceKey(int cameraId) {
-        return "preference_capture_rate_" + cameraId;
+    public static String getVideoCaptureRatePreferenceKey(int cameraId, String cameraIdSPhysical) {
+        return "preference_capture_rate_" + getCameraIDKey(cameraId, cameraIdSPhysical);
     }
 
     public static final String VideoLogPreferenceKey = "preference_video_log";

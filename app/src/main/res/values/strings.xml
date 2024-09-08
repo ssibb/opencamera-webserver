@@ -1033,6 +1033,11 @@
     <string name="preference_save_preshots">Save preview shots</string>
     <string name="preference_save_preshots_summary">When enabled, a short video will be saved alongside each photo, containing shots from the moment before the photo was taken. Not supported for expo, focus bracketing or panorama modes.\n%s</string>
 
+    <string name="telephoto">Telephoto</string>
+    <string name="auto_lens">Auto Lens</string>
+    <string name="lens">Lens</string>
+    <string name="physical_cameras_info">&#9432; By default, a camera uses Auto Lens selection, which means the zoom level controls which lens is used. However this menu also allows you to explicitly choose which lens is being used.</string>
+
     <!-- The following strings should not be translated (and shouldn't be included in language-specific strings.xml), in case they need updating -->
 
     <string name="preference_privacy_policy" translatable="false">Privacy policy</string>

@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -332,6 +333,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private boolean supports_raw;
     private float view_angle_x;
     private float view_angle_y;
+    private Set<String> physical_camera_ids; // if non-null, this camera is part of a logical camera that exposes these physical camera IDs
 
     private List<CameraController.Size> supported_preview_sizes;
 
@@ -1714,11 +1716,20 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
         camera_open_state = CameraOpenState.CAMERAOPENSTATE_OPENING;
         int cameraId = applicationInterface.getCameraIdPref();
+        String cameraIdSPhysical = applicationInterface.getCameraIdSPhysicalPref();
         if( cameraId < 0 || cameraId >= camera_controller_manager.getNumberOfCameras() ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "invalid cameraId: " + cameraId);
             cameraId = 0;
-            applicationInterface.setCameraIdPref(cameraId);
+            cameraIdSPhysical = null;
+            applicationInterface.setCameraIdPref(cameraId, cameraIdSPhysical);
+        }
+
+        if( !using_android_l && cameraIdSPhysical != null ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "physical camera not supported for old camera API: " + cameraIdSPhysical);
+            cameraIdSPhysical = null;
+            applicationInterface.setCameraIdPref(cameraId, cameraIdSPhysical);
         }
 
         //final boolean use_background_thread = false;
@@ -1736,6 +1747,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		 */
         if( use_background_thread ) {
             final int cameraId_f = cameraId;
+            final String cameraIdSPhysical_f = cameraIdSPhysical;
 
             open_camera_task = new AsyncTask<Void, Void, CameraController>() {
                 private static final String TAG = "Preview/openCamera";
@@ -1744,7 +1756,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 protected CameraController doInBackground(Void... voids) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "doInBackground, async task: " + this);
-                    return openCameraCore(cameraId_f);
+                    return openCameraCore(cameraId_f, cameraIdSPhysical_f);
                 }
 
                 /** The system calls this to perform work in the UI thread and delivers
@@ -1782,7 +1794,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             }.execute();
         }
         else {
-            this.camera_controller = openCameraCore(cameraId);
+            this.camera_controller = openCameraCore(cameraId, cameraIdSPhysical);
             if( MyDebug.LOG ) {
                 Log.d(TAG, "openCamera: time after opening camera: " + (System.currentTimeMillis() - debug_time));
             }
@@ -1798,7 +1810,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
     /** Open the camera - this should be called from background thread, to avoid hogging the UI thread.
      */
-    private CameraController openCameraCore(int cameraId) {
+    private CameraController openCameraCore(int cameraId, String cameraIdSPhysical) {
         long debug_time = 0;
         if( MyDebug.LOG ) {
             Log.d(TAG, "openCameraCore()");
@@ -1842,7 +1854,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         applicationInterface.onFailedStartPreview();
                     }
                 };
-                camera_controller_local = new CameraController2(Preview.this.getContext(), cameraId, previewErrorCallback, cameraErrorCallback);
+                camera_controller_local = new CameraController2(Preview.this.getContext(), cameraId, cameraIdSPhysical, previewErrorCallback, cameraErrorCallback);
                 if( applicationInterface.useCamera2FakeFlash() ) {
                     camera_controller_local.setUseCamera2FakeFlash(true);
                 }
@@ -2413,6 +2425,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             this.supported_preview_sizes = camera_features.preview_sizes;
             this.supported_extensions = camera_features.supported_extensions;
             this.supported_extensions_zoom = camera_features.supported_extensions_zoom;
+            this.physical_camera_ids = camera_features.physical_camera_ids;
 
             // need to do zoom last, as applicationInterface.allowZoom() may depend on the supported
             // camera features (e.g., zoom not necessarily supported with camera extensions, so we need to have first
@@ -3167,8 +3180,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         // if in manual ISO mode, we'll have restricted the available flash modes - so although we want to
                         // communicate this to the application, we don't want to save the new value we've chosen (otherwise
                         // if user goes to manual ISO and back, we might switch saved flash say from auto to off)
-                        // similarly for camera extension modes
-                        updateFlash(0, !is_manual_iso && !is_extension );
+                        // similarly for camera extension modes, and specific physical cameras
+                        updateFlash(0, false);
                     }
                 }
                 else {
@@ -4549,9 +4562,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         return true;
     }
 
-    public void setCamera(int cameraId) {
+    public void setCamera(int cameraId, String cameraIdSPhysical) {
         if( MyDebug.LOG )
-            Log.d(TAG, "setCamera(): " + cameraId);
+            Log.d(TAG, "setCamera(): " + cameraId + " / " + cameraIdSPhysical);
         if( cameraId < 0 || cameraId >= camera_controller_manager.getNumberOfCameras() ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "invalid cameraId: " + cameraId);
@@ -4567,12 +4580,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			applicationInterface.setCameraIdPref(cameraId);
 			this.openCamera();*/
             final int cameraId_f = cameraId;
+            final String cameraIdSPhysical_f = cameraIdSPhysical;
             closeCamera(true, new CloseCameraCallback() {
                 @Override
                 public void onClosed() {
                     if( MyDebug.LOG )
                         Log.d(TAG, "CloseCameraCallback.onClosed");
-                    applicationInterface.setCameraIdPref(cameraId_f);
+                    applicationInterface.setCameraIdPref(cameraId_f, cameraIdSPhysical_f);
                     openCamera();
                 }
             });
@@ -4874,7 +4888,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             if( !updateFocus(focus_value, true, false, auto_focus) ) { // don't need to save, as this is the value that's already saved
                 if( MyDebug.LOG )
                     Log.d(TAG, "focus value no longer supported!");
-                updateFocus(0, true, true, auto_focus);
+                // don't save, as we may be in a temporary mode where the saved focus isn't supported - e.g., this could happen if switching to a specific physical camera
+                updateFocus(0, true, false, auto_focus);
             }
         }
         else {
@@ -9202,5 +9217,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         if( zoom_ratios == null )
             return 1.0f;
         return this.zoom_ratios.get(max_zoom_factor)/100.0f;
+    }
+
+    public boolean hasPhysicalCameras() {
+        return this.physical_camera_ids != null;
+    }
+
+    public final Set<String> getPhysicalCameras() {
+        return this.physical_camera_ids;
     }
 }

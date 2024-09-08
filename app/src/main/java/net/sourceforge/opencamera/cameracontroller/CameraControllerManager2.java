@@ -78,27 +78,70 @@ public class CameraControllerManager2 extends CameraControllerManager {
         String description = null;
         try {
             String cameraIdS = manager.getCameraIdList()[cameraId];
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraIdS);
+            description = getDescription(null, context, cameraIdS, true, false);
+        }
+        catch(Throwable e) {
+            // see note under isFrontFacing() why we catch anything, not just CameraAccessException
+            if( MyDebug.LOG )
+                Log.e(TAG, "exception trying to get camera characteristics");
+            e.printStackTrace();
+        }
+        return description;
+    }
 
-            switch( characteristics.get(CameraCharacteristics.LENS_FACING) ) {
-                case CameraMetadata.LENS_FACING_FRONT:
-                    description = context.getResources().getString(R.string.front_camera);
-                    break;
-                case CameraMetadata.LENS_FACING_BACK:
-                    description = context.getResources().getString(R.string.back_camera);
-                    break;
-                case CameraMetadata.LENS_FACING_EXTERNAL:
-                    description = context.getResources().getString(R.string.external_camera);
-                    break;
-                default:
-                    Log.e(TAG, "unknown camera type");
-                    return null;
+    @Override
+    public String getDescription(CameraInfo info, Context context, String cameraIdS, boolean include_type, boolean include_angles) {
+        long debug_time = 0;
+        if( MyDebug.LOG ) {
+            debug_time = System.currentTimeMillis();
+        }
+        CameraManager manager = (CameraManager)context.getSystemService(Context.CAMERA_SERVICE);
+        String description = "";
+        try {
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraIdS);
+            if( MyDebug.LOG )
+                Log.d(TAG, "getDescription: time after getCameraCharacteristics: " + (System.currentTimeMillis() - debug_time));
+
+            if( include_type ) {
+                switch( characteristics.get(CameraCharacteristics.LENS_FACING) ) {
+                    case CameraMetadata.LENS_FACING_FRONT:
+                        description = context.getResources().getString(R.string.front_camera);
+                        break;
+                    case CameraMetadata.LENS_FACING_BACK:
+                        description = context.getResources().getString(R.string.back_camera);
+                        break;
+                    case CameraMetadata.LENS_FACING_EXTERNAL:
+                        description = context.getResources().getString(R.string.external_camera);
+                        break;
+                    default:
+                        Log.e(TAG, "unknown camera type");
+                        return null;
+                }
             }
 
             SizeF view_angle = CameraControllerManager2.computeViewAngles(characteristics);
+            if( info != null )
+                info.view_angle = view_angle;
+            if( MyDebug.LOG )
+                Log.d(TAG, "getDescription: time after computeViewAngles: " + (System.currentTimeMillis() - debug_time));
             if( view_angle.getWidth() > 90.5f ) {
                 // count as ultra-wide
-                description += ", " + context.getResources().getString(R.string.ultrawide);
+                if( description.length() > 0 )
+                    description += ", ";
+                description += context.getResources().getString(R.string.ultrawide);
+            }
+            else if( view_angle.getWidth() < 29.5f ) {
+                // count as telephoto
+                // Galaxy S24+ telephoto is 29x22 degrees
+                if( description.length() > 0 )
+                    description += ", ";
+                description += context.getResources().getString(R.string.telephoto);
+            }
+
+            if( include_angles ) {
+                if( description.length() > 0 )
+                    description += ", ";
+                description += ((int)(view_angle.getWidth()+0.5f)) + String.valueOf((char)0x00B0) + " x " + ((int)(view_angle.getHeight()+0.5f)) + (char) 0x00B0;
             }
         }
         catch(Throwable e) {

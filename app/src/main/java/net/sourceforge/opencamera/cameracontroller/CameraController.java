@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import android.graphics.Rect;
 import android.location.Location;
@@ -58,6 +59,7 @@ public abstract class CameraController {
     public volatile int test_texture_view_buffer_h;
 
     public static class CameraFeatures {
+        public Set<String> physical_camera_ids; // if non-null, this camera is part of a logical camera that exposes these physical camera IDs
         public boolean is_zoom_supported;
         public int max_zoom;
         public List<Integer> zoom_ratios; // list of supported zoom ratios; each value is the zoom multiplied by 100

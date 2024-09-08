@@ -40,6 +40,7 @@ import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.RggbChannelVector;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.hardware.camera2.params.TonemapCurve;
 import android.location.Location;
@@ -74,12 +75,14 @@ public class CameraController2 extends CameraController {
 
     private final Context context;
     private CameraDevice camera;
-    private final String cameraIdS;
+    private final String cameraIdS; // ID string of logical camera
+    private final String cameraIdSPhysical; // if non-null, ID string of underlying physical camera
 
     private final boolean is_samsung;
     private final boolean is_samsung_s7; // Galaxy S7 or Galaxy S7 Edge
     private final boolean is_samsung_galaxy_s;
 
+    // characteristics of camera - if a specific physical camera is being used, these are characteristics for the physical camera
     private CameraCharacteristics characteristics;
     private CameraExtensionCharacteristics extension_characteristics;
     // cached characteristics (use this for values that need to be frequently accessed, e.g., per frame, to improve performance);
@@ -2059,16 +2062,19 @@ public class CameraController2 extends CameraController {
     /** Opens the camera device.
      * @param context Application context.
      * @param cameraId Which camera to open (must be between 0 and CameraControllerManager2.getNumberOfCameras()-1).
+     * @param cameraIdSPhysical If non-null, specifies a physical camera to use (must be a member of CameraFeatures.physical_camera_ids for this camera or the corresponding logical camera)
      * @param preview_error_cb onError() will be called if the preview stops due to error.
      * @param camera_error_cb onError() will be called if the camera closes due to serious error. No more calls to the CameraController2 object should be made (though a new one can be created, to try reopening the camera).
      * @throws CameraControllerException if the camera device fails to open.
      */
-    public CameraController2(Context context, int cameraId, final ErrorCallback preview_error_cb, final ErrorCallback camera_error_cb) throws CameraControllerException {
+    public CameraController2(Context context, int cameraId, String cameraIdSPhysical, final ErrorCallback preview_error_cb, final ErrorCallback camera_error_cb) throws CameraControllerException {
         super(cameraId);
         if( MyDebug.LOG ) {
-            Log.d(TAG, "create new CameraController2: " + cameraId);
+            Log.d(TAG, "create new CameraController2: " + cameraId + " / " + cameraIdSPhysical);
             Log.d(TAG, "this: " + this);
         }
+
+        this.cameraIdSPhysical = cameraIdSPhysical;
 
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
             this.previewExtensionCaptureCallback = new MyExtensionCaptureCallback();
@@ -2119,7 +2125,7 @@ public class CameraController2 extends CameraController {
                         // we should be able to get characteristics at any time, but Google Camera only does so when camera opened - so do so similarly to be safe
                         if( MyDebug.LOG )
                             Log.d(TAG, "try to get camera characteristics");
-                        characteristics = manager.getCameraCharacteristics(cameraIdS);
+                        characteristics = manager.getCameraCharacteristics(cameraIdSPhysical != null ? cameraIdSPhysical : cameraIdS);
                         if( MyDebug.LOG )
                             Log.d(TAG, "successfully obtained camera characteristics");
                         // now read cached values
@@ -2146,7 +2152,10 @@ public class CameraController2 extends CameraController {
                             Log.d(TAG, "characteristics_facing: " + characteristics_facing);
                         }
 
-                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
+                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && cameraIdSPhysical == null ) {
+                            // n.b., getCameraExtensionCharacteristics is documented as saying this must be the standalone cameraID that can be directly opened with openCamera()
+                            // however on Pixel 6 Pro at least, night mode extension only ever uses the wide camera, even if telephoto or ultrawide is set as a physical camera,
+                            // so don't support for now
                             extension_characteristics = manager.getCameraExtensionCharacteristics(cameraIdS);
                             if( MyDebug.LOG )
                                 Log.d(TAG, "successfully obtained camera characteristics");
@@ -2363,7 +2372,7 @@ public class CameraController2 extends CameraController {
             }, 5000);
         }*/
 
-        /*CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraIdS);
+        /*CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraIdSPhysical != null ? cameraIdSPhysical : cameraIdS);
         StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         android.util.Size [] camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG);
         imageReader = ImageReader.newInstance(camera_picture_sizes[0].getWidth(), , ImageFormat.JPEG, 2);*/
@@ -2830,6 +2839,30 @@ public class CameraController2 extends CameraController {
         }
 
         int [] capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+
+        CameraCharacteristics logical_characteristics;
+        int [] logical_capabilities;
+        if( cameraIdSPhysical != null ) {
+            // If we have a physical camera ID, characteristics refer to the physical camera ID. But for some things,
+            // we want to query the characteristics of the logical camera.
+            CameraManager manager = (CameraManager)context.getSystemService(Context.CAMERA_SERVICE);
+            try {
+                logical_characteristics = manager.getCameraCharacteristics(cameraIdS);
+                logical_capabilities = logical_characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+            }
+            catch(CameraAccessException e) {
+                Log.e(TAG, "failed to get logical_characteristics for: " + cameraIdS);
+                e.printStackTrace();
+                throw new CameraControllerException();
+            }
+            if( MyDebug.LOG )
+                Log.d(TAG, "successfully obtained logical camera characteristics");
+        }
+        else {
+            logical_characteristics = characteristics;
+            logical_capabilities = capabilities;
+        }
+
         //boolean capabilities_manual_sensor = false;
         boolean capabilities_manual_post_processing = false;
         boolean capabilities_raw = false;
@@ -2860,9 +2893,15 @@ public class CameraController2 extends CameraController {
                 // we test for at least Android M just to be safe (this is needed for createConstrainedHighSpeedCaptureSession())
                 capabilities_high_speed_video = true;
             }
-            else if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA ) {
+        }
+        boolean capabilities_logical_multi_camera = false;
+        for(int capability : logical_capabilities) {
+            // to be safe, we check the REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA from the logical camera
+            if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+                // we test for at least Android 9 just to be safe (this is needed for getPhysicalCameraIds())
                 if( MyDebug.LOG )
                     Log.d(TAG, "camera is a logical multi-camera");
+                capabilities_logical_multi_camera = true;
             }
         }
         // At least some Huawei devices (at least, the Huawei device model FIG-LX3, device code-name hi6250) don't have
@@ -3025,7 +3064,8 @@ public class CameraController2 extends CameraController {
         }
         Collections.sort(camera_features.video_sizes, new CameraController.SizeSorter());
 
-        if( capabilities_high_speed_video ) {
+        // don't support high speed if physical camera specified - seems unreliable on Pixel 6 Pro
+        if( capabilities_high_speed_video && cameraIdSPhysical == null ) {
             hs_fps_ranges = new ArrayList<>();
             camera_features.video_sizes_high_speed = new ArrayList<>();
 
@@ -3415,6 +3455,17 @@ public class CameraController2 extends CameraController {
         SizeF view_angle = CameraControllerManager2.computeViewAngles(characteristics);
         camera_features.view_angle_x = view_angle.getWidth();
         camera_features.view_angle_y = view_angle.getHeight();
+
+        if( capabilities_logical_multi_camera && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+            // to be safe, read from the logical camera characteristics
+            camera_features.physical_camera_ids = logical_characteristics.getPhysicalCameraIds();
+            if( MyDebug.LOG )
+                Log.d(TAG, "physical_camera_ids: " + camera_features.physical_camera_ids);
+            if( camera_features.physical_camera_ids.size() <= 1 ) {
+                // no point supporting
+                camera_features.physical_camera_ids = null;
+            }
+        }
 
         return camera_features;
     }
@@ -5840,6 +5891,19 @@ public class CameraController2 extends CameraController {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private List<OutputConfiguration> createOutputConfigurationList(List<Surface> surfaces) {
+        List<OutputConfiguration> outputs = new ArrayList<>();
+        for(Surface surface : surfaces) {
+            OutputConfiguration config = new OutputConfiguration(surface);
+            if( cameraIdSPhysical != null ) {
+                config.setPhysicalCameraId(cameraIdSPhysical);
+            }
+            outputs.add(config);
+        }
+        return outputs;
+    }
+
     private void createCaptureSession(final MediaRecorder video_recorder, boolean want_photo_video_recording) throws CameraControllerException {
         if( MyDebug.LOG )
             Log.d(TAG, "create capture session");
@@ -6103,10 +6167,7 @@ public class CameraController2 extends CameraController {
                     //int extension = CameraExtensionCharacteristics.EXTENSION_AUTOMATIC;
                     //int extension = CameraExtensionCharacteristics.EXTENSION_BOKEH;
                     int extension = camera_extension;
-                    List<OutputConfiguration> outputs = new ArrayList<>();
-                    for(Surface surface : surfaces) {
-                        outputs.add(new OutputConfiguration(surface));
-                    }
+                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
                     ExtensionSessionConfiguration extensionConfiguration = new ExtensionSessionConfiguration(
                             extension,
                             outputs,
@@ -6142,16 +6203,33 @@ public class CameraController2 extends CameraController {
             }
             else if( video_recorder != null && want_video_high_speed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
             //if( want_video_high_speed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
-                camera.createConstrainedHighSpeedCaptureSession(surfaces,
-                    myStateCallback,
-                    handler);
+                if( cameraIdSPhysical != null  && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
+                    SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionConfiguration.SESSION_HIGH_SPEED, outputs, executor, myStateCallback);
+                    camera.createCaptureSession(sessionConfiguration);
+                }
+                else {
+                    camera.createConstrainedHighSpeedCaptureSession(surfaces,
+                            myStateCallback,
+                            handler);
+                }
                 is_video_high_speed = true;
             }
             else {
                 try {
-                    camera.createCaptureSession(surfaces,
-                        myStateCallback,
-                        handler);
+                    if( cameraIdSPhysical != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+                        List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
+                        /*camera.createCaptureSessionByOutputConfigurations(outputs,
+                                myStateCallback,
+                                handler);*/
+                        SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionConfiguration.SESSION_REGULAR, outputs, executor, myStateCallback);
+                        camera.createCaptureSession(sessionConfiguration);
+                    }
+                    else {
+                        camera.createCaptureSession(surfaces,
+                                myStateCallback,
+                                handler);
+                    }
                     is_video_high_speed = false;
                 }
                 catch(NullPointerException e) {

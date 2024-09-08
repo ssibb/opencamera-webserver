@@ -5,6 +5,7 @@ import net.sourceforge.opencamera.R;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
+import android.util.SizeF;
 
 /** Provides support using Android's original camera API
  *  android.hardware.Camera.
@@ -46,5 +47,10 @@ public class CameraControllerManager1 extends CameraControllerManager {
                 return context.getResources().getString(R.string.back_camera);
         }
         return null;
+    }
+
+    @Override
+    public String getDescription(CameraInfo info, Context context, String cameraIdS, boolean include_type, boolean include_angles) {
+        throw new RuntimeException("getDescription() not supported for old Camera API");
     }
 }

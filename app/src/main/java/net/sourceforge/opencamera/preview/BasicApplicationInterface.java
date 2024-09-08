@@ -35,6 +35,11 @@ public abstract class BasicApplicationInterface implements ApplicationInterface 
     }
 
     @Override
+    public String getCameraIdSPhysicalPref() {
+        return null;
+    }
+
+    @Override
     public String getFlashPref() {
         return "flash_off";
     }
@@ -537,7 +542,7 @@ public abstract class BasicApplicationInterface implements ApplicationInterface 
     }
 
     @Override
-    public void setCameraIdPref(int cameraId) {
+    public void setCameraIdPref(int cameraId, String cameraIdSPhysical) {
 
     }
 

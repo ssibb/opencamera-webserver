@@ -150,6 +150,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     private final static int cameraId_default = 0;
     private boolean has_set_cameraId;
     private int cameraId = cameraId_default;
+    private String cameraIdSPhysical = null; // if non-null, this is the ID string for a physical camera, undlerying the logical cameraId
     private final static String nr_mode_default = "preference_nr_mode_normal";
     private String nr_mode = nr_mode_default;
     private final static float aperture_default = -1.0f;
@@ -190,6 +191,9 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             cameraId = savedInstanceState.getInt("cameraId", cameraId_default);
             if( MyDebug.LOG )
                 Log.d(TAG, "found cameraId: " + cameraId);
+            cameraIdSPhysical = savedInstanceState.getString("cameraIdSPhysical", null);
+            if( MyDebug.LOG )
+                Log.d(TAG, "found cameraIdSPhysical: " + cameraIdSPhysical);
             nr_mode = savedInstanceState.getString("nr_mode", nr_mode_default);
             if( MyDebug.LOG )
                 Log.d(TAG, "found nr_mode: " + nr_mode);
@@ -212,6 +216,9 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         if( MyDebug.LOG )
             Log.d(TAG, "save cameraId: " + cameraId);
         state.putInt("cameraId", cameraId);
+        if( MyDebug.LOG )
+            Log.d(TAG, "save cameraIdSPhysical: " + cameraIdSPhysical);
+        state.putString("cameraIdSPhysical", cameraIdSPhysical);
         if( MyDebug.LOG )
             Log.d(TAG, "save nr_mode: " + nr_mode);
         state.putString("nr_mode", nr_mode);
@@ -417,6 +424,11 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     }
 
     @Override
+    public String getCameraIdSPhysicalPref() {
+        return cameraIdSPhysical;
+    }
+
+    @Override
     public String getFlashPref() {
         return sharedPreferences.getString(PreferenceKeys.getFlashPreferenceKey(cameraId), "");
     }
@@ -563,7 +575,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             return new Pair<>(best_size.width, best_size.height);
         }
 
-        String resolution_value = sharedPreferences.getString(PreferenceKeys.getResolutionPreferenceKey(cameraId), "");
+        String resolution_value = sharedPreferences.getString(PreferenceKeys.getResolutionPreferenceKey(cameraId, cameraIdSPhysical), "");
         if( MyDebug.LOG )
             Log.d(TAG, "resolution_value: " + resolution_value);
         Pair<Integer, Integer> result = null;
@@ -707,7 +719,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
         // Conceivably, we might get in a state where the fps isn't supported at all (e.g., an upgrade changes the available
         // supported video resolutions/frame-rates).
-        return sharedPreferences.getString(PreferenceKeys.getVideoQualityPreferenceKey(cameraId, fpsIsHighSpeed()), "");
+        return sharedPreferences.getString(PreferenceKeys.getVideoQualityPreferenceKey(cameraId, cameraIdSPhysical, fpsIsHighSpeed()), "");
     }
 
     @Override
@@ -770,12 +782,12 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             Log.e(TAG, "can't find valid fps for slow motion");
             return "default";
         }
-        return sharedPreferences.getString(PreferenceKeys.getVideoFPSPreferenceKey(cameraId), "default");
+        return sharedPreferences.getString(PreferenceKeys.getVideoFPSPreferenceKey(cameraId, cameraIdSPhysical), "default");
     }
 
     @Override
     public float getVideoCaptureRateFactor() {
-        float capture_rate_factor = sharedPreferences.getFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(main_activity.getPreview().getCameraId()), 1.0f);
+        float capture_rate_factor = sharedPreferences.getFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(main_activity.getPreview().getCameraId(), cameraIdSPhysical), 1.0f);
         if( MyDebug.LOG )
             Log.d(TAG, "capture_rate_factor: " + capture_rate_factor);
         if( Math.abs(capture_rate_factor - 1.0f) > 1.0e-5 ) {
@@ -2911,7 +2923,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             if( main_activity.getPreview().getCameraControllerManager().getFacing(i) == want_facing ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "found desired camera: " + i);
-                this.setCameraIdPref(i);
+                this.setCameraIdPref(i, null);
                 break;
             }
         }
@@ -2924,9 +2936,10 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     }
 
     @Override
-    public void setCameraIdPref(int cameraId) {
+    public void setCameraIdPref(int cameraId, String cameraIdSPhysical) {
         this.has_set_cameraId = true;
         this.cameraId = cameraId;
+        this.cameraIdSPhysical = cameraIdSPhysical;
     }
 
     @Override
@@ -3040,14 +3053,14 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             Log.d(TAG, "save new resolution_value: " + resolution_value);
         }
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PreferenceKeys.getResolutionPreferenceKey(cameraId), resolution_value);
+        editor.putString(PreferenceKeys.getResolutionPreferenceKey(cameraId, cameraIdSPhysical), resolution_value);
         editor.apply();
     }
 
     @Override
     public void setVideoQualityPref(String video_quality) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(cameraId, fpsIsHighSpeed()), video_quality);
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(cameraId, cameraIdSPhysical, fpsIsHighSpeed()), video_quality);
         editor.apply();
     }
 

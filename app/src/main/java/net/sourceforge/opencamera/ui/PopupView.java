@@ -420,7 +420,7 @@ public class PopupView extends LinearLayout {
                         String resolution_string = new_size.width + " " + new_size.height;
                         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(PreferenceKeys.getResolutionPreferenceKey(preview.getCameraId()), resolution_string);
+                        editor.putString(PreferenceKeys.getResolutionPreferenceKey(preview.getCameraId(), main_activity.getApplicationInterface().getCameraIdSPhysicalPref()), resolution_string);
                         editor.apply();
 
                         // make it easier to scroll through the list of resolutions without a pause each time
@@ -503,7 +503,7 @@ public class PopupView extends LinearLayout {
                         String quality = video_sizes_f.get(video_size_index);
                         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(preview.getCameraId(), main_activity.getApplicationInterface().fpsIsHighSpeed()), quality);
+                        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(preview.getCameraId(), main_activity.getApplicationInterface().getCameraIdSPhysicalPref(), main_activity.getApplicationInterface().fpsIsHighSpeed()), quality);
                         editor.apply();
 
                         // make it easier to scroll through the list of resolutions without a pause each time
@@ -770,7 +770,7 @@ public class PopupView extends LinearLayout {
                 if( capture_rate_values.size() > 1 ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "add slow motion / timelapse video options");
-                    float capture_rate_value = sharedPreferences.getFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(preview.getCameraId()), 1.0f);
+                    float capture_rate_value = sharedPreferences.getFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(preview.getCameraId(), main_activity.getApplicationInterface().getCameraIdSPhysicalPref()), 1.0f);
                     final List<String> capture_rate_str = new ArrayList<>();
                     int capture_rate_std_index = -1;
                     for(int i=0;i<capture_rate_values.size();i++) {
@@ -815,7 +815,7 @@ public class PopupView extends LinearLayout {
                             float new_capture_rate_value = capture_rate_values.get(video_capture_rate_index);
                             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(preview.getCameraId()), new_capture_rate_value);
+                            editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(preview.getCameraId(), main_activity.getApplicationInterface().getCameraIdSPhysicalPref()), new_capture_rate_value);
                             editor.apply();
 
                             float old_capture_rate_value = capture_rate_values.get(old_video_capture_rate_index);

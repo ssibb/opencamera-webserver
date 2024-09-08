@@ -26,6 +26,9 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
         final int cameraId = bundle.getInt("cameraId");
         if( MyDebug.LOG )
             Log.d(TAG, "cameraId: " + cameraId);
+        final String cameraIdSPhysical = bundle.getString("cameraIdSPhysical");
+        if( MyDebug.LOG )
+            Log.d(TAG, "cameraIdSPhysical: " + cameraIdSPhysical);
 
         final boolean camera_open = bundle.getBoolean("camera_open");
         if( MyDebug.LOG )
@@ -37,7 +40,7 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
         final int [] video_fps = bundle.getIntArray("video_fps");
         final boolean [] video_fps_high_speed = bundle.getBooleanArray("video_fps_high_speed");
 
-        String fps_preference_key = PreferenceKeys.getVideoFPSPreferenceKey(cameraId);
+        String fps_preference_key = PreferenceKeys.getVideoFPSPreferenceKey(cameraId, cameraIdSPhysical);
         if( MyDebug.LOG )
             Log.d(TAG, "fps_preference_key: " + fps_preference_key);
         String fps_value = sharedPreferences.getString(fps_preference_key, "default");

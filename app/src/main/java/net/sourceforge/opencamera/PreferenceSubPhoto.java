@@ -31,6 +31,9 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
         final int cameraId = bundle.getInt("cameraId");
         if( MyDebug.LOG )
             Log.d(TAG, "cameraId: " + cameraId);
+        final String cameraIdSPhysical = bundle.getString("cameraIdSPhysical");
+        if( MyDebug.LOG )
+            Log.d(TAG, "cameraIdSPhysical: " + cameraIdSPhysical);
 
         final boolean using_android_l = bundle.getBoolean("using_android_l");
         if( MyDebug.LOG )
@@ -89,7 +92,7 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
             ListPreference lp = (ListPreference)findPreference("preference_resolution");
             lp.setEntries(entries);
             lp.setEntryValues(values);
-            String resolution_preference_key = PreferenceKeys.getResolutionPreferenceKey(cameraId);
+            String resolution_preference_key = PreferenceKeys.getResolutionPreferenceKey(cameraId, cameraIdSPhysical);
             String resolution_value = sharedPreferences.getString(resolution_preference_key, "");
             if( MyDebug.LOG )
                 Log.d(TAG, "resolution_value: " + resolution_value);
