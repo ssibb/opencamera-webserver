@@ -1124,7 +1124,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             // test changing the resolution in the new mode
 
             // save old resolution
-            settings_size = settings.getString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), "");
+            settings_size = settings.getString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "");
 
             // find a different resolution
             for(CameraController.Size size : picture_sizes_new) {
@@ -1137,7 +1137,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             Log.d(TAG, "set size to " + change_to_size.width + " x " + change_to_size.height);
             settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             editor = settings.edit();
-            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), change_to_size.width + " " + change_to_size.height);
+            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), change_to_size.width + " " + change_to_size.height);
             editor.apply();
             updateForSettings();
 
@@ -1171,7 +1171,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             // set back, so we don't confuse later parts of the test
             settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             editor = settings.edit();
-            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), settings_size);
+            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), settings_size);
             editor.apply();
             updateForSettings();
         }
@@ -6255,7 +6255,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
         editor.apply();
         updateForSettings();
 
@@ -6285,7 +6285,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             mActivity.getApplicationInterface().test_available_memory = 21000000; // must be at least MyApplicationInterface.getVideoMaxFileSizePref().min_free_filesize
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
+            editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
             editor.apply();
             updateForSettings();
         }
@@ -6364,7 +6364,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
         if( is_nokia || is_samsung ) {
             // Nokia 8 has much smaller video sizes, at least when recording with phone face down, so we also set 4K
-            editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6)
+            editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6)
             //editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "2000000"); // approx 3s on Nokia 8 at 4K
             editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "10000000"); // approx 3s on Nokia 8 at 4K
         }
@@ -6506,7 +6506,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6 or OnePlus 3T)
         //editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "23592960"); // approx 4.5s on Nexus 6 at 4K
         editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "35389440"); // approx 4.5s on OnePlus 3T at 4K
         editor.putString(PreferenceKeys.VideoMaxDurationPreferenceKey, "5");
@@ -6551,7 +6551,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6)
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Nexus 6)
         //editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "26214400"); // approx 5s on Nexus 6 at 4K
         //editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "15728640"); // approx 5s on Nexus 6 at 4K
         editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "26214400"); // approx 5s on OnePlus 3T at 4K
@@ -6595,7 +6595,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Galaxy S10e)
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), false), "" + CamcorderProfile.QUALITY_HIGH); // set to highest quality (4K on Galaxy S10e)
         editor.putString(PreferenceKeys.VideoMaxFileSizePreferenceKey, "30000000"); // about 19s on Galaxy S10e at 4K
         editor.apply();
         updateForSettings();
@@ -6890,7 +6890,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId()), "" + fps_value);
+            editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
             editor.apply();
             updateForSettings();
 
@@ -6930,7 +6930,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
         editor.apply();
         updateForSettings();
 
@@ -6999,7 +6999,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         // switch to high speed fps
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
         editor.apply();
         updateForSettings();
 
@@ -7025,7 +7025,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         String quality = video_sizes.get(video_size_index);
         settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().fpsIsHighSpeed()), quality);
+        editor.putString(PreferenceKeys.getVideoQualityPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref(), mActivity.getApplicationInterface().fpsIsHighSpeed()), quality);
         editor.apply();
         updateForSettings();
 
@@ -7046,7 +7046,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "switch to normal fps");
         settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId()), "30");
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "30");
         editor.apply();
         updateForSettings();
 
@@ -7065,7 +7065,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "switch to high speed fps again");
         settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
         editor.apply();
         updateForSettings();
 
@@ -7107,7 +7107,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(mPreview.getCameraId()), capture_rate);
+        editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), capture_rate);
         editor.apply();
         updateForSettings();
 
@@ -7163,7 +7163,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(mPreview.getCameraId()), capture_rate);
+        editor.putFloat(PreferenceKeys.getVideoCaptureRatePreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), capture_rate);
         editor.apply();
         updateForSettings();
 
@@ -8680,7 +8680,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             Log.d(TAG, "set size to " + size.width + " x " + size.height);
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), size.width + " " + size.height);
+            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), size.width + " " + size.height);
             editor.apply();
         }
 
@@ -8706,7 +8706,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             Log.d(TAG, "set front_size to " + front_size.width + " x " + front_size.height);
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), front_size.width + " " + front_size.height);
+            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), front_size.width + " " + front_size.height);
             editor.apply();
         }
 
@@ -8725,7 +8725,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             Log.d(TAG, "set front_size to " + front_size.width + " x " + front_size.height);
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), front_size.width + " " + front_size.height);
+            editor.putString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), front_size.width + " " + front_size.height);
             editor.apply();
         }
 
@@ -8741,8 +8741,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         // now back camera size should still be what it was
         {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-            String settings_size = settings.getString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()), "");
-            Log.d(TAG, "settings key is " + PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId()));
+            String settings_size = settings.getString(PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "");
+            Log.d(TAG, "settings key is " + PreferenceKeys.getResolutionPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()));
             Log.d(TAG, "settings size is " + settings_size);
         }
         new_size = mPreview.getCameraController().getPictureSize();
