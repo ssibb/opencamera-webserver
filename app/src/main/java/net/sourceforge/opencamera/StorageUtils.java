@@ -696,14 +696,19 @@ public class StorageUtils {
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean useZuluTime = sharedPreferences.getString(PreferenceKeys.SaveZuluTimePreferenceKey, "local").equals("zulu");
+        boolean includeMilliseconds = sharedPreferences.getString(PreferenceKeys.SaveIncludeMillisecondsPreferenceKey, "false").equals("true");
+        String dateFormatPattern = "yyyyMMdd_HHmmss";
+        if(includeMilliseconds) {
+            dateFormatPattern += ".SSS";
+        }
         String timeStamp;
         if( useZuluTime ) {
-            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_HHmmss'Z'", Locale.US);
+            SimpleDateFormat fmt = new SimpleDateFormat(dateFormatPattern+"'Z'", Locale.US);
             fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
             timeStamp = fmt.format(current_date);
         }
         else {
-            timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(current_date);
+            timeStamp = new SimpleDateFormat(dateFormatPattern, Locale.US).format(current_date);
         }
         String mediaFilename;
         switch (type) {
