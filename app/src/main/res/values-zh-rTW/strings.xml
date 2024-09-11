@@ -897,13 +897,6 @@
         當啟用時，使用螢幕上的麥克風按鈕來開始/停止監聽。
         \n%s</string>
 
-    <!-- beware of string being too long to display! -->
-    <string name="preference_stamp_geo_address_summary">可以的話，當標記 GPS 位置時使用地址。
-        注意如果啟用這個選項，您的裝置需要透過網路將位置資訊到第三方
-        以將 GPS 座標轉換為地址。請參閱 https://developer.android.com/reference/android/location/Geocoder。
-        此功能不保證可用性或準確性。 結果是最佳猜測，不能保證有意義或正確。
-        \n%s</string>
-
     <string name="intro_text">點擊以對焦，按下藍色相機按鈕來拍照。
         \n\n要停用最大螢幕亮度，請到設定/螢幕 GUI/「強制最大亮度」。
         要在 Android 5+ 儲存到 SD 卡，請到設定/更多相機控制/Storage Access Framework」。

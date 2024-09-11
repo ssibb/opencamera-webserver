@@ -903,13 +903,6 @@
         When enabled, use the on-screen microphone button to start/stop listening.
         \n%s</string>
 
-    <!-- beware of string being too long to display! -->
-    <string name="preference_stamp_geo_address_summary">If possible, obtain address from GPS location (for photo stamp or video subtitles).
-        Note if enabled, this requires your device transmits location data across the Internet to a third party
-        in order to convert GPS coordinates to an address. See https://developer.android.com/reference/android/location/Geocoder .
-        This feature provides no guarantees on availability or accuracy. Results are a best guess, and not guaranteed to be meaningful or correct.
-        \n%s</string>
-
     <string name="intro_text">Touch to focus, and press the circular blue shutter button to take photos.
         \n\nTo disable maximum screen brightness, see Settings/On screen GUI/\"Force maximum brightness\".
         To save to SD cards on Android 5+, see Settings/More camera controls/\"Storage Access Framework\".

@@ -898,13 +898,6 @@
         Ko je omogočeno, uporabite zaslonski gumb za mikrofon, da vklopite/izklopite zaznavo zvoka.
         \n%s</string>
 
-    <!-- beware of string being too long to display! -->
-    <string name="preference_stamp_geo_address_summary">Če je možno, pridobi naslov iz lokacij GPS (za žig na fotografijah ali podnapise v videoposnetkih).
-        Upoštevajte, da če je omogočena, bo naprava preko interneta tretjim osebam poslala podatke o lokaciji, da koordinate
-        GPS pretvori v naslov. Glejte https://developer.android.com/reference/android/location/Geocoder .
-        Ta funkcija ne zagotavlja nobenih zagotovil glede razpoložljivosti ali točnosti. Ni zagotovljeno, da bodo rezultati smiselni ali pravilni.
-        \n%s</string>
-
     <string name="intro_text">Dotaknite se za izostritev in pritisnite moder gumb za fotoaparat, da posnamete fotografijo.
         \n\nZa onemogočanje največje svetlosti zaslona glejte Nastavitve/Gr. up. vmesnik na zaslonu/\"Vsili največjo svetlost\".
         Za shranjevanje na kartico SD na Androidih 5+ glejte Nastavitve/Več nastavitev fotoaparata/\"Storage Access Framework\".
