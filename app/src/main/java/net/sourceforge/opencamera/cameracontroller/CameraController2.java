@@ -3010,6 +3010,9 @@ public class CameraController2 extends CameraController {
             want_raw = false; // just in case it got set to true somehow
         }
 
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "output_formats: " + Arrays.toString(configs.getOutputFormats()));
+        }
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if( MyDebug.LOG ) {
                 android.util.Size [] jpeg_r_camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG_R);
