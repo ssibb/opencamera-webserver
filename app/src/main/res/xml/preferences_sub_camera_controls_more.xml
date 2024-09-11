@@ -138,6 +138,13 @@
         />
 
     <SwitchPreference
+        android:key="preference_save_include_milliseconds"
+        android:title="@string/preference_save_include_milliseconds"
+        android:summary="@string/preference_save_include_milliseconds_summary"
+        android:defaultValue="false"
+        />
+
+    <SwitchPreference
         android:key="preference_show_when_locked"
         android:title="@string/preference_show_when_locked"
         android:summary="@string/preference_show_when_locked_summary"

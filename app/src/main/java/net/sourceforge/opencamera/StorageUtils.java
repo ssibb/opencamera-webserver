@@ -696,7 +696,7 @@ public class StorageUtils {
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean useZuluTime = sharedPreferences.getString(PreferenceKeys.SaveZuluTimePreferenceKey, "local").equals("zulu");
-        boolean includeMilliseconds = sharedPreferences.getString(PreferenceKeys.SaveIncludeMillisecondsPreferenceKey, "false").equals("true");
+        boolean includeMilliseconds = sharedPreferences.getBoolean(PreferenceKeys.SaveIncludeMillisecondsPreferenceKey, false);
         String dateFormatPattern = "yyyyMMdd_HHmmss";
         if(includeMilliseconds) {
             dateFormatPattern += ".SSS";
