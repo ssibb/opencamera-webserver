@@ -94,6 +94,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
@@ -371,6 +372,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private boolean supports_tonemap_curve;
     private float [] supported_apertures;
     private boolean has_focus_area;
+    private long focus_area_time = -1; // time when has_focus_area last set to true
     private float focus_camera_x;
     private float focus_camera_y;
     private long focus_complete_time = -1;
@@ -706,6 +708,12 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         if( !this.is_video ) {
             startCameraPreview();
         }
+
+        // whether to clear focus area instead of setting new one
+        // we don't rely purely on isFocusWaiting(), as sometimes the focus can be really quick
+        if( MyDebug.LOG )
+            Log.d(TAG, "focus_started_time: " + focus_started_time);
+        boolean clear_focus_areas = has_focus_area && focus_area_time != -1  && (System.currentTimeMillis() - focus_area_time) < ViewConfiguration.getDoubleTapTimeout();
         cancelAutoFocus();
 
         boolean touch_capture = applicationInterface.getTouchCapturePref();
@@ -714,29 +722,41 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         // similarly if doing single touch to capture (we go straight to taking a photo)
         // and not supported for camera extensions
         if( camera_controller != null && !this.using_face_detection && !was_paused && !touch_capture && !camera_controller.isCameraExtension() ) {
-            this.has_focus_area = false;
-
-            if( MyDebug.LOG ) {
-                Log.d(TAG, "x, y: " + event.getX() + ", " + event.getY());
-            }
-            float [] coords = {event.getX(), event.getY()};
-            calculatePreviewToCameraMatrix();
-            preview_to_camera_matrix.mapPoints(coords);
-            float focus_x = coords[0];
-            float focus_y = coords[1];
-            ArrayList<CameraController.Area> areas = getAreas(focus_x, focus_y);
-
-            if( camera_controller.setFocusAndMeteringArea(areas) ) {
+            if( clear_focus_areas ) {
+                // double tap to clear focus areas
+                // also if we were in autofocus_in_continuous_mode mode, reset back to continuous mode
                 if( MyDebug.LOG )
-                    Log.d(TAG, "set focus (and metering?) area");
-                this.has_focus_area = true;
-                this.focus_camera_x = focus_x;
-                this.focus_camera_y = focus_y;
+                    Log.d(TAG, "remove focus areas due to touch");
+                clearFocusAreas();
+                continuousFocusReset();
             }
             else {
-                if( MyDebug.LOG )
-                    Log.d(TAG, "didn't set focus area in this mode, may have set metering");
-                // don't set has_focus_area in this mode
+                this.has_focus_area = false;
+                this.focus_area_time = -1;
+
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "x, y: " + event.getX() + ", " + event.getY());
+                }
+                float [] coords = {event.getX(), event.getY()};
+                calculatePreviewToCameraMatrix();
+                preview_to_camera_matrix.mapPoints(coords);
+                float focus_x = coords[0];
+                float focus_y = coords[1];
+                ArrayList<CameraController.Area> areas = getAreas(focus_x, focus_y);
+
+                if( camera_controller.setFocusAndMeteringArea(areas) ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "set focus (and metering?) area");
+                    this.has_focus_area = true;
+                    this.focus_area_time = System.currentTimeMillis();
+                    this.focus_camera_x = focus_x;
+                    this.focus_camera_y = focus_y;
+                }
+                else {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "didn't set focus area in this mode, may have set metering");
+                    // don't set has_focus_area in this mode
+                }
             }
         }
 
@@ -754,7 +774,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
         // don't auto focus on touch if the user is touching to unpause!
         if( !was_paused ) {
-            tryAutoFocus(false, true);
+            // if clear_focus_areas==true, don't want to reenter autofocus_in_continuous_mode mode
+            tryAutoFocus(false, !clear_focus_areas);
         }
         return true;
     }
@@ -910,6 +931,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             camera_controller.clearFocusAndMetering();
         }
         has_focus_area = false;
+        focus_area_time = -1;
         focus_success = FOCUS_DONE;
         successfully_focused = false;
     }
@@ -1411,6 +1433,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         removePendingContinuousFocusReset();
         ring_buffer.flush(); // so we flush e.g. when switching cameras
         has_focus_area = false;
+        focus_area_time = -1;
         focus_success = FOCUS_DONE;
         focus_started_time = -1;
         synchronized( this ) {
@@ -1598,6 +1621,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         preview_w = 0;
         preview_h = 0;
         has_focus_area = false;
+        focus_area_time = -1;
         focus_success = FOCUS_DONE;
         focus_started_time = -1;
         synchronized( this ) {
