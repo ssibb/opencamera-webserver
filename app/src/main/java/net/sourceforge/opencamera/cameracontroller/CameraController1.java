@@ -40,7 +40,8 @@ public class CameraController1 extends CameraController {
     private int expo_bracketing_n_images = 3;
     private double expo_bracketing_stops = 2.0;
 
-    private long autofocus_time_ms = -1; // time we started autofocus
+    private Handler autofocus_timeout_handler; // handler for tracking autofocus timeout
+    private Runnable autofocus_timeout_runnable; // runnable set for tracking autofocus timeout
 
     // we keep track of some camera settings rather than reading from Camera.getParameters() every time. Firstly this is important
     // for performance (affects UI rendering times, e.g., see profiling of GPU rendering). Secondly runtimeexceptions from
@@ -1643,11 +1644,11 @@ public class CameraController1 extends CameraController {
                 public void run() {
                     if( MyDebug.LOG )
                         Log.d(TAG, "autofocus timeout check");
-                    // we check for autofocus_time_ms being set, to ensure we haven't cancelled the focus in the meantime
-                    if( !done_autofocus && autofocus_time_ms != -1 ) {
+                    autofocus_timeout_runnable = null;
+                    autofocus_timeout_handler = null;
+                    if( !done_autofocus ) {
                         Log.e(TAG, "autofocus timeout!");
                         done_autofocus = true;
-                        autofocus_time_ms = -1;
                         cb.onAutoFocus(false);
                     }
                 }
@@ -1661,8 +1662,9 @@ public class CameraController1 extends CameraController {
             public void onAutoFocus(boolean success, Camera camera) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "autoFocus.onAutoFocus");
-                autofocus_time_ms = -1;
                 handler.removeCallbacks(runnable);
+                autofocus_timeout_runnable = null;
+                autofocus_timeout_handler = null;
                 // in theory we should only ever get one call to onAutoFocus(), but some Samsung phones at least can call the callback multiple times
                 // see http://stackoverflow.com/questions/36316195/take-picture-fails-on-samsung-phones
                 // needed to fix problem on Samsung S7 with flash auto/on and continuous picture focus where it would claim failed to take picture even though it'd succeeded,
@@ -1679,9 +1681,10 @@ public class CameraController1 extends CameraController {
             }
         }
         MyAutoFocusCallback camera_cb = new MyAutoFocusCallback();
+        autofocus_timeout_handler = camera_cb.handler;
+        autofocus_timeout_runnable = camera_cb.runnable;
 
         try {
-            this.autofocus_time_ms = System.currentTimeMillis();
             camera_cb.setTimeout();
             camera.autoFocus(camera_cb);
         }
@@ -1691,7 +1694,13 @@ public class CameraController1 extends CameraController {
             if( MyDebug.LOG )
                 Log.e(TAG, "runtime exception from autoFocus");
             e.printStackTrace();
-            this.autofocus_time_ms = -1;
+            if( autofocus_timeout_handler != null ) {
+                if( autofocus_timeout_runnable != null ) {
+                    autofocus_timeout_handler.removeCallbacks(autofocus_timeout_runnable);
+                    autofocus_timeout_runnable = null;
+                }
+                autofocus_timeout_handler = null;
+            }
             // should call the callback, so the application isn't left waiting (e.g., when we autofocus before trying to take a photo)
             cb.onAutoFocus(false);
         }
@@ -1706,7 +1715,14 @@ public class CameraController1 extends CameraController {
     public void cancelAutoFocus() {
         try {
             camera.cancelAutoFocus();
-            this.autofocus_time_ms = -1; // so we don't trigger autofocus timeout
+            if( autofocus_timeout_handler != null ) {
+                if( autofocus_timeout_runnable != null ) {
+                    // so we don't trigger autofocus timeout
+                    autofocus_timeout_handler.removeCallbacks(autofocus_timeout_runnable);
+                    autofocus_timeout_runnable = null;
+                }
+                autofocus_timeout_handler = null;
+            }
         }
         catch(RuntimeException e) {
             // had a report of crash on some devices, see comment at https://sourceforge.net/p/opencamera/tickets/4/ made on 20140520
