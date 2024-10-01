@@ -51,6 +51,7 @@ public class StorageUtils {
     static final int MEDIA_TYPE_VIDEO = 2;
     static final int MEDIA_TYPE_PREFS = 3;
     static final int MEDIA_TYPE_GYRO_INFO = 4;
+    static final int MEDIA_TYPE_PRESHOT = 5; // filetype is a video, but we have separate enum to support a different prefix
 
     private final Context context;
     private final MyApplicationInterface applicationInterface;
@@ -708,6 +709,7 @@ public class StorageUtils {
         String mediaFilename;
         switch (type) {
             case MEDIA_TYPE_GYRO_INFO: // gyro info files have same name as the photo (but different extension)
+            case MEDIA_TYPE_PRESHOT: // preshot videos still use same prefix as photos
             case MEDIA_TYPE_IMAGE: {
                 String prefix = sharedPreferences.getString(PreferenceKeys.SavePhotoPrefixPreferenceKey, "IMG_");
                 mediaFilename = prefix + timeStamp + suffix + index + extension;
@@ -897,6 +899,7 @@ public class StorageUtils {
             case MEDIA_TYPE_IMAGE:
                 mimeType = getImageMimeType(extension);
                 break;
+            case MEDIA_TYPE_PRESHOT:
             case MEDIA_TYPE_VIDEO:
                 mimeType = getVideoMimeType(extension);
                 break;

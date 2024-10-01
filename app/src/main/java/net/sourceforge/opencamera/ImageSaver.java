@@ -2244,7 +2244,7 @@ public class ImageSaver extends Thread {
             final String extension = "mp4";
             final int muxer_format = MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
             if( method == ApplicationInterface.VideoMethod.FILE ) {
-                File videoFile = main_activity.getApplicationInterface().createOutputVideoFile(extension, request.current_date);
+                File videoFile = main_activity.getApplicationInterface().createOutputVideoFile(true, extension, request.current_date);
                 video_filename = videoFile.getAbsolutePath();
                 if( MyDebug.LOG )
                     Log.d(TAG, "save to: " + video_filename);
@@ -2253,10 +2253,10 @@ public class ImageSaver extends Thread {
             else {
                 Uri uri;
                 if( method == ApplicationInterface.VideoMethod.SAF ) {
-                    uri = main_activity.getApplicationInterface().createOutputVideoSAF(extension, request.current_date);
+                    uri = main_activity.getApplicationInterface().createOutputVideoSAF(true, extension, request.current_date);
                 }
                 else if( method == ApplicationInterface.VideoMethod.MEDIASTORE ) {
-                    uri = main_activity.getApplicationInterface().createOutputVideoMediaStore(extension, request.current_date);
+                    uri = main_activity.getApplicationInterface().createOutputVideoMediaStore(true, extension, request.current_date);
                 }
                 else {
                     uri = main_activity.getApplicationInterface().createOutputVideoUri();

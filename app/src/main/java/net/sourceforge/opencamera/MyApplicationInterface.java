@@ -330,35 +330,35 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public File createOutputVideoFile(String extension) throws IOException {
-        return createOutputVideoFile(extension, new Date());
+        return createOutputVideoFile(false, extension, new Date());
     }
 
     @Override
     public Uri createOutputVideoSAF(String extension) throws IOException {
-        return createOutputVideoSAF(extension, new Date());
+        return createOutputVideoSAF(false, extension, new Date());
     }
 
     @Override
     public Uri createOutputVideoMediaStore(String extension) throws IOException {
-        return createOutputVideoMediaStore(extension, new Date());
+        return createOutputVideoMediaStore(false, extension, new Date());
     }
 
-    public File createOutputVideoFile(String extension, Date date) throws IOException {
-        last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
+    public File createOutputVideoFile(boolean is_preshot, String extension, Date date) throws IOException {
+        last_video_file = storageUtils.createOutputMediaFile(is_preshot ? StorageUtils.MEDIA_TYPE_PRESHOT : StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
         return last_video_file;
     }
 
-    public Uri createOutputVideoSAF(String extension, Date date) throws IOException {
-        last_video_file_uri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
+    public Uri createOutputVideoSAF(boolean is_preshot, String extension, Date date) throws IOException {
+        last_video_file_uri = storageUtils.createOutputMediaFileSAF(is_preshot ? StorageUtils.MEDIA_TYPE_PRESHOT : StorageUtils.MEDIA_TYPE_VIDEO, "", extension, date);
         return last_video_file_uri;
     }
 
-    public Uri createOutputVideoMediaStore(String extension, Date date) throws IOException {
+    public Uri createOutputVideoMediaStore(boolean is_preshot, String extension, Date date) throws IOException {
         Uri folder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ?
                 MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY) :
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         ContentValues contentValues = new ContentValues();
-        String filename = storageUtils.createMediaFilename(StorageUtils.MEDIA_TYPE_VIDEO, "", 0, "." + extension, date);
+        String filename = storageUtils.createMediaFilename(is_preshot ? StorageUtils.MEDIA_TYPE_PRESHOT : StorageUtils.MEDIA_TYPE_VIDEO, "", 0, "." + extension, date);
         if( MyDebug.LOG )
             Log.d(TAG, "filename: " + filename);
         contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filename);
