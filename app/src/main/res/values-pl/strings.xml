@@ -837,7 +837,6 @@
     <string name="preference_video_profile_gamma_2_8">2.8</string>
 
     <string name="preference_immersive_mode_off">Wyłączono</string>
-    <string name="preference_immersive_mode_low_profile">Tylko przyciemnione wirtualne przyciski nawigacyjne na ekranie</string>
     <string name="preference_immersive_mode_navigation">Ukryj wirtualne przyciski nawigacyjne na ekranie</string>
     <string name="preference_immersive_mode_gui">Ukryj graficzny interfejs użytkownika</string>
     <string name="preference_immersive_mode_everything">Ukryj wszystko</string>

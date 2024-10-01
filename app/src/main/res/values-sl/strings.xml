@@ -923,7 +923,6 @@
     <string name="preference_video_profile_gamma_2_8">2,8</string>
 
     <string name="preference_immersive_mode_off">Izk.</string>
-	<string name="preference_immersive_mode_low_profile">Zatemni samo zaslonnske navidezne gumbe za krmarjenje</string>
     <string name="preference_immersive_mode_navigation">Skrij samo zaslonske navidezne gumbe za krmarjenje</string>
     <string name="preference_immersive_mode_gui">Skrij gr. up. vmsnik</string>
     <string name="preference_immersive_mode_everything">Skrij vse</string>

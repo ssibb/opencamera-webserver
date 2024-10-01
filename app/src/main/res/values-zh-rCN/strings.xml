@@ -889,7 +889,6 @@
     <string name="preference_video_srgb">sRGB</string>
     <string name="preference_video_rec709">REC709</string>
     <string name="preference_select_remote">选择遥控设备</string>
-    <string name="preference_immersive_mode_low_profile">仅暗淡屏幕上的导航按钮</string>
     <string name="error_features_4k">4K UHD</string>
     <string name="error_features_bitrate">比特率</string>
     <string name="error_features_frame_rate">帧率</string>

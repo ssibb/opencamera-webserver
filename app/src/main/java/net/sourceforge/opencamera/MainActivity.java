@@ -3786,7 +3786,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             return;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_low_profile");
+        String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
         boolean hide_ui = immersive_mode.equals("immersive_mode_gui") || immersive_mode.equals("immersive_mode_everything");
 
         if( visible ) {
@@ -3962,7 +3962,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // whether we are using a Kit Kat style immersive mode (either hiding navigation bar, GUI, or everything)
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_low_profile");
+            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
             if( immersive_mode.equals("immersive_mode_navigation") || immersive_mode.equals("immersive_mode_gui") || immersive_mode.equals("immersive_mode_everything") )
                 return true;
         }
@@ -3973,7 +3973,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // whether we are using a Kit Kat style immersive mode for everything
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_low_profile");
+            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
             if( immersive_mode.equals("immersive_mode_everything") )
                 return true;
         }
@@ -4032,12 +4032,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
             }
             else {
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_low_profile");
-                if( immersive_mode.equals("immersive_mode_low_profile") )
-                    getWindow().getDecorView().setSystemUiVisibility(saved_flags | View.SYSTEM_UI_FLAG_LOW_PROFILE);
-                else
-                    getWindow().getDecorView().setSystemUiVisibility(saved_flags);
+                getWindow().getDecorView().setSystemUiVisibility(saved_flags);
             }
         }
         else

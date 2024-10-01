@@ -922,7 +922,6 @@
     <string name="preference_video_profile_gamma_2_8">2.8</string>
 
     <string name="preference_immersive_mode_off">關閉</string>
-    <string name="preference_immersive_mode_low_profile">只讓螢幕上的虛擬導航鍵變暗</string>
     <string name="preference_immersive_mode_navigation">隱藏螢幕上的虛擬導航鍵</string>
     <string name="preference_immersive_mode_gui">隱藏圖形化使用者介面</string>
     <string name="preference_immersive_mode_everything">隱藏全部</string>

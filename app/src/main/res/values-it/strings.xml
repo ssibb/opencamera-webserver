@@ -921,7 +921,6 @@
     <string name="preference_video_profile_gamma_2_8">2.8</string>
 
     <string name="preference_immersive_mode_off">Spento</string>
-    <string name="preference_immersive_mode_low_profile">Riduci solo la luminosità dei bottoni di navigazione</string>
     <string name="preference_immersive_mode_navigation">Nascondi i bottoni di navigazione</string>
     <string name="preference_immersive_mode_gui">Nascondi l\'interfaccia</string>
     <string name="preference_immersive_mode_everything">Nascondi tutto</string>

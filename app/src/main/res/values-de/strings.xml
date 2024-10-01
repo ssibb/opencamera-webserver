@@ -919,7 +919,6 @@
     <string name="preference_video_profile_gamma_2_8">2,8</string>
 
     <string name="preference_immersive_mode_off">Nichts ausblenden</string>
-    <string name="preference_immersive_mode_low_profile">Nur Navigationstasten auf dem Bildschirm dimmen</string>
     <string name="preference_immersive_mode_navigation">Nur Navigationstasten ausblenden</string>
     <string name="preference_immersive_mode_gui">Alle Einstellelemente ausblenden</string>
     <string name="preference_immersive_mode_everything">Alles ausblenden</string>

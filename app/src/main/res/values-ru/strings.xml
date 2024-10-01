@@ -922,7 +922,6 @@
     <string name="preference_video_profile_gamma_2_8">2.8</string>
 
     <string name="preference_immersive_mode_off">Выключить</string>
-    <string name="preference_immersive_mode_low_profile">Только приглушить кнопки навигации</string>
     <string name="preference_immersive_mode_navigation">Скрыть кнопки навигации</string>
     <string name="preference_immersive_mode_gui">Скрыть интерфейс</string>
     <string name="preference_immersive_mode_everything">Скрыть все</string>
