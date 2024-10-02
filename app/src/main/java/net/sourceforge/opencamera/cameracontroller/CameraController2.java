@@ -3231,8 +3231,8 @@ public class CameraController2 extends CameraController {
                         // have IllegalArgumentException from getExtensionSupportedSizes() and getAvailableCaptureRequestKeys() at least from Google Play crashes
                         if( MyDebug.LOG )
                             Log.e(TAG, "exception trying to query extension: " + extension);
-                        camera_features.supported_extensions.remove(extension);
-                        camera_features.supported_extensions_zoom.remove(extension);
+                        camera_features.supported_extensions.remove((Integer)extension);
+                        camera_features.supported_extensions_zoom.remove((Integer)extension);
                     }
                 }
             }
