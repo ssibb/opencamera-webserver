@@ -76,6 +76,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import android.text.Html;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private int navigation_gap;
     public static volatile boolean test_preview_want_no_limits; // test flag, if set to true then instead use test_preview_want_no_limits_value; needs to be static, as it needs to be set before activity is created to take effect
     public static volatile boolean test_preview_want_no_limits_value;
+    public volatile boolean test_set_show_under_navigation; // test flag, the value of enable for the last call of showUnderNavigation() (or false if not yet called)
 
     // whether this is a multi-camera device (note, this isn't simply having more than 1 camera, but also having more than one with the same facing)
     // note that in most cases, code should check the MultiCamButtonPreferenceKey preference as well as the is_multi_cam flag,
@@ -3758,13 +3760,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             // Android 11 (didn't take effect until orientation changed or application paused/resumed).
             // Although system ui visibility flags are deprecated on Android 11, this still works better
             // than the FLAG_LAYOUT_NO_LIMITS flag (which was not well documented anyway).
-            int flags = getWindow().getDecorView().getSystemUiVisibility();
+            // Update, now using WindowCompat.setDecorFitsSystemWindows. This is non-deprecated, and
+            // documented at https://developer.android.com/develop/ui/views/layout/edge-to-edge-manually .
+            /*int flags = getWindow().getDecorView().getSystemUiVisibility();
             if( enable ) {
                 getWindow().getDecorView().setSystemUiVisibility(flags | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
             }
             else {
                 getWindow().getDecorView().setSystemUiVisibility(flags & ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-            }
+            }*/
+            test_set_show_under_navigation = enable;
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), !enable);
         }
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
             getWindow().setNavigationBarColor(enable ? Color.TRANSPARENT : Color.BLACK);
