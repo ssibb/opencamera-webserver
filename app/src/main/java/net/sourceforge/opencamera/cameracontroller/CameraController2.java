@@ -3016,7 +3016,7 @@ public class CameraController2 extends CameraController {
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if( MyDebug.LOG ) {
                 android.util.Size [] jpeg_r_camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG_R);
-                if( jpeg_r_camera_picture_sizes == null ) {
+                if( jpeg_r_camera_picture_sizes != null ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "JPEG_R sizes: " + Arrays.toString(jpeg_r_camera_picture_sizes));
                 }
