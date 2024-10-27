@@ -5830,7 +5830,7 @@ public class CameraController2 extends CameraController {
      */
     private void capture(CaptureRequest request) throws CameraAccessException {
         if( MyDebug.LOG )
-            Log.d(TAG, "capture");
+            Log.d(TAG, "capture: " + request);
         synchronized( background_camera_lock ) {
             if( camera == null || !hasCaptureSession() ) {
                 if( MyDebug.LOG )
@@ -6147,6 +6147,7 @@ public class CameraController2 extends CameraController {
                     Log.d(TAG, "texture: " + texture);
                     Log.d(TAG, "preview_surface: " + preview_surface);
                     Log.d(TAG, "handler: " + handler);
+                    Log.d(TAG, "surfaces: " + surfaces);
                 }
             }
             if( MyDebug.LOG ) {
@@ -6167,6 +6168,8 @@ public class CameraController2 extends CameraController {
             }
             if( sessionType == SessionType.SESSIONTYPE_EXTENSION ) {
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "create extension capture session");
                     //int extension = CameraExtensionCharacteristics.EXTENSION_AUTOMATIC;
                     //int extension = CameraExtensionCharacteristics.EXTENSION_BOKEH;
                     int extension = camera_extension;
@@ -6206,6 +6209,8 @@ public class CameraController2 extends CameraController {
             }
             else if( video_recorder != null && want_video_high_speed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
             //if( want_video_high_speed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "create high speed capture session");
                 if( cameraIdSPhysical != null  && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
                     List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
                     SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionConfiguration.SESSION_HIGH_SPEED, outputs, executor, myStateCallback);
@@ -6219,6 +6224,8 @@ public class CameraController2 extends CameraController {
                 is_video_high_speed = true;
             }
             else {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "create capture session");
                 try {
                     if( cameraIdSPhysical != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
                         List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
