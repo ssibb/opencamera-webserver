@@ -58,6 +58,10 @@ public class PreferenceSubGUI extends PreferenceSubScreen {
         if( MyDebug.LOG )
             Log.d(TAG, "is_multi_cam: " + is_multi_cam);
 
+        final boolean has_physical_cameras = bundle.getBoolean("has_physical_cameras");
+        if( MyDebug.LOG )
+            Log.d(TAG, "has_physical_cameras: " + has_physical_cameras);
+
         if( Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ) {
             // Some immersive modes require KITKAT - simpler to require Kitkat for any of the menu options
             Preference pref = findPreference("preference_immersive_mode");
@@ -119,7 +123,7 @@ public class PreferenceSubGUI extends PreferenceSubScreen {
             pg.removePreference(pref);
         }
 
-        if( !is_multi_cam ) {
+        if( !is_multi_cam && !has_physical_cameras ) {
             Preference pref = findPreference("preference_multi_cam_button");
             //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_gui");
             PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");

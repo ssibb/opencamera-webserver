@@ -582,30 +582,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         });
 
-        // set up switch camera button long click - must be done after setting is_multi_cam
-        if( n_cameras > 2 ) {
-            View.OnLongClickListener long_click_listener = new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if( !allowLongPress() ) {
-                        // return false, so a regular click will still be triggered when the user releases the touch
-                        return false;
-                    }
-                    longClickedSwitchMultiCamera();
-                    return true;
-                }
-            };
-            switchCameraButton.setOnLongClickListener(long_click_listener);
-
-            /* Some multi-camera devices might not show the switch_multi_camera icon, e.g.:
-                   Device only has e.g. back cameras but has 3 or more of them
-                   Device has e.g. 2 back cameras and 1 front camera, and the current camera is the front camera.
-               It seems simpler to just allow long pressing on either of these icons.
-             */
-            View switchMultiCameraButton = findViewById(R.id.switch_multi_camera);
-            switchMultiCameraButton.setOnLongClickListener(long_click_listener);
-        }
-
         if( MyDebug.LOG )
             Log.d(TAG, "onCreate: time after setting long click listeners: " + (System.currentTimeMillis() - debug_time));
 
@@ -803,11 +779,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      *  - For the current camera ID, there are at least two cameras with the same front/back/external
      *    "facing" (e.g., imagine a device with two back cameras, but only one front camera - no point
      *    showing the multi-cam icon for just a single logical front camera).
-     *  OR there are physical cameras for the current camera.
+     *  OR there are physical cameras for the current camera, and again the user preference
+     *  PreferenceKeys.MultiCamButtonPreferenceKey is enabled.
      */
     public boolean showSwitchMultiCamIcon() {
         if( preview.hasPhysicalCameras() ) {
-            return true;
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            if( sharedPreferences.getBoolean(PreferenceKeys.MultiCamButtonPreferenceKey, true) )
+                return true;
         }
         if( isMultiCamEnabled() ) {
             int cameraId = getActualCameraId();
@@ -2330,15 +2309,16 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         return cameraId;
     }
 
-    /* Returns the cameraId that the "Switch multi camera" button will switch to.
+    /* Returns the next cameraId with the same-facing as current camera.
      * Should only be called if isMultiCamEnabled() returns true.
+     * Only used for testing, now that we bring up a menu instead of cycling.
      */
-    public int getNextMultiCameraId() {
+    public int testGetNextMultiCameraId() {
         if( MyDebug.LOG )
-            Log.d(TAG, "getNextMultiCameraId");
+            Log.d(TAG, "testGetNextMultiCameraId");
         if( !isMultiCamEnabled() ) {
-            Log.e(TAG, "getNextMultiCameraId() called but not in multi-cam mode");
-            throw new RuntimeException("getNextMultiCameraId() called but not in multi-cam mode");
+            Log.e(TAG, "testGetNextMultiCameraId() called but not in multi-cam mode");
+            throw new RuntimeException("testGetNextMultiCameraId() called but not in multi-cam mode");
         }
         List<Integer> camera_set;
         // don't use preview.getCameraController(), as it may be null if user quickly switches between cameras
@@ -2397,7 +2377,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
-    private void userSwitchToCamera(int cameraId, String cameraIdSPhysical) {
+    public void userSwitchToCamera(int cameraId, String cameraIdSPhysical) {
         if( MyDebug.LOG )
             Log.d(TAG, "userSwitchToCamera: " + cameraId + " / " + cameraIdSPhysical);
         View switchCameraButton = findViewById(R.id.switch_camera);
@@ -2448,36 +2428,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
+    /** User can long-click on switch multi cam icon to bring up a menu to switch to any camera.
+     *  Update: from v1.53 onwards with support for exposing physical lens, we always call this with
+     *  a regular click on the switch multi cam icon.
+     */
     public void clickedSwitchMultiCamera(View view) {
         if( MyDebug.LOG )
             Log.d(TAG, "clickedSwitchMultiCamera");
-        if( !isMultiCamEnabled() ) {
-            if( preview.hasPhysicalCameras() ) {
-                // n.b., if both isMultiCamEnabled==true and hasPhysicalCameras==true, user needs to long-press to access physical cameras
-                longClickedSwitchMultiCamera();
-                return;
-            }
-            Log.e(TAG, "switch multi camera icon shouldn't have been visible");
-            return;
-        }
-        if( preview.isOpeningCamera() ) {
-            if( MyDebug.LOG )
-                Log.d(TAG, "already opening camera in background thread");
-            return;
-        }
-        this.closePopup();
-        if( this.preview.canSwitchCamera() ) {
-            int cameraId = getNextMultiCameraId();
-            pushCameraIdToast(cameraId, null);
-            userSwitchToCamera(cameraId, null);
-        }
-    }
-
-    /** User can long-click on switch multi cam icon to bring up a menu to switch to any camera.
-     */
-    private void longClickedSwitchMultiCamera() {
-        if( MyDebug.LOG )
-            Log.d(TAG, "longClickedSwitchMultiCamera");
 
         long debug_time = 0;
         if( MyDebug.LOG ) {
@@ -2498,7 +2455,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             logical_camera_ids.add(i);
         }
         if( MyDebug.LOG )
-            Log.d(TAG, "longClickedSwitchMultiCamera: time after logical_camera_ids: " + (System.currentTimeMillis() - debug_time));
+            Log.d(TAG, "clickedSwitchMultiCamera: time after logical_camera_ids: " + (System.currentTimeMillis() - debug_time));
 
         int n_logical_cameras = logical_camera_ids.size();
         int n_cameras = n_logical_cameras;
@@ -2515,10 +2472,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         for(int i=0;i<n_logical_cameras;i++) {
             int logical_camera_id = logical_camera_ids.get(i);
             if( MyDebug.LOG )
-                Log.d(TAG, "longClickedSwitchMultiCamera: time before getDescription: " + (System.currentTimeMillis() - debug_time));
+                Log.d(TAG, "clickedSwitchMultiCamera: time before getDescription: " + (System.currentTimeMillis() - debug_time));
             String camera_name = logical_camera_id + ": " + preview.getCameraControllerManager().getDescription(this, logical_camera_id);
             if( MyDebug.LOG )
-                Log.d(TAG, "longClickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
+                Log.d(TAG, "clickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
             if( logical_camera_id == curr_camera_id ) {
                 // this is the current logical camera
                 if( preview.hasPhysicalCameras() ) {
@@ -2564,10 +2521,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     ArrayList<PhysicalCamera> physical_cameras = new ArrayList<>();
                     for(String physical_id : physical_camera_ids) {
                         if( MyDebug.LOG )
-                            Log.d(TAG, "longClickedSwitchMultiCamera: time before getDescription: " + (System.currentTimeMillis() - debug_time));
+                            Log.d(TAG, "clickedSwitchMultiCamera: time before getDescription: " + (System.currentTimeMillis() - debug_time));
                         physical_cameras.add(new PhysicalCamera(physical_id));
                         if( MyDebug.LOG )
-                            Log.d(TAG, "longClickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
+                            Log.d(TAG, "clickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
                     }
                     if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
                         // SizeF requires Build.VERSION_CODES.LOLLIPOP - but we'll only have physical cameras for Camera2 API which requires Build.VERSION_CODES.LOLLIPOP anyway
@@ -2628,7 +2585,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             //index++;
         }*/
         if( MyDebug.LOG )
-            Log.d(TAG, "longClickedSwitchMultiCamera: time after building menu: " + (System.currentTimeMillis() - debug_time));
+            Log.d(TAG, "clickedSwitchMultiCamera: time after building menu: " + (System.currentTimeMillis() - debug_time));
 
         //alertDialog.setItems(items, new DialogInterface.OnClickListener() {
         alertDialog.setSingleChoiceItems(items, selected, new DialogInterface.OnClickListener() {
@@ -2683,7 +2640,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         dialog.show();
         if( MyDebug.LOG )
-            Log.d(TAG, "longClickedSwitchMultiCamera: total time: " + (System.currentTimeMillis() - debug_time));
+            Log.d(TAG, "clickedSwitchMultiCamera: total time: " + (System.currentTimeMillis() - debug_time));
     }
 
     /**
@@ -3033,6 +2990,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         bundle.putInt("white_balance_temperature_min", this.preview.getMinimumWhiteBalanceTemperature());
         bundle.putInt("white_balance_temperature_max", this.preview.getMaximumWhiteBalanceTemperature());
         bundle.putBoolean("is_multi_cam", this.is_multi_cam);
+        bundle.putBoolean("has_physical_cameras", this.preview.hasPhysicalCameras());
         bundle.putBoolean("supports_optical_stabilization", this.preview.supportsOpticalStabilization());
         bundle.putBoolean("optical_stabilization_enabled", this.preview.getOpticalStabilization());
         bundle.putBoolean("supports_video_stabilization", this.preview.supportsVideoStabilization());
