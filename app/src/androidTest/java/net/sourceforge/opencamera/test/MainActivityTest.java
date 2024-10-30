@@ -3977,12 +3977,16 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
             do {
                 Log.d(TAG, "testing multi cam button...");
+
+                // old code for multi-cam button:
+                /*
                 View switchMultiCameraButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_multi_camera);
                 clickView(switchMultiCameraButton);
                 waitUntilCameraOpened();
 
                 int new_cameraId = mPreview.getCameraId();
                 Log.d(TAG, "multi cam button switched to " + new_cameraId);
+                Log.d(TAG, "cameraId: " + cameraId);
                 Log.d(TAG, "camera_ids was: " + camera_ids);
                 assertTrue(new_cameraId != cameraId);
                 assertFalse(camera_ids.contains(new_cameraId));
@@ -3991,9 +3995,34 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
                 assertEquals(facing, new_facing);
 
+                subTestTakePhoto(false, false, true, true, false, false, false, false);*/
+
+                int next_multi_cameraId = mActivity.testGetNextMultiCameraId();
+                assertTrue(next_multi_cameraId != cameraId);
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mActivity.userSwitchToCamera(next_multi_cameraId, null);
+                    }
+                });
+                // need to wait for UI code to finish
+                this.getInstrumentation().waitForIdleSync();
+                waitUntilCameraOpened();
+
+                int new_cameraId = mPreview.getCameraId();
+                Log.d(TAG, "multi cam button switched to " + new_cameraId);
+                Log.d(TAG, "cameraId: " + cameraId);
+                Log.d(TAG, "camera_ids was: " + camera_ids);
+                assertTrue(new_cameraId != cameraId);
+                assertTrue(new_cameraId == next_multi_cameraId);
+                assertFalse(camera_ids.contains(new_cameraId));
+                camera_ids.add(new_cameraId);
+
+                CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
+                assertEquals(facing, new_facing);
+
                 subTestTakePhoto(false, false, true, true, false, false, false, false);
             }
-            while( mActivity.getNextMultiCameraId() != cameraId );
+            while( mActivity.testGetNextMultiCameraId() != cameraId );
         }
     }
 
