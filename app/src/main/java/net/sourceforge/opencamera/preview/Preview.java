@@ -31,8 +31,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -194,6 +196,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private double aspect_ratio;
     private final CameraControllerManager camera_controller_manager;
     private CameraController camera_controller;
+    private final Map<String, CameraController.CameraFeaturesCache> camera_features_caches = new Hashtable<>(); // cache for CameraController2
     enum CameraOpenState {
         CAMERAOPENSTATE_CLOSED, // have yet to attempt to open the camera (either at all, or since the camera was closed)
         CAMERAOPENSTATE_OPENING, // the camera is currently being opened (on a background thread)
@@ -1878,7 +1881,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         applicationInterface.onFailedStartPreview();
                     }
                 };
-                camera_controller_local = new CameraController2(Preview.this.getContext(), cameraId, cameraIdSPhysical, previewErrorCallback, cameraErrorCallback);
+                camera_controller_local = new CameraController2(Preview.this.getContext(), cameraId, cameraIdSPhysical, camera_features_caches, previewErrorCallback, cameraErrorCallback);
                 if( applicationInterface.useCamera2FakeFlash() ) {
                     camera_controller_local.setUseCamera2FakeFlash(true);
                 }

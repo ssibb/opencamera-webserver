@@ -7,9 +7,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -74,6 +76,7 @@ public class CameraController2 extends CameraController {
     private static final String TAG = "CameraController2";
 
     private final Context context;
+    private final Map<String, CameraFeaturesCache> camera_features_caches; // used to improve performance for subsequent CameraController2 objects; key is the cameraIdS string, value is a CameraFeaturesCache object
     private CameraDevice camera;
     private final String cameraIdS; // ID string of logical camera
     private final String cameraIdSPhysical; // if non-null, ID string of underlying physical camera
@@ -85,6 +88,7 @@ public class CameraController2 extends CameraController {
     // characteristics of camera - if a specific physical camera is being used, these are characteristics for the physical camera
     private CameraCharacteristics characteristics;
     private CameraExtensionCharacteristics extension_characteristics;
+    private CameraFeaturesCache camera_features_cache; // if non-null, this is the cache obtained from camera_features_caches
     // cached characteristics (use this for values that need to be frequently accessed, e.g., per frame, to improve performance);
     private int characteristics_sensor_orientation;
     private Facing characteristics_facing;
@@ -2063,17 +2067,20 @@ public class CameraController2 extends CameraController {
      * @param context Application context.
      * @param cameraId Which camera to open (must be between 0 and CameraControllerManager2.getNumberOfCameras()-1).
      * @param cameraIdSPhysical If non-null, specifies a physical camera to use (must be a member of CameraFeatures.physical_camera_ids for this camera or the corresponding logical camera)
+     * @param camera_features_caches This should be supplied as an initially empty map, which CameraController2 can use to improve performance on subsequent creations of CameraController2.
+     *                               The same camera_features_caches should be supplied to future new CameraController2 objects in order to benefit.
      * @param preview_error_cb onError() will be called if the preview stops due to error.
      * @param camera_error_cb onError() will be called if the camera closes due to serious error. No more calls to the CameraController2 object should be made (though a new one can be created, to try reopening the camera).
      * @throws CameraControllerException if the camera device fails to open.
      */
-    public CameraController2(Context context, int cameraId, String cameraIdSPhysical, final ErrorCallback preview_error_cb, final ErrorCallback camera_error_cb) throws CameraControllerException {
+    public CameraController2(Context context, int cameraId, String cameraIdSPhysical, Map<String, CameraFeaturesCache> camera_features_caches, final ErrorCallback preview_error_cb, final ErrorCallback camera_error_cb) throws CameraControllerException {
         super(cameraId);
         if( MyDebug.LOG ) {
             Log.d(TAG, "create new CameraController2: " + cameraId + " / " + cameraIdSPhysical);
             Log.d(TAG, "this: " + this);
         }
 
+        this.camera_features_caches = camera_features_caches;
         this.cameraIdSPhysical = cameraIdSPhysical;
 
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
@@ -2159,6 +2166,10 @@ public class CameraController2 extends CameraController {
                             extension_characteristics = manager.getCameraExtensionCharacteristics(cameraIdS);
                             if( MyDebug.LOG )
                                 Log.d(TAG, "successfully obtained camera characteristics");
+
+                            // if we update the key used for camera_features_caches, remember to also update the code
+                            // for adding to the camera_features_caches
+                            camera_features_cache = camera_features_caches.get(cameraIdS);
                         }
 
                         CameraController2.this.camera = cam;
@@ -3136,7 +3147,48 @@ public class CameraController2 extends CameraController {
             }
         }
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
+        final boolean use_cache = true;
+        //final boolean use_cache = false;
+        if( extension_characteristics == null ) {
+            // no extension characteristics
+        }
+        else if( use_cache && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && camera_features_cache != null ) {
+            // read extensions info from cache for performance
+            if( MyDebug.LOG )
+                Log.d(TAG, "read vendor extensions info from cache");
+            if( camera_features_cache.supported_extensions != null )
+                camera_features.supported_extensions = new ArrayList<>(camera_features_cache.supported_extensions);
+            if( camera_features_cache.supported_extensions_zoom != null )
+                camera_features.supported_extensions_zoom = new ArrayList<>(camera_features_cache.supported_extensions_zoom);
+
+            if( camera_features.supported_extensions != null ) {
+                for(int extension : camera_features.supported_extensions) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "vendor extension: " + extension);
+                    List<android.util.Size> extension_picture_sizes = camera_features_cache.extension_picture_sizes_map.get(extension);
+                    List<android.util.Size> extension_preview_sizes = camera_features_cache.extension_preview_sizes_map.get(extension);
+                    boolean has_picture_resolution = updatePictureSizesForExtension(camera_features.picture_sizes, extension_picture_sizes, extension);
+                    boolean has_preview_resolution = updatePreviewSizesForExtension(camera_features.preview_sizes, extension_preview_sizes, extension);
+                    if( has_picture_resolution && has_preview_resolution ) {
+                        // fine
+                    }
+                    else {
+                        if( MyDebug.LOG )
+                            Log.e(TAG, "cached extension not actually supported?!: " + extension);
+                        camera_features.supported_extensions.remove((Integer)extension);
+                        camera_features.supported_extensions_zoom.remove((Integer)extension);
+                    }
+                }
+            }
+            if( MyDebug.LOG )
+                Log.d(TAG, "done read vendor extensions info from cache");
+        }
+        else if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "check for vendor extensions");
+            Map<Integer, List<android.util.Size>> extension_picture_sizes_map = new Hashtable<>();
+            Map<Integer, List<android.util.Size>> extension_preview_sizes_map = new Hashtable<>();
+
             List<Integer> extensions = null;
             try {
                 extensions = extension_characteristics.getSupportedExtensions();
@@ -3159,51 +3211,19 @@ public class CameraController2 extends CameraController {
                         List<android.util.Size> extension_picture_sizes = extension_characteristics.getExtensionSupportedSizes(extension, ImageFormat.JPEG);
                         if( MyDebug.LOG )
                             Log.d(TAG, "    extension_picture_sizes: " + extension_picture_sizes);
-                        boolean has_picture_resolution = false;
-                        for(CameraController.Size size : camera_features.picture_sizes) {
-                            if( extension_picture_sizes.contains(new android.util.Size(size.width, size.height)) ) {
-                                if( MyDebug.LOG ) {
-                                    Log.d(TAG, "    picture size supports extension: " + size.width + " , " + size.height);
-                                }
-                                has_picture_resolution = true;
-                                if( size.supported_extensions == null ) {
-                                    size.supported_extensions = new ArrayList<>();
-                                }
-                                size.supported_extensions.add(extension);
-                            }
-                            else {
-                                if( MyDebug.LOG ) {
-                                    Log.d(TAG, "    picture size does NOT support extension: " + size.width + " , " + size.height);
-                                }
-                            }
-                        }
+                        boolean has_picture_resolution = updatePictureSizesForExtension(camera_features.picture_sizes, extension_picture_sizes, extension);
 
                         List<android.util.Size> extension_preview_sizes = extension_characteristics.getExtensionSupportedSizes(extension, SurfaceTexture.class);
                         if( MyDebug.LOG )
                             Log.d(TAG, "    extension_preview_sizes: " + extension_preview_sizes);
-                        boolean has_preview_resolution = false;
-                        for(CameraController.Size size : camera_features.preview_sizes) {
-                            if( extension_preview_sizes.contains(new android.util.Size(size.width, size.height)) ) {
-                                if( MyDebug.LOG ) {
-                                    Log.d(TAG, "    preview size supports extension: " + size.width + " , " + size.height);
-                                }
-                                has_preview_resolution = true;
-                                if( size.supported_extensions == null ) {
-                                    size.supported_extensions = new ArrayList<>();
-                                }
-                                size.supported_extensions.add(extension);
-                            }
-                            else {
-                                if( MyDebug.LOG ) {
-                                    Log.d(TAG, "    preview size does NOT support extension: " + size.width + " , " + size.height);
-                                }
-                            }
-                        }
+                        boolean has_preview_resolution = updatePreviewSizesForExtension(camera_features.preview_sizes, extension_preview_sizes, extension);
 
                         if( has_picture_resolution && has_preview_resolution ) {
                             if( MyDebug.LOG )
                                 Log.d(TAG, "    extension is supported: " + extension);
                             camera_features.supported_extensions.add(extension);
+                            extension_picture_sizes_map.put(extension, extension_picture_sizes);
+                            extension_preview_sizes_map.put(extension, extension_preview_sizes);
 
                             if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
                                 Set<CaptureRequest.Key> extension_supported_request_keys = extension_characteristics.getAvailableCaptureRequestKeys(extension);
@@ -3233,9 +3253,17 @@ public class CameraController2 extends CameraController {
                             Log.e(TAG, "exception trying to query extension: " + extension);
                         camera_features.supported_extensions.remove((Integer)extension);
                         camera_features.supported_extensions_zoom.remove((Integer)extension);
+                        extension_picture_sizes_map.remove(extension);
+                        extension_preview_sizes_map.remove(extension);
                     }
                 }
             }
+
+            // add to cache
+            CameraFeaturesCache cache = new CameraFeaturesCache(camera_features, extension_picture_sizes_map, extension_preview_sizes_map);
+            camera_features_caches.put(cameraIdS, cache);
+            if( MyDebug.LOG )
+                Log.d(TAG, "done check for vendor extensions");
         }
         // save to local fields:
         this.supported_extensions_zoom = camera_features.supported_extensions_zoom;
@@ -3471,6 +3499,64 @@ public class CameraController2 extends CameraController {
         }
 
         return camera_features;
+    }
+
+    /** For each of the picture_sizes, update the CameraController.Size.supported_extensions field to record if that resolution
+     *  supports the supplied extension.
+     * @param picture_sizes           Picture sizes to update.
+     * @param extension_picture_sizes Picture sizes supported by the extension.
+     * @param extension               Extension to test.
+     * @return                        If false, then none of the picture_sizes are supported by this extension.
+     */
+    private boolean updatePictureSizesForExtension(List<CameraController.Size> picture_sizes, List<android.util.Size> extension_picture_sizes, int extension) {
+        boolean has_picture_resolution = false;
+        for(CameraController.Size size : picture_sizes) {
+            if( extension_picture_sizes.contains(new android.util.Size(size.width, size.height)) ) {
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "    picture size supports extension: " + size.width + " , " + size.height);
+                }
+                has_picture_resolution = true;
+                if( size.supported_extensions == null ) {
+                    size.supported_extensions = new ArrayList<>();
+                }
+                size.supported_extensions.add(extension);
+            }
+            else {
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "    picture size does NOT support extension: " + size.width + " , " + size.height);
+                }
+            }
+        }
+        return has_picture_resolution;
+    }
+
+    /** For each of the preview_sizes, update the CameraController.Size.supported_extensions field to record if that resolution
+     *  supports the supplied extension.
+     * @param preview_sizes           Preview sizes to update.
+     * @param extension_preview_sizes Preview sizes supported by the extension.
+     * @param extension               Extension to test.
+     * @return                        If false, then none of the preview_sizes are supported by this extension.
+     */
+    private boolean updatePreviewSizesForExtension(List<CameraController.Size> preview_sizes, List<android.util.Size> extension_preview_sizes, int extension) {
+        boolean has_preview_resolution = false;
+        for(CameraController.Size size : preview_sizes) {
+            if( extension_preview_sizes.contains(new android.util.Size(size.width, size.height)) ) {
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "    preview size supports extension: " + size.width + " , " + size.height);
+                }
+                has_preview_resolution = true;
+                if( size.supported_extensions == null ) {
+                    size.supported_extensions = new ArrayList<>();
+                }
+                size.supported_extensions.add(extension);
+            }
+            else {
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "    preview size does NOT support extension: " + size.width + " , " + size.height);
+                }
+            }
+        }
+        return has_preview_resolution;
     }
 
     public boolean shouldCoverPreview() {

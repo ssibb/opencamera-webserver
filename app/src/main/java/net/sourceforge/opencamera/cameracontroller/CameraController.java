@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import android.graphics.Rect;
 import android.location.Location;
 import android.media.MediaRecorder;
 import android.util.Log;
+import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.TextureView;
 
@@ -57,6 +59,26 @@ public abstract class CameraController {
     public volatile boolean test_used_tonemap_curve;
     public volatile int test_texture_view_buffer_w; // for TextureView, keep track of buffer size
     public volatile int test_texture_view_buffer_h;
+
+    /** Class for caching a subset of CameraFeatures, that are slow to read.
+     *  For now only used for vendor extensions which are slow to read.
+     */
+    public static class CameraFeaturesCache {
+        public List<Integer> supported_extensions;
+        public List<Integer> supported_extensions_zoom;
+
+        Map<Integer, List<android.util.Size>> extension_picture_sizes_map; // key is extension
+        Map<Integer, List<android.util.Size>> extension_preview_sizes_map; // key is extension
+
+        CameraFeaturesCache(CameraFeatures camera_features, Map<Integer, List<android.util.Size>> extension_picture_sizes_map, Map<Integer, List<android.util.Size>> extension_preview_sizes_map) {
+            if( camera_features.supported_extensions != null )
+                this.supported_extensions = new ArrayList<>(camera_features.supported_extensions);
+            if( camera_features.supported_extensions_zoom != null )
+                this.supported_extensions_zoom = new ArrayList<>(camera_features.supported_extensions_zoom);
+            this.extension_picture_sizes_map = extension_picture_sizes_map;
+            this.extension_preview_sizes_map = extension_preview_sizes_map;
+        }
+    }
 
     public static class CameraFeatures {
         public Set<String> physical_camera_ids; // if non-null, this camera is part of a logical camera that exposes these physical camera IDs
