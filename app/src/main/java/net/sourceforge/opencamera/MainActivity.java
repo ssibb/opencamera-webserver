@@ -2313,7 +2313,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      * Should only be called if isMultiCamEnabled() returns true.
      * Only used for testing, now that we bring up a menu instead of cycling.
      */
-    public int testGetNextMultiCameraId() {
+    /*public int testGetNextMultiCameraId() {
         if( MyDebug.LOG )
             Log.d(TAG, "testGetNextMultiCameraId");
         if( !isMultiCamEnabled() ) {
@@ -2355,7 +2355,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "next multi cameraId: " + cameraId);
         return cameraId;
-    }
+    }*/
 
     private void pushCameraIdToast(int cameraId, String cameraIdSPhysical) {
         if( MyDebug.LOG )
@@ -2428,6 +2428,21 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
+    /** Returns list of logical cameras with same facing as the supplied camera_id.
+     */
+    public List<Integer> getSameFacingLogicalCameras(int camera_id) {
+        List<Integer> logical_camera_ids = new ArrayList<>();
+        CameraController.Facing this_facing = preview.getCameraControllerManager().getFacing(camera_id);
+        for(int i=0;i<preview.getCameraControllerManager().getNumberOfCameras();i++) {
+            if( preview.getCameraControllerManager().getFacing(i) != this_facing ) {
+                // only show cameras with same facing
+                continue;
+            }
+            logical_camera_ids.add(i);
+        }
+        return logical_camera_ids;
+    }
+
     /** User can long-click on switch multi cam icon to bring up a menu to switch to any camera.
      *  Update: from v1.53 onwards with support for exposing physical lens, we always call this with
      *  a regular click on the switch multi cam icon.
@@ -2444,16 +2459,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.choose_camera);
 
-        List<Integer> logical_camera_ids = new ArrayList<>();
         int curr_camera_id = getActualCameraId();
-        CameraController.Facing this_facing = preview.getCameraControllerManager().getFacing(curr_camera_id);
-        for(int i=0;i<preview.getCameraControllerManager().getNumberOfCameras();i++) {
-            if( preview.getCameraControllerManager().getFacing(i) != this_facing ) {
-                // only show cameras with same facing
-                continue;
-            }
-            logical_camera_ids.add(i);
-        }
+        List<Integer> logical_camera_ids = getSameFacingLogicalCameras(curr_camera_id);
         if( MyDebug.LOG )
             Log.d(TAG, "clickedSwitchMultiCamera: time after logical_camera_ids: " + (System.currentTimeMillis() - debug_time));
 

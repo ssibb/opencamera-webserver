@@ -3968,18 +3968,70 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         subTestTakePhoto(false, false, true, false, false, false, false, false);
     }
 
-    /** Tests cycling through cameras with the multi-camera icon.
+    /** Tests cycling through cameras, simulating the multi-camera icon.
      */
     private void subTestCycleMultiCameras(Set<Integer> camera_ids) throws InterruptedException {
         if( mActivity.showSwitchMultiCamIcon() ) {
             int cameraId = mPreview.getCameraId();
             CameraController.Facing facing = mPreview.getCameraControllerManager().getFacing(cameraId);
 
-            do {
-                Log.d(TAG, "testing multi cam button...");
+            List<Integer> logical_camera_ids = mActivity.getSameFacingLogicalCameras(cameraId);
+            Set<String> physical_cameras = mPreview.getPhysicalCameras(); // physical cameras for logical cameraId
+            assertEquals(cameraId, (int)logical_camera_ids.get(0));
 
-                // old code for multi-cam button:
-                /*
+            // test all logical cameras with same-facing
+            for(int id : logical_camera_ids) {
+                Log.d(TAG, "testing multi id: " + id);
+
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mActivity.userSwitchToCamera(id, null);
+                    }
+                });
+                // need to wait for UI code to finish
+                this.getInstrumentation().waitForIdleSync();
+                waitUntilCameraOpened();
+
+                int new_cameraId = mPreview.getCameraId();
+                Log.d(TAG, "multi cam button switched to " + new_cameraId);
+                Log.d(TAG, "cameraId: " + cameraId);
+                Log.d(TAG, "camera_ids was: " + camera_ids);
+                assertEquals(id, new_cameraId);
+                assertFalse(camera_ids.contains(new_cameraId));
+                camera_ids.add(new_cameraId);
+
+                CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
+                assertEquals(facing, new_facing);
+
+                subTestTakePhoto(false, false, true, true, false, false, false, false);
+            }
+
+            if( physical_cameras != null ) {
+                // test all physical cameras for cameraId
+                for(String physical_id : physical_cameras) {
+                    Log.d(TAG, "testing physical id: " + physical_id);
+
+                    mActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            mActivity.userSwitchToCamera(cameraId, physical_id);
+                        }
+                    });
+                    // need to wait for UI code to finish
+                    this.getInstrumentation().waitForIdleSync();
+                    waitUntilCameraOpened();
+
+                    int new_cameraId = mPreview.getCameraId();
+                    assertEquals(cameraId, new_cameraId);
+
+                    CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
+                    assertEquals(facing, new_facing);
+
+                    subTestTakePhoto(false, false, true, true, false, false, false, false);
+                }
+            }
+
+            // old code for multi-cam button:
+            /*do {
                 View switchMultiCameraButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_multi_camera);
                 clickView(switchMultiCameraButton);
                 waitUntilCameraOpened();
@@ -3995,8 +4047,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
                 assertEquals(facing, new_facing);
 
-                subTestTakePhoto(false, false, true, true, false, false, false, false);*/
+                subTestTakePhoto(false, false, true, true, false, false, false, false);
+            }
+            while( mActivity.testGetNextMultiCameraId() != cameraId );*/
 
+            /*do {
                 int next_multi_cameraId = mActivity.testGetNextMultiCameraId();
                 assertTrue(next_multi_cameraId != cameraId);
                 mActivity.runOnUiThread(new Runnable() {
@@ -4022,7 +4077,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
                 subTestTakePhoto(false, false, true, true, false, false, false, false);
             }
-            while( mActivity.testGetNextMultiCameraId() != cameraId );
+            while( mActivity.testGetNextMultiCameraId() != cameraId );*/
         }
     }
 
@@ -4045,12 +4100,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         if( test_multi_cam ) {
             assertFalse(cycle_all_cameras);
-            assertTrue(mActivity.isMultiCamEnabled());
         }
 
         int orig_cameraId = mPreview.getCameraId();
         Set<Integer> camera_ids = new HashSet<>();
-        camera_ids.add(orig_cameraId);
+        //camera_ids.add(orig_cameraId);
 
         boolean done_front_test = false;
         for(int i=0;i<(cycle_all_cameras ? n_cameras-1 : 1);i++) {
@@ -4079,7 +4133,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 assertEquals((cameraId + 1) % n_cameras, new_cameraId);
             }
             assertFalse(camera_ids.contains(new_cameraId));
-            camera_ids.add(new_cameraId);
+            //camera_ids.add(new_cameraId);
 
             CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
             CharSequence new_contentDescription = switchCameraButton.getContentDescription();
@@ -4240,9 +4294,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "testTakePhotoFrontCameraMulti");
         setToDefault();
 
-        if( !mActivity.isMultiCamEnabled() ) {
+        /*if( !mActivity.isMultiCamEnabled() ) {
             return;
-        }
+        }*/
 
         subTestTakePhotoMultiCameras(false, true);
     }
