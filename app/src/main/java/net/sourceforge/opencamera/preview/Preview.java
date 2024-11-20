@@ -7439,7 +7439,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public boolean supportsCameraExtension(int extension) {
         if( extension == CameraExtensionCharacteristics.EXTENSION_HDR ) {
             // blocked for now, as have yet to be able to test this (seems to have no effect on Galaxy S10e;
-            // not available on Pixel 6 Pro)
+            // not available on Pixel 6 Pro or Galaxy S24+)
             return false;
         }
         return this.supported_extensions != null && this.supported_extensions.contains(extension);
