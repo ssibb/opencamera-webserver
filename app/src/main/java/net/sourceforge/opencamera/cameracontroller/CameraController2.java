@@ -2756,7 +2756,12 @@ public class CameraController2 extends CameraController {
 
         float min_zoom = 0.0f;
         float max_zoom = 0.0f;
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
+        if( cameraIdSPhysical != null ) {
+            // don't support zoom for physical lenses - problem on Galaxy S24+ that zooming on physical lense gives random colours!
+            // but in general, the exposed zoom ranges don't seem correct for physical lenses
+            // both the above are true for CONTROL_ZOOM_RATIO_RANGE and SCALER_AVAILABLE_MAX_DIGITAL_ZOOM
+        }
+        else if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
             // use CONTROL_ZOOM_RATIO_RANGE on Android 11+, to support multiple cameras with zoom ratios
             // less than 1
             Range<Float> zoom_ratio_range = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);
