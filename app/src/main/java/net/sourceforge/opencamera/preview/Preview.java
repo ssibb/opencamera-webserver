@@ -1208,6 +1208,15 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             video_recorder.setOnInfoListener(null);
 
             try {
+                if( using_android_l && video_high_speed ) {
+                    // Needed to fix problems with 0.125x and 0.25x slow motion on Pixel 6 Pro - otherwise although
+                    // the video is recorded, we are unable to restart the preview after stopping video.
+                    // Beware of enabling this for non-high-speed - would need careful testing to ensure this doesn't cause unstable
+                    // behaviour.
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "about to call stopRepeating()");
+                    camera_controller.stopRepeating();
+                }
                 if( MyDebug.LOG )
                     Log.d(TAG, "about to call video_recorder.stop()");
                 if( test_runtime_on_video_stop )
@@ -3125,14 +3134,19 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             video_high_speed = false;
             if( this.supports_video_high_speed ) {
                 VideoProfile profile = getVideoProfile();
+                int capture_rate = (int)(profile.videoCaptureRate+1.0e-5f);
+                // We round to an int (a) to avoid risk of numerical wobble when comparing to the integer supported fps ranges, and (b) due to the
+                // "Nokia 8" hack in getVideoProfile().
+                // Note that when using timelapse (capture_rate_factor > 1.0), it may be that the capture rate is genuinely fractional, although these
+                // should always be non-high-speed, and this code is just for high speed cases, and if so for determining if the video resolution supports high speed
                 if( MyDebug.LOG )
-                    Log.d(TAG, "check if we need high speed video for " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps " + profile.videoCaptureRate);
-                CameraController.Size best_video_size = video_quality_handler.findVideoSizeForFrameRate(profile.videoFrameWidth, profile.videoFrameHeight, profile.videoCaptureRate, false);
-                    // n.b., we should pass videoCaptureRate and not videoFrameRate (as for slow motion, it's videoCaptureRate that will be high, not videoFrameRate)
+                    Log.d(TAG, "check if we need high speed video for " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps capture rate " + capture_rate);
+                CameraController.Size best_video_size = video_quality_handler.findVideoSizeForFrameRate(profile.videoFrameWidth, profile.videoFrameHeight, capture_rate, false);
+                    // n.b., we should pass videoCaptureRate (capture_rate) and not videoFrameRate (as for slow motion, it's videoCaptureRate that will be high, not videoFrameRate)
 
-                if( best_video_size == null && fpsIsHighSpeed("" + profile.videoFrameRate) && video_quality_handler.getSupportedVideoSizesHighSpeed() != null ) {
-                    Log.e(TAG, "can't find match for capture rate: " + profile.videoCaptureRate + " and video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps " + profile.videoCaptureRate);
-                    // If fpsIsHighSpeed() returns true for profile.videoFrameRate, then it means an fps is one that isn't
+                if( best_video_size == null && fpsIsHighSpeed("" + capture_rate) && video_quality_handler.getSupportedVideoSizesHighSpeed() != null ) {
+                    Log.e(TAG, "can't find match for capture rate: " + capture_rate + " and video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps " + profile.videoFrameRate);
+                    // If fpsIsHighSpeed() returns true for capture_rate, then it means an fps is one that isn't
                     // supported by any standard video sizes, but it is supported by a high speed video size. If
                     // best_video_size==null, then we must have an incompatible size for this fps.
                     // So try falling back to one of the supported high speed resolutions.
@@ -3140,7 +3154,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                     profile.videoFrameWidth = requested_size.width;
                     profile.videoFrameHeight = requested_size.height;
                     // now try again
-                    best_video_size = CameraController.CameraFeatures.findSize(video_quality_handler.getSupportedVideoSizesHighSpeed(), requested_size, profile.videoCaptureRate, false);
+                    best_video_size = CameraController.CameraFeatures.findSize(video_quality_handler.getSupportedVideoSizesHighSpeed(), requested_size, capture_rate, false);
                     if( best_video_size != null ) {
                         if( MyDebug.LOG )
                             Log.d(TAG, "fall back to a supported video size for high speed fps");
@@ -3159,6 +3173,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         if( video_quality_handler.getCurrentVideoQualityIndex() != -1 ) {
                             if( MyDebug.LOG )
                                 Log.d(TAG, "reset to video quality: " + video_quality_handler.getCurrentVideoQuality());
+                            // MyApplicationInterface stores preferences separately for high speed fps and non high speed, so fine to save the preference
                             applicationInterface.setVideoQualityPref(video_quality_handler.getCurrentVideoQuality());
                         }
                         else {
@@ -3170,7 +3185,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 }
 
                 if( best_video_size == null ) {
-                    Log.e(TAG, "fps not supported for this video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps " + profile.videoCaptureRate);
+                    Log.e(TAG, "fps not supported for this video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps capture rate " + capture_rate);
                     // we'll end up trying to record at the requested resolution and fps even though these seem incompatible;
                     // the camera driver will either ignore the requested fps, or fail
                 }

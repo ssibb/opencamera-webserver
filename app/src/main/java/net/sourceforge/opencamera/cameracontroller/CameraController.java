@@ -642,6 +642,11 @@ public abstract class CameraController {
      *  @throws CameraControllerException if the camera preview fails to start.
      */
     public abstract void startPreview() throws CameraControllerException;
+    /** Only relevant for CameraController2: stops the repeating burst for the previous (so effectively
+     *  stops the preview), but does not close the capture session for the preview (for that, using
+     *  stopPreview() instead of stopRepeating()).
+     */
+    public abstract void stopRepeating();
     public abstract void stopPreview();
     public abstract boolean startFaceDetection();
     public abstract void setFaceDetectionListener(final CameraController.FaceDetectionListener listener);

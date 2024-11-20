@@ -1590,6 +1590,11 @@ public class CameraController1 extends CameraController {
     }
 
     @Override
+    public void stopRepeating() {
+        // not relevant for old camera API
+    }
+
+    @Override
     public void stopPreview() {
         if( camera != null ) {
             // have had crashes when this is called from Preview/CloseCameraTask.

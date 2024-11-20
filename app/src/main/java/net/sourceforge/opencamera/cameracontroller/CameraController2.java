@@ -3084,6 +3084,16 @@ public class CameraController2 extends CameraController {
             camera_features.video_sizes_high_speed = new ArrayList<>();
 
             for (Range<Integer> r : configs.getHighSpeedVideoFpsRanges()) {
+                // Some devices e.g. Pixel 6 Pro have high-speed fps ranges like [30-120]. We skip these because:
+                // Firstly we'd risk choosing this for 60fps, when 60fps shouldn't require high-speed.
+                // Secondly captureSessionHighSpeed.createHighSpeedRequestList() documentation says fps range
+                // should have min==max, so we don't want to include high speed ranges where this isn't true.
+                // Without this fix, Slow motion 0.5x (which uses 60fps) fails to start recording on Pixel 6 Pro.
+                if( r.getLower().intValue() != r.getUpper().intValue() ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "skip high speed video fps range: " + r);
+                    continue;
+                }
                 hs_fps_ranges.add(new int[] {r.getLower(), r.getUpper()});
             }
             Collections.sort(hs_fps_ranges, new CameraController.RangeSorter());
@@ -3094,12 +3104,33 @@ public class CameraController2 extends CameraController {
                 }
             }
 
-
             android.util.Size[] camera_video_sizes_high_speed = configs.getHighSpeedVideoSizes();
             for(android.util.Size camera_size : camera_video_sizes_high_speed) {
                 ArrayList<int[]> fr = new ArrayList<>();
                 for (Range<Integer> r : configs.getHighSpeedVideoFpsRangesFor(camera_size)) {
-                    fr.add(new int[] { r.getLower(), r.getUpper()});
+                    // see comment above for why we require min==max
+                    if( r.getLower().intValue() != r.getUpper().intValue() ) {
+                        continue;
+                    }
+                    int [] this_fps_range = new int[] { r.getLower(), r.getUpper()};
+                    // In theory, all fps ranges returned by getHighSpeedVideoFpsRangesFor() should surely be
+                    // a subset of fps ranges returned by getHighSpeedVideoFpsRanges(), but we check just in case
+                    // (when deciding whether slow motion or high speed frame rates are supported, this means we
+                    // only need to check the frame rates of particular video sizes, as done in
+                    // MyApplicationInterface.getSupportedVideoCaptureRates()).
+                    boolean found = false;
+                    for(int [] hs_fps_range : hs_fps_ranges) {
+                        if( Arrays.equals(hs_fps_range, this_fps_range) ) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if( !found ) {
+                        if( MyDebug.LOG )
+                            Log.e(TAG, "video size " + camera_size + " has high speed frame rate " + Arrays.toString(this_fps_range) + " that wasn't returned by configs.getHighSpeedVideoFpsRanges()");
+                        continue;
+                    }
+                    fr.add(this_fps_range);
                 }
                 if (camera_size.getWidth() > 4096 || camera_size.getHeight() > 2160)
                     continue; // just in case? see above
@@ -5234,15 +5265,20 @@ public class CameraController2 extends CameraController {
 
     @Override
     public List<int[]> getSupportedPreviewFpsRange() {
+        if( MyDebug.LOG )
+            Log.d(TAG, "getSupportedPreviewFpsRange");
         List<int[]> l = new ArrayList<>();
 
         List<int[]> rr = want_video_high_speed ? hs_fps_ranges : ae_fps_ranges;
         for (int[] r : rr) {
             int[] ir = { r[0] * 1000, r[1] * 1000 };
+            if( MyDebug.LOG )
+                Log.d(TAG, "    : " + Arrays.toString(ir));
             l.add( ir );
         }
-        if( MyDebug.LOG )
-            Log.d(TAG, "   using " + (want_video_high_speed ? "high speed" : "ae")  + " preview fps ranges");
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "   using " + (want_video_high_speed ? "high speed" : "ae") + " preview fps ranges");
+        }
 
         return l;
     }
@@ -6435,9 +6471,20 @@ public class CameraController2 extends CameraController {
     }
 
     @Override
+    public void stopRepeating() {
+        if( MyDebug.LOG )
+            Log.d(TAG, "stopRepeating: " + this);
+        stopPreview(false);
+    }
+
+    @Override
     public void stopPreview() {
         if( MyDebug.LOG )
             Log.d(TAG, "stopPreview: " + this);
+        stopPreview(true);
+    }
+
+    public void stopPreview(boolean close_capture_session) {
         synchronized( background_camera_lock ) {
             if( camera == null || !hasCaptureSession() ) {
                 if( MyDebug.LOG )
@@ -6464,8 +6511,10 @@ public class CameraController2 extends CameraController {
                     // got this as a Google Play exception
                     // we still call close() below, as it has no effect if captureSession is already closed
                 }
-                // although stopRepeating() alone will pause the preview, seems better to close captureSession altogether - this allows the app to make changes such as changing the picture size
-                closeCaptureSession();
+                if( close_capture_session ) {
+                    // although stopRepeating() alone will pause the preview, seems better to close captureSession altogether - this allows the app to make changes such as changing the picture size
+                    closeCaptureSession();
+                }
             }
             catch(CameraAccessException e) {
                 if( MyDebug.LOG ) {
@@ -6476,7 +6525,7 @@ public class CameraController2 extends CameraController {
                 e.printStackTrace();
             }
             // simulate CameraController1 behaviour where face detection is stopped when we stop preview
-            if( camera_settings.has_face_detect_mode ) {
+            if( camera_settings.has_face_detect_mode && close_capture_session ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "cancel face detection");
                 camera_settings.has_face_detect_mode = false;

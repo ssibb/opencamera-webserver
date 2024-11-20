@@ -6976,8 +6976,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 }
                 boolean expect_high_speed;
                 boolean is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
-                if( is_samsung ) {
-                    // tested on Galaxy S10e at least
+                boolean is_google = Build.MANUFACTURER.toLowerCase(Locale.US).contains("google");
+                if( is_samsung || is_google ) {
+                    // tested on Galaxy S10e, Galaxy S24+, Pixel 6 Pro at least
                     expect_high_speed = (fps_value > 60);
                 }
                 else {
@@ -6999,7 +7000,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         }
     }
 
-    /** Will likely be unreliable on OnePlus 3T, Galaxy S10e, Pixel 6 Pro.
+    /** Will likely be unreliable on OnePlus 3T, Galaxy S10e.
      *  Manual mode should be ignored by high speed video, but check this doesn't crash at least!
      */
     public void testTakeVideoFPSHighSpeedManual() throws InterruptedException {
@@ -7179,7 +7180,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertTrue(video_width == high_speed_video_width && video_height == high_speed_video_height);
     }
 
-    /** Will likely be unreliable on OnePlus 3T, Galaxy S10e and Pixel 6 Pro.
+    /** Will likely be unreliable on OnePlus 3T, Galaxy S10e.
      */
     public void testTakeVideoSlowMotion() throws InterruptedException {
         Log.d(TAG, "testTakeVideoSlowMotion");
