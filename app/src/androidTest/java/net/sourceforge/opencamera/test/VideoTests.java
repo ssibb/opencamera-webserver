@@ -81,10 +81,10 @@ public class VideoTests {
             suite.addTest(TestSuite.createTest(MainActivityTest.class, "testVideoEdgeModeNoiseReductionMode"));
         }
         // put tests which change bitrate, fps or test 4K at end
-        //suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoFPS")); // disabled as unreliable
         if( TestUtils.test_camera2 ) {
             suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoFPSHighSpeedManual"));
             suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoSlowMotion"));
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoFPS"));
         }
         // update: now deprecating these tests, as setting these settings can be dodgy on some devices
         /*suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoBitrate"));
