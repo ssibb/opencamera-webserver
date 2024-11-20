@@ -84,6 +84,7 @@ public class CameraController2 extends CameraController {
     private final boolean is_samsung;
     private final boolean is_samsung_s7; // Galaxy S7 or Galaxy S7 Edge
     private final boolean is_samsung_galaxy_s;
+    private final boolean is_samsung_galaxy_f; // Galaxy fold or flip series
 
     // characteristics of camera - if a specific physical camera is being used, these are characteristics for the physical camera
     private CameraCharacteristics characteristics;
@@ -2097,11 +2098,13 @@ public class CameraController2 extends CameraController {
         //this.is_oneplus = Build.MANUFACTURER.toLowerCase(Locale.US).contains("oneplus");
         this.is_samsung = Build.MANUFACTURER.toLowerCase(Locale.US).contains("samsung");
         this.is_samsung_s7 = Build.MODEL.toLowerCase(Locale.US).contains("sm-g93");
-        this.is_samsung_galaxy_s = is_samsung && Build.MODEL.toLowerCase(Locale.US).contains("sm-g");
+        this.is_samsung_galaxy_s = is_samsung && ( Build.MODEL.toLowerCase(Locale.US).contains("sm-g") || Build.MODEL.toLowerCase(Locale.US).contains("sm-s") );
+        this.is_samsung_galaxy_f = is_samsung && Build.MODEL.toLowerCase(Locale.US).contains("sm-f");
         if( MyDebug.LOG ) {
             Log.d(TAG, "is_samsung: " + is_samsung);
             Log.d(TAG, "is_samsung_s7: " + is_samsung_s7);
             Log.d(TAG, "is_samsung_galaxy_s: " + is_samsung_galaxy_s);
+            Log.d(TAG, "is_samsung_galaxy_f: " + is_samsung_galaxy_f);
         }
 
         thread = new HandlerThread("CameraBackground"); 
@@ -3436,7 +3439,7 @@ public class CameraController2 extends CameraController {
                     camera_features.max_expo_bracketing_n_images = max_expo_bracketing_n_images;
                     camera_features.min_exposure_time = exposure_time_range.getLower();
                     camera_features.max_exposure_time = exposure_time_range.getUpper();
-                    if( is_samsung_galaxy_s && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ) {
+                    if( ( is_samsung_galaxy_s || is_samsung_galaxy_f ) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ) {
                         // seems we can get away with longer exposure on some devices (e.g., Galaxy S10e claims only max of 0.1s, but works with 1/3s)
                         // but Android 11 on Samsung devices also introduces a bug where manual exposure gets ignored if different to the preview,
                         // and since the max preview rate is limited to 1/5s (see max_preview_exposure_time_c), there's no point
