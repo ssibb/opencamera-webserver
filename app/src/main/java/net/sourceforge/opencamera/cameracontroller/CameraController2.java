@@ -330,7 +330,15 @@ public class CameraController2 extends CameraController {
         capture_result_has_aperture = false;
     }
 
+    /* Callback to be called when we receive a capture with tag RUN_POST_CAPTURE.
+     */
+    private abstract static class PostCapture {
+        public abstract void call() throws CameraAccessException;
+    }
+    private PostCapture run_post_capture;
+
     private enum RequestTagType {
+        RUN_POST_CAPTURE, // calls run_post_capture.call(), , if run_post_capture!=null
         CAPTURE, // request is either for a regular non-burst capture, or the last of a burst capture sequence
         CAPTURE_BURST_IN_PROGRESS // request is for a burst capture, but isn't the last of the burst capture sequence
         //NONE // should be treated the same as if no tag had been set on the request - but allows the request tag type to be changed later
@@ -3444,9 +3452,11 @@ public class CameraController2 extends CameraController {
                         // but Android 11 on Samsung devices also introduces a bug where manual exposure gets ignored if different to the preview,
                         // and since the max preview rate is limited to 1/5s (see max_preview_exposure_time_c), there's no point
                         // going above this!
+                        // update: as of 1.54, we now can go above the max_preview_exposure_time_c, by using RequestTagType.RUN_POST_CAPTURE
+                        // (see adjustPreviewToStill())
                         if( MyDebug.LOG )
                             Log.d(TAG, "boost max_exposure_time, was: " + max_exposure_time);
-                        camera_features.max_exposure_time = Math.max(camera_features.max_exposure_time, 1000000000L/5);
+                        camera_features.max_exposure_time = Math.max(camera_features.max_exposure_time, 1000000000L/2);
                     }
                 }
             }
@@ -6855,6 +6865,51 @@ public class CameraController2 extends CameraController {
         this.continuous_focus_move_callback = cb;
     }
 
+    /** Whether the stillRequest has a manual exposure time different to the preview, and if so,
+     *  whether we first need to set the preview exposure to match (needed for Samsung Galaxy devices,
+     *  which don't honor a manual exposure that's different to the current preview exposure).
+     */
+    private boolean adjustPreview(CaptureRequest stillRequest) {
+        boolean adjust_preview = false;
+        if( is_samsung && !previewIsVideoMode ) {
+            // don't do this if in video snapshot mode
+            Integer ae_mode = stillRequest.get(CaptureRequest.CONTROL_AE_MODE);
+            Long exposure_time = stillRequest.get(CaptureRequest.SENSOR_EXPOSURE_TIME);
+            if( ae_mode != null && ae_mode == CameraMetadata.CONTROL_AE_MODE_OFF && exposure_time != null ) {
+                Integer actual_ae_mode = previewBuilder.get(CaptureRequest.CONTROL_AE_MODE);
+                if( actual_ae_mode != null && actual_ae_mode == CameraMetadata.CONTROL_AE_MODE_OFF ) {
+                    // both preview and still are manual, so see if exposure times are the same
+                    Long actual_exposure_time = previewBuilder.get(CaptureRequest.SENSOR_EXPOSURE_TIME);
+                    if( actual_exposure_time != null && exposure_time > actual_exposure_time ) {
+                        adjust_preview = true;
+                    }
+                }
+                else {
+                    // preview is auto but still is manual
+                    adjust_preview = true;
+                }
+            }
+        }
+        return adjust_preview;
+    }
+
+    /** Adjusts the preview's manual exposure to match the stillRequest's manual exposure. Should only
+     *  be called if adjustPreview() returns true.
+     *  We use RUN_POST_CAPTURE, so we can be sure that the request to adjust the preview's exposure has
+     *  completed.
+     */
+    private void adjustPreviewToStill(CaptureRequest stillRequest, PostCapture post_capture) throws CameraAccessException {
+        if( MyDebug.LOG )
+            Log.d(TAG, "adjustPreviewToStill");
+        previewBuilder.set(CaptureRequest.CONTROL_AE_MODE, stillRequest.get(CaptureRequest.CONTROL_AE_MODE));
+        previewBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, stillRequest.get(CaptureRequest.SENSOR_EXPOSURE_TIME));
+        this.run_post_capture = post_capture;
+        previewBuilder.setTag(new RequestTagObject(RequestTagType.RUN_POST_CAPTURE));
+        captureSession.capture(previewBuilder.build(), previewCaptureCallback, handler);
+        previewBuilder.setTag(null);
+        setRepeatingRequest();
+    }
+
     private void takePictureAfterPrecapture() {
         if( MyDebug.LOG )
             Log.d(TAG, "takePictureAfterPrecapture");
@@ -7018,7 +7073,24 @@ public class CameraController2 extends CameraController {
                         }
                     }
                     else {
-                        captureSession.capture(stillBuilder.build(), previewCaptureCallback, handler);
+                        final CaptureRequest capture = stillBuilder.build();
+                        boolean adjust_preview = adjustPreview(capture);
+                        if( adjust_preview ) {
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "long manual exposure workaround: adjust preview first");
+
+                            PostCapture post_capture = new PostCapture() {
+                                @Override
+                                public void call() throws CameraAccessException {
+                                    captureSession.capture(capture, previewCaptureCallback, handler);
+                                }
+                            };
+
+                            adjustPreviewToStill(capture, post_capture);
+                        }
+                        else {
+                            captureSession.capture(capture, previewCaptureCallback, handler);
+                        }
                         //captureSession.capture(stillBuilder.build(), new CameraCaptureSession.CaptureCallback() {
                         //}, handler);
                     }
@@ -7524,6 +7596,66 @@ public class CameraController2 extends CameraController {
         }
     }
 
+    private void doTakePhotoBurst(CaptureRequest request, CaptureRequest last_request) throws CameraAccessException {
+        if( burst_type == BurstType.BURSTTYPE_CONTINUOUS ) {
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "continuous capture");
+                if( !continuous_burst_in_progress )
+                    Log.d(TAG, "    last continuous capture");
+            }
+            continuous_burst_requested_last_capture = !continuous_burst_in_progress;
+            captureSession.capture(continuous_burst_in_progress ? request : last_request, previewCaptureCallback, handler);
+
+            if( continuous_burst_in_progress ) {
+                final int continuous_burst_rate_ms = 100;
+                // also take the next burst after a delay
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // note, even if continuous_burst_in_progress has become false by this point, still take one last
+                        // photo, as need to ensure that we have a request with RequestTagType.CAPTURE, as well as ensuring
+                        // we call the onCompleted() method of the callback
+                        if( MyDebug.LOG ) {
+                            Log.d(TAG, "take next continuous burst");
+                            Log.d(TAG, "continuous_burst_in_progress: " + continuous_burst_in_progress);
+                            Log.d(TAG, "n_burst: " + n_burst);
+                        }
+                        if( n_burst >= 10 || n_burst_raw >= 10 ) {
+                            // Nokia 8 in std mode without post-processing options doesn't hit this limit (we only hit this
+                            // if it's set to "n_burst >= 5")
+                            if( MyDebug.LOG ) {
+                                Log.d(TAG, "...but wait for continuous burst, as waiting for too many photos");
+                            }
+                            //throw new RuntimeException(); // test
+                            handler.postDelayed(this, continuous_burst_rate_ms);
+                        }
+                        else if( picture_cb.imageQueueWouldBlock(n_burst_raw, n_burst+1) ) {
+                            if( MyDebug.LOG ) {
+                                Log.d(TAG, "...but wait for continuous burst, as image queue would block");
+                            }
+                            //throw new RuntimeException(); // test
+                            handler.postDelayed(this, continuous_burst_rate_ms);
+                        }
+                        else {
+                            takePictureBurst(true);
+                        }
+                    }
+                }, continuous_burst_rate_ms);
+            }
+        }
+        else {
+            List<CaptureRequest> requests = new ArrayList<>();
+            for(int i=0;i<n_burst-1;i++)
+                requests.add(request);
+            requests.add(last_request);
+            if( MyDebug.LOG )
+                Log.d(TAG, "captureBurst");
+            int sequenceId = captureSession.captureBurst(requests, previewCaptureCallback, handler);
+            if( MyDebug.LOG )
+                Log.d(TAG, "sequenceId: " + sequenceId);
+        }
+    }
+
     private void takePictureBurst(boolean continuing_fast_burst) {
         if( MyDebug.LOG )
             Log.d(TAG, "takePictureBurst");
@@ -7692,119 +7824,25 @@ public class CameraController2 extends CameraController {
                     return;
                 }
                 try {
-                    final boolean use_burst = true;
-                    //final boolean use_burst = false;
-
-                    if( burst_type == BurstType.BURSTTYPE_CONTINUOUS ) {
-                        if( MyDebug.LOG ) {
-                            Log.d(TAG, "continuous capture");
-                            if( !continuous_burst_in_progress )
-                                Log.d(TAG, "    last continuous capture");
-                        }
-                        continuous_burst_requested_last_capture = !continuous_burst_in_progress;
-                        captureSession.capture(continuous_burst_in_progress ? request : last_request, previewCaptureCallback, handler);
-
-                        if( continuous_burst_in_progress ) {
-                            final int continuous_burst_rate_ms = 100;
-                            // also take the next burst after a delay
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // note, even if continuous_burst_in_progress has become false by this point, still take one last
-                                    // photo, as need to ensure that we have a request with RequestTagType.CAPTURE, as well as ensuring
-                                    // we call the onCompleted() method of the callback
-                                    if( MyDebug.LOG ) {
-                                        Log.d(TAG, "take next continuous burst");
-                                        Log.d(TAG, "continuous_burst_in_progress: " + continuous_burst_in_progress);
-                                        Log.d(TAG, "n_burst: " + n_burst);
-                                    }
-                                    if( n_burst >= 10 || n_burst_raw >= 10 ) {
-                                        // Nokia 8 in std mode without post-processing options doesn't hit this limit (we only hit this
-                                        // if it's set to "n_burst >= 5")
-                                        if( MyDebug.LOG ) {
-                                            Log.d(TAG, "...but wait for continuous burst, as waiting for too many photos");
-                                        }
-                                        //throw new RuntimeException(); // test
-                                        handler.postDelayed(this, continuous_burst_rate_ms);
-                                    }
-                                    else if( picture_cb.imageQueueWouldBlock(n_burst_raw, n_burst+1) ) {
-                                        if( MyDebug.LOG ) {
-                                            Log.d(TAG, "...but wait for continuous burst, as image queue would block");
-                                        }
-                                        //throw new RuntimeException(); // test
-                                        handler.postDelayed(this, continuous_burst_rate_ms);
-                                    }
-                                    else {
-                                        takePictureBurst(true);
-                                    }
-                                }
-                            }, continuous_burst_rate_ms);
-                        }
-                    }
-                    else if( use_burst ) {
-                        List<CaptureRequest> requests = new ArrayList<>();
-                        for(int i=0;i<n_burst-1;i++)
-                            requests.add(request);
-                        requests.add(last_request);
+                    // if continuing_fast_burst==true, there is no need to adjust the preview again
+                    boolean adjust_preview = !continuing_fast_burst && adjustPreview(request);
+                    if( adjust_preview ) {
                         if( MyDebug.LOG )
-                            Log.d(TAG, "captureBurst");
-                        int sequenceId = captureSession.captureBurst(requests, previewCaptureCallback, handler);
-                        if( MyDebug.LOG )
-                            Log.d(TAG, "sequenceId: " + sequenceId);
-                    }
-                    else {
-                        final int burst_delay = 100;
+                            Log.d(TAG, "long manual exposure workaround: adjust preview first");
+
                         final CaptureRequest request_f = request;
                         final CaptureRequest last_request_f = last_request;
-
-                        new Runnable() {
-                            int n_remaining = n_burst;
-
+                        PostCapture post_capture = new PostCapture() {
                             @Override
-                            public void run() {
-                                if( MyDebug.LOG ) {
-                                    Log.d(TAG, "takePictureBurst runnable");
-                                    if( n_remaining == 1 ) {
-                                        Log.d(TAG, "    is last request");
-                                    }
-                                }
-                                ErrorCallback push_take_picture_error_cb = null;
-
-                                synchronized( background_camera_lock ) {
-                                    if( camera == null || !hasCaptureSession() ) {
-                                        if( MyDebug.LOG )
-                                            Log.d(TAG, "no camera or capture session");
-                                        return;
-                                    }
-                                    try {
-                                        captureSession.capture(n_remaining == 1 ? last_request_f : request_f, previewCaptureCallback, handler);
-                                        n_remaining--;
-                                        if( MyDebug.LOG )
-                                            Log.d(TAG, "takePictureBurst n_remaining: " + n_remaining);
-                                        if( n_remaining > 0 ) {
-                                            handler.postDelayed(this, burst_delay);
-                                        }
-                                    }
-                                    catch(CameraAccessException e) {
-                                        if( MyDebug.LOG ) {
-                                            Log.e(TAG, "failed to take picture burst");
-                                            Log.e(TAG, "reason: " + e.getReason());
-                                            Log.e(TAG, "message: " + e.getMessage());
-                                        }
-                                        e.printStackTrace();
-                                        jpeg_todo = false;
-                                        raw_todo = false;
-                                        picture_cb = null;
-                                        push_take_picture_error_cb = take_picture_error_cb;
-                                    }
-
-                                    // need to call callbacks without a lock
-                                    if( push_take_picture_error_cb != null ) {
-                                        push_take_picture_error_cb.onError();
-                                    }
-                                }
+                            public void call() throws CameraAccessException {
+                                doTakePhotoBurst(request_f, last_request_f);
                             }
-                        }.run();
+                        };
+
+                        adjustPreviewToStill(request, post_capture);
+                    }
+                    else {
+                        doTakePhotoBurst(request, last_request);
                     }
 
                     if( !continuing_fast_burst ) {
@@ -9371,6 +9409,67 @@ public class CameraController2 extends CameraController {
             }
             else if( tag_type == RequestTagType.CAPTURE_BURST_IN_PROGRESS ) {
                 handleCaptureBurstInProgress(result);
+            }
+            else if( tag_type == RequestTagType.RUN_POST_CAPTURE ) {
+                if( CameraController2.this.run_post_capture != null ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "take picture after delay for long manual exposure");
+                    if( camera != null && hasCaptureSession() ) { // make sure camera wasn't released in the meantime
+                        // need to wait a further ~500ms for Galaxy S10e at least (although on Galaxy S24+, it's fine if we don't do via a postDelayed at all)
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    run_post_capture.call();
+                                    run_post_capture = null;
+                                    // now put preview back to normal
+                                    if( camera_settings.setAEMode(previewBuilder, false) ) {
+                                        setRepeatingRequest();
+                                    }
+                                }
+                                catch(CameraAccessException e) {
+                                    if( MyDebug.LOG ) {
+                                        Log.e(TAG, "failed to take picture after delay for long manual exposure");
+                                        Log.e(TAG, "reason: " + e.getReason());
+                                        Log.e(TAG, "message: " + e.getMessage());
+                                    }
+                                    e.printStackTrace();
+                                    jpeg_todo = false;
+                                    raw_todo = false;
+                                    picture_cb = null;
+                                    if( take_picture_error_cb != null ) {
+                                        take_picture_error_cb.onError();
+                                        take_picture_error_cb = null;
+                                    }
+                                }
+                            }
+                        }, 500);
+
+                        /*try {
+                            run_post_capture.call();
+                            run_post_capture = null;
+                            // now put preview back to normal
+                            if( camera_settings.setAEMode(previewBuilder, false) ) {
+                                setRepeatingRequest();
+                            }
+                        }
+                        catch(CameraAccessException e) {
+                            if( MyDebug.LOG ) {
+                                Log.e(TAG, "failed to take picture after delay for long manual exposure");
+                                Log.e(TAG, "reason: " + e.getReason());
+                                Log.e(TAG, "message: " + e.getMessage());
+                            }
+                            e.printStackTrace();
+                            jpeg_todo = false;
+                            raw_todo = false;
+                            picture_cb = null;
+                            if( take_picture_error_cb != null ) {
+                                take_picture_error_cb.onError();
+                                take_picture_error_cb = null;
+                            }
+                        }*/
+                    }
+                }
             }
         }
     }
