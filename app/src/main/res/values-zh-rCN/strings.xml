@@ -86,8 +86,8 @@
     <string name="preference_exposure_summary">设为 0 使用默认曝光补偿。</string>
     <string name="preference_lock_orientation">锁定照片/视频方向</string>
     <string name="preference_lock_orientation_summary">如果设置，设备的方向将被忽略，并且照片/视频的方向将是相对于指定的方向。\n%s</string>
-    <string name="preference_face_detection">人脸识别</string>
-    <string name="preference_face_detection_summary">通过识别人脸完成对焦</string>
+    <string name="preference_face_detection">人脸检测</string>
+    <string name="preference_face_detection_summary">通过检测人脸完成对焦</string>
 
     <string name="preference_category_camera_controls">相机控制</string>
     <string name="preference_timer">倒计时</string>
@@ -688,12 +688,12 @@
     <string name="preference_ui_placement_right">功能按钮在右侧</string>
     <string name="preference_ui_placement_top">功能按钮在顶部（竖屏状态时）</string>
 
-    <string name="preference_show_face_detection">显示人脸识别的按钮</string>
-    <string name="preference_show_face_detection_summary">是否在屏幕上显示人脸识别的开关</string>
-    <string name="face_detection_enable">打开人脸识别</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
-    <string name="face_detection_disable">关闭人脸识别</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
-    <string name="face_detection_enabled">人脸识别已启用</string>
-    <string name="face_detection_disabled">人脸识别已禁用</string>
+    <string name="preference_show_face_detection">显示人脸检测的按钮</string>
+    <string name="preference_show_face_detection_summary">是否在屏幕上显示人脸检测的开关</string>
+    <string name="face_detection_enable">打开人脸检测</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+    <string name="face_detection_disable">关闭人脸检测</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+    <string name="face_detection_enabled">人脸检测已启用</string>
+    <string name="face_detection_disabled">人脸检测已禁用</string>
 
     <string name="preference_show_auto_level">显示自动水平的按钮</string>
     <string name="preference_show_auto_level_summary">是否在屏幕上显示自动水平的开关。开启自动水平后，照片会根据水平面自动旋转裁切。</string>
@@ -786,11 +786,11 @@
     <string name="preference_zebra_stripes_99pc">99%</string> <!-- shouldn't escape %, not needed when shown in ListPreference -->
     <string name="preference_zebra_stripes_100pc">100%</string> <!-- shouldn't escape %, not needed when shown in ListPreference -->
 
-    <string name="preference_focus_peaking">对焦峰值</string>
+    <string name="preference_focus_peaking">峰值对焦</string>
     <string name="preference_focus_peaking_summary">焦点区域是否高亮显示边缘。这主要用于手动对焦，可用于帮助确定图像的哪些区域处于焦点。\n%s</string>
     <string name="preference_focus_peaking_off">关闭</string>
     <string name="preference_focus_peaking_on">打开</string>
-    <string name="preference_focus_peaking_color">焦点峰值色彩</string>
+    <string name="preference_focus_peaking_color">峰值对焦色彩</string>
     <string name="preference_focus_peaking_color_summary">高亮显示对焦的边缘时使用的颜色\n%s</string>
 
     <string name="remaining">剩余</string> <!-- images remaining for "processing" -->
@@ -899,10 +899,10 @@
     <string name="preference_show_camera_id">显示相机 ID</string>
     <string name="preference_show_camera_id_summary">在屏幕上显示当前相机的 ID</string>
     <string name="aperture">光圈</string>
-    <string name="preference_multi_cam_button">多相机图标</string>
+    <string name="preference_multi_cam_button">多个切换相机的按钮</string>
     <string name="exposure_compensation_seekbar">改变曝光补偿的进度条</string>
     <string name="preference_image_format_summary">选择保存照片的文件格式。这将影响“标准”(非 RAW)照片。注意 PNG 格式并非真正无损，它是从 JPEG 按 100%% 质量转换而成的。\n%s</string>
-    <string name="preference_camera_api">Camera API</string>
+    <string name="preference_camera_api">相机 API</string>
     <string name="preference_camera_api_summary">选择 Camera2 API 来启用额外功能，比如手动曝光、对焦、白平衡及 RAW(如果设备支持)。改变 API 将重启应用。\n%s</string>
     <string name="preference_camera_api_old">原始 Camera API</string>
     <string name="preference_camera_api_camera2">Camera2 API</string>
@@ -935,7 +935,7 @@
     <string name="preference_zebra_stripes_color_orange">橙色</string>
     <string name="preference_zebra_stripes_color_transparent">半透明</string>
     <string name="preference_zebra_stripes_color_white">白色</string>
-    <string name="preference_multi_cam_button_summary">如果启用，使用分开的按钮在前置/后置相机之间切换，且在多个前置/后置之间切换。如果禁用，切换相机按钮将在所有相机之间循环。</string>
+    <string name="preference_multi_cam_button_summary">如果启用，使用一个按钮切换默认的前后相机，使用另一个按钮循环切换同侧的不同相机。如果禁用，切换相机按钮将在所有相机之间循环。</string>
 
     <!-- beware of string being too long to display! -->
     <string name="preference_stamp_geo_address_summary">如果可行的话，在标注 GPS 位置时使用一个地址。
@@ -962,5 +962,16 @@
     <string name="preference_remove_device_exif_off">不删除设备 EXIF 信息</string>
     <string name="preference_remove_device_exif_on">删除设备 EXIF 信息</string>
     <string name="preference_remove_device_exif_keep_datetime">删除日期/时间以外的信息</string>
+    <string name="photo_mode_x_night">夜景</string>
+    <string name="photo_mode_x_night_full">夜景(Night)</string>
+    <string name="photo_mode_x_bokeh">虚化</string>
+    <string name="photo_mode_x_bokeh_full">虚化(Bokeh)</string>
+    <string name="photo_mode_x_beauty">美颜</string>
+    <string name="photo_mode_x_beauty_full">美颜</string>
+    <string name="choose_camera">选择相机：</string>
+    <string name="preference_show_focus_peaking">显示峰值对焦按钮</string>
+    <string name="preference_show_focus_peaking_summary">是否在屏幕上显示峰值对焦开关。启用峰值对焦后，会在对焦边缘显示高光。见设置/成预览/峰值对焦。</string>
+    <string name="focus_peaking_enable">峰值对焦已启用</string>
+    <string name="focus_peaking_disable">峰值对焦已禁用</string>
 
 </resources>
