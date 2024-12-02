@@ -85,7 +85,6 @@ import android.text.InputType;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.SizeF;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;

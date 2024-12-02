@@ -50,7 +50,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Display;
 import android.view.Surface;
 import android.view.View;
 import android.widget.RelativeLayout;

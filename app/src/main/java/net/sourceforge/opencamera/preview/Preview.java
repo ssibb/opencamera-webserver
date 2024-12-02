@@ -85,7 +85,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Display;
 import android.view.GestureDetector;
 //import android.view.Gravity;
 import android.view.LayoutInflater;
