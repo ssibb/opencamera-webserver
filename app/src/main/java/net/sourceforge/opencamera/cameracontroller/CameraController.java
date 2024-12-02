@@ -66,8 +66,8 @@ public abstract class CameraController {
         public List<Integer> supported_extensions;
         public List<Integer> supported_extensions_zoom;
 
-        Map<Integer, List<android.util.Size>> extension_picture_sizes_map; // key is extension
-        Map<Integer, List<android.util.Size>> extension_preview_sizes_map; // key is extension
+        final Map<Integer, List<android.util.Size>> extension_picture_sizes_map; // key is extension
+        final Map<Integer, List<android.util.Size>> extension_preview_sizes_map; // key is extension
 
         CameraFeaturesCache(CameraFeatures camera_features, Map<Integer, List<android.util.Size>> extension_picture_sizes_map, Map<Integer, List<android.util.Size>> extension_preview_sizes_map) {
             if( camera_features.supported_extensions != null )
