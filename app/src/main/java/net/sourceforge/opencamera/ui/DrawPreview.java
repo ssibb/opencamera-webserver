@@ -844,8 +844,7 @@ public class DrawPreview {
                     int image_size = Math.max(bounds.outWidth, bounds.outHeight);
 
                     Point point = new Point();
-                    Display display = main_activity.getWindowManager().getDefaultDisplay();
-                    display.getSize(point);
+                    applicationInterface.getDisplaySize(point);
                     int display_size = Math.max(point.x, point.y);
 
                     int ratio = (int) Math.ceil((double) image_size / display_size);

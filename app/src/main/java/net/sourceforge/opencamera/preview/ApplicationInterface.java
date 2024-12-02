@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -190,6 +191,8 @@ public interface ApplicationInterface {
     boolean isPreviewInBackground(); // if true, then Preview can disable real-time effects (e.g., computing histogram); also it won't try to open the camera when in the background
     boolean allowZoom(); // if false, don't allow zoom functionality even if the device supports it - Preview.supportsZoom() will also return false; if true, allow zoom if the device supports it
     boolean optimiseFocusForLatency(); // behaviour for taking photos with continuous focus mode: if true, optimise focus for latency (take photo asap); if false, optimise for quality (don't take photo until scene is focused)
+
+    void getDisplaySize(Point display_size); // get size of default display, e.g., Activity.getWindowManager().getDefaultDisplay().getSize()
 
     // for testing purposes:
     boolean isTestAlwaysFocus(); // if true, pretend autofocus always successful

@@ -512,8 +512,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode() ) {
                     Point display_size = new Point();
-                    Display display = getWindowManager().getDefaultDisplay();
-                    display.getSize(display_size);
+                    applicationInterface.getDisplaySize(display_size);
                     if( MyDebug.LOG ) {
                         Log.d(TAG, "    display width: " + display_size.x);
                         Log.d(TAG, "    display height: " + display_size.y);
@@ -1844,8 +1843,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
                 // check whether the display matches the landscape configuration, in case this is inconsistent?
                 Point display_size = new Point();
-                Display display = getWindowManager().getDefaultDisplay();
-                display.getSize(display_size);
+                applicationInterface.getDisplaySize(display_size);
                 if( display_size.x > display_size.y ) {
                     int rotation = getWindowManager().getDefaultDisplay().getRotation();
                     if( MyDebug.LOG )
@@ -4346,8 +4344,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             int bitmap_width = options.outWidth;
             int bitmap_height = options.outHeight;
             Point display_size = new Point();
-            Display display = getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            applicationInterface.getDisplaySize(display_size);
             if( MyDebug.LOG ) {
                 Log.d(TAG, "bitmap_width: " + bitmap_width);
                 Log.d(TAG, "bitmap_height: " + bitmap_height);
@@ -5558,8 +5555,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         else if( set_window_insets_listener ) {
             Point display_size = new Point();
-            Display display = getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            applicationInterface.getDisplaySize(display_size);
             int display_width = Math.max(display_size.x, display_size.y);
             int display_height = Math.min(display_size.x, display_size.y);
             double display_aspect_ratio = ((double)display_width)/(double)display_height;

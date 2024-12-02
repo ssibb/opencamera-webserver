@@ -3951,8 +3951,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         Point display_size = new Point();
         Activity activity = (Activity)this.getContext();
         {
-            Display display = activity.getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            applicationInterface.getDisplaySize(display_size);
             // getSize() is adjusted based on the current rotation, so should already be landscape format, but:
             // (a) it would be good to not assume Open Camera runs in landscape mode (if we ever ran in portrait mode,
             // we'd still want display_size.x > display_size.y as preview resolutions also have width > height,

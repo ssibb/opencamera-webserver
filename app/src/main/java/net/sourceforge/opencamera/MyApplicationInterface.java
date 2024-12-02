@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 //import android.location.Address; // don't use until we have info for data privacy!
 //import android.location.Geocoder; // don't use until we have info for data privacy!
@@ -50,6 +51,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
@@ -1891,6 +1893,12 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     public boolean optimiseFocusForLatency() {
         String pref = sharedPreferences.getString(PreferenceKeys.OptimiseFocusPreferenceKey, "preference_photo_optimise_focus_latency");
         return pref.equals("preference_photo_optimise_focus_latency") && main_activity.supportsOptimiseFocusLatency();
+    }
+
+    @Override
+    public void getDisplaySize(Point display_size) {
+        Display display = main_activity.getWindowManager().getDefaultDisplay();
+        display.getSize(display_size);
     }
 
     @Override

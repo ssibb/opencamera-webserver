@@ -907,8 +907,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            mActivity.getApplicationInterface().getDisplaySize(display_size);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         //double targetRatio = mPreview.getTargetRatioForPreview(display_size);
@@ -953,8 +952,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            mActivity.getApplicationInterface().getDisplaySize(display_size);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         CameraController.Size picture_size = mPreview.getCameraController().getPictureSize();
@@ -8139,8 +8137,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            display.getSize(display_size);
+            mActivity.getApplicationInterface().getDisplaySize(display_size);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         View settingsButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.settings);

@@ -347,8 +347,7 @@ public class MainUI {
         }
 
         Point display_size = new Point();
-        Display display = main_activity.getWindowManager().getDefaultDisplay();
-        display.getSize(display_size);
+        main_activity.getApplicationInterface().getDisplaySize(display_size);
         this.layoutUI_display_w = display_size.x;
         this.layoutUI_display_h = display_size.y;
         if( MyDebug.LOG ) {
@@ -1975,18 +1974,17 @@ public class MainUI {
      * @param centred If true, then find the max height for a view that will be centred.
      */
     int getMaxHeightDp(boolean centred) {
-        Display display = main_activity.getWindowManager().getDefaultDisplay();
         // ensure we have display for landscape orientation (even if we ever allow Open Camera
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        display.getMetrics(outMetrics);
+        Point display_size = new Point();
+        main_activity.getApplicationInterface().getDisplaySize(display_size);
 
         // normally we should always have heightPixels < widthPixels, but good not to assume we're running in landscape orientation
-        int smaller_dim = Math.min(outMetrics.widthPixels, outMetrics.heightPixels);
+        int smaller_dim = Math.min(display_size.x, display_size.y);
         // the smaller dimension should limit the width, due to when held in portrait
         final float scale = main_activity.getResources().getDisplayMetrics().density;
         int dpHeight = (int)(smaller_dim / scale);
         if( MyDebug.LOG ) {
-            Log.d(TAG, "display size: " + outMetrics.widthPixels + " x " + outMetrics.heightPixels);
+            Log.d(TAG, "display size: " + display_size.x + " x " + display_size.y);
             Log.d(TAG, "dpHeight: " + dpHeight);
         }
         // allow space for the icons at top/right of screen
