@@ -5,7 +5,6 @@ import net.sourceforge.opencamera.R;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
-import android.util.SizeF;
 
 /** Provides support using Android's original camera API
  *  android.hardware.Camera.

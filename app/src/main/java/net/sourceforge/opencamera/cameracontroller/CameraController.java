@@ -14,7 +14,6 @@ import android.graphics.Rect;
 import android.location.Location;
 import android.media.MediaRecorder;
 import android.util.Log;
-import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.TextureView;
 
