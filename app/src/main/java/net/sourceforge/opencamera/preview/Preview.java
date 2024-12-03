@@ -3948,7 +3948,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         CameraController.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
         Point display_size = new Point();
-        Activity activity = (Activity)this.getContext();
         {
             applicationInterface.getDisplaySize(display_size);
             // getSize() is adjusted based on the current rotation, so should already be landscape format, but:
