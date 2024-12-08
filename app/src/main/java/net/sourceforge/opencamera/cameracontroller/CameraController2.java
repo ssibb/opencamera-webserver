@@ -3094,7 +3094,7 @@ public class CameraController2 extends CameraController {
         }
         Collections.sort(camera_features.video_sizes, new CameraController.SizeSorter());
 
-        // don't support high speed if physical camera specified - seems unreliable on Pixel 6 Pro
+        // don't support high speed if physical camera specified - seems unreliable on Pixel 6 Pro and Galaxy S24+
         if( capabilities_high_speed_video && cameraIdSPhysical == null ) {
             hs_fps_ranges = new ArrayList<>();
             camera_features.video_sizes_high_speed = new ArrayList<>();
