@@ -900,6 +900,7 @@ public class TestUtils {
         int n_focus_bracketing_images = Integer.parseInt(n_focus_bracketing_images_s);
         String n_fast_burst_images_s = sharedPreferences.getString(PreferenceKeys.FastBurstNImagesPreferenceKey, "5");
         int n_fast_burst_images = Integer.parseInt(n_fast_burst_images_s);
+        boolean is_preshot = activity.getApplicationInterface().getPreShotsPref(activity.getApplicationInterface().getPhotoMode());
 
         int exp_n_new_files;
         if( is_hdr && hdr_save_expo ) {
@@ -928,6 +929,10 @@ public class TestUtils {
                 exp_n_new_files *= 2;
             }
         }
+
+        if( is_preshot )
+            exp_n_new_files++;
+
         Log.d(TAG, "exp_n_new_files: " + exp_n_new_files);
         return exp_n_new_files;
     }
@@ -940,10 +945,12 @@ public class TestUtils {
         boolean is_fast_burst = activity.supportsFastBurst() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_fast_burst");
         boolean is_expo = activity.supportsExpoBracketing() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_expo_bracketing");
         boolean is_focus_bracketing = activity.supportsFocusBracketing() && sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std").equals("preference_photo_mode_focus_bracketing");
+        boolean is_preshot = activity.getApplicationInterface().getPreShotsPref(activity.getApplicationInterface().getPhotoMode());
 
         // check files have names as expected
         String filename_jpeg = null;
         String filename_dng = null;
+        String filename_preshot_video =  null;
         int n_files = files == null ? 0 : files.length;
         for(String file : files2) {
             Log.d(TAG, "check file: " + file);
@@ -992,6 +999,11 @@ public class TestUtils {
                     assertTrue(hdr_save_expo || is_expo || is_focus_bracketing || filename_dng == null);
                     filename_dng = filename;
                 }
+                else if( filename.endsWith(".mp4") ) {
+                    assertTrue(is_preshot);
+                    assertNull(filename_preshot_video);
+                    filename_preshot_video = filename;
+                }
                 else {
                     fail();
                 }
@@ -999,6 +1011,8 @@ public class TestUtils {
         }
         assertEquals((filename_jpeg == null), (is_raw && activity.getApplicationInterface().isRawOnly() && !is_hdr));
         assertEquals((filename_dng != null), is_raw);
+        assertEquals((filename_preshot_video != null), is_preshot);
+
         if( is_raw && !activity.getApplicationInterface().isRawOnly() ) {
             // check we have same filenames (ignoring extensions)
             // if HDR, then we should exclude the "_HDR" vs "_x" of the base filenames
@@ -1020,6 +1034,15 @@ public class TestUtils {
             Log.d(TAG, "filename_base_jpeg: " + filename_base_jpeg);
             Log.d(TAG, "filename_base_dng: " + filename_base_dng);
             assertEquals(filename_base_jpeg, filename_base_dng);
+        }
+
+        if( is_preshot ) {
+            // check we have same filenames (ignoring extensions)
+            String filename_base_jpeg = filename_jpeg.substring(0, filename_jpeg.length()-4);
+            String filename_base_preshot_video = filename_preshot_video.substring(0, filename_jpeg.length()-4);
+            Log.d(TAG, "filename_base_jpeg: " + filename_base_jpeg);
+            Log.d(TAG, "filename_base_preshot_video: " + filename_base_preshot_video);
+            assertEquals(filename_base_jpeg, filename_base_preshot_video);
         }
     }
 

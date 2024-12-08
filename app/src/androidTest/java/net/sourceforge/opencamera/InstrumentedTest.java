@@ -6484,6 +6484,50 @@ public class InstrumentedTest {
         }
     }
 
+    /** Tests preshots.
+     */
+    @Category(PhotoTests.class)
+    @Test
+    public void testTakePhotoPreshots() throws InterruptedException {
+        Log.d(TAG, "testTakePhotoPreshots");
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            Log.d(TAG, "test requires camera2 api");
+            return;
+        }
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertNotNull(activity.getPreview().getPreShotsRingBuffer());
+            assertEquals(0, activity.getPreview().getPreShotsRingBuffer().getNBitmaps());
+        });
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PreferenceKeys.PreShotsPreferenceKey, "preference_save_preshots_on");
+            editor.apply();
+        });
+        updateForSettings();
+
+        subTestTakePhoto(false, false, true, true, false, false, false, false);
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertNotNull(activity.getPreview().getPreShotsRingBuffer());
+            assertTrue(activity.getPreview().getPreShotsRingBuffer().getNBitmaps() > 0);
+        });
+
+        // test ring buffer flushed on pause
+        mActivityRule.getScenario().onActivity(activity -> {
+            Log.d(TAG, "pause...");
+            getInstrumentation().callActivityOnPause(activity);
+        });
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertNotNull(activity.getPreview().getPreShotsRingBuffer());
+            assertEquals(0, activity.getPreview().getPreShotsRingBuffer().getNBitmaps());
+        });
+    }
+
     private int getNFiles() {
         // count initial files in folder
         String [] files = getActivityValue(activity -> TestUtils.filesInSaveFolder(activity));
