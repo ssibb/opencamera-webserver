@@ -78,7 +78,7 @@ public class ManualSeekbars {
         return seekbar_values_shutter_speed.get(progress);
     }
 
-    private void setProgressBarToClosest(SeekBar seekBar, List<Long> seekbar_values, long current_value) {
+    static private void setProgressBarToClosest(SeekBar seekBar, List<Long> seekbar_values, long current_value) {
         if( MyDebug.LOG )
             Log.d(TAG, "setProgressBarToClosest");
         int closest_indx = -1;
