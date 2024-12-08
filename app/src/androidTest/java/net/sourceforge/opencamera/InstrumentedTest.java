@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -286,6 +287,43 @@ public class InstrumentedTest {
                 compare_focus_value = "focus_mode_manual2";
             assertEquals(compare_focus_value, controller_focus_value);
         }
+    }
+
+    private void switchToISO(int required_iso) {
+        Log.d(TAG, "switchToISO: "+ required_iso);
+        int iso = getActivityValue(activity -> activity.getPreview().getCameraController().getISO());
+        Log.d(TAG, "start iso: "+ iso);
+        if( iso != required_iso ) {
+            mActivityRule.getScenario().onActivity(activity -> {
+                View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+                View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_container);
+                assertEquals(exposureContainer.getVisibility(), View.GONE);
+                clickView(exposureButton);
+            });
+            mActivityRule.getScenario().onActivity(activity -> {
+                View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_container);
+                assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
+                View isoButton = activity.getUIButton("TEST_ISO_" + required_iso);
+                assertNotNull(isoButton);
+                clickView(isoButton);
+            });
+            try {
+                Thread.sleep(DrawPreview.dim_effect_time_c+50); // wait for updateForSettings
+                //this.getInstrumentation().waitForIdleSync();
+            }
+            catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+            iso = getActivityValue(activity -> activity.getPreview().getCameraController().getISO());
+            Log.d(TAG, "changed iso to: "+ iso);
+            mActivityRule.getScenario().onActivity(activity -> {
+                View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+                View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_container);
+                clickView(exposureButton);
+                assertEquals(exposureContainer.getVisibility(), View.GONE);
+            });
+        }
+        assertEquals(iso, required_iso);
     }
 
     /* Sets the camera up to a predictable state:
@@ -6526,6 +6564,81 @@ public class InstrumentedTest {
             assertNotNull(activity.getPreview().getPreShotsRingBuffer());
             assertEquals(0, activity.getPreview().getPreShotsRingBuffer().getNBitmaps());
         });
+    }
+
+    /** Tests manual exposure longer than preview exposure rate, with the RequestTagType.RUN_POST_CAPTURE flag for Camera2 API.
+     */
+    @Category(PhotoTests.class)
+    @Test
+    public void testTakePhotoManualISOExposurePostCapture() throws InterruptedException {
+        Log.d(TAG, "testTakePhotoPreshots");
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            Log.d(TAG, "test requires camera2 api");
+            return;
+        }
+        else if( !getActivityValue(activity -> activity.getPreview().supportsISORange()) ) {
+            Log.d(TAG, "test requires manual iso range");
+            return;
+        }
+
+        switchToISO(100);
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            // ensure we test RequestTagType.RUN_POST_CAPTURE even when not testing on a Samsung
+            activity.getPreview().getCameraController().test_force_run_post_capture = true;
+        });
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            // open exposure UI
+            View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+            View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.manual_exposure_container);
+            assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+            assertEquals(exposureContainer.getVisibility(), View.GONE);
+
+            clickView(exposureButton);
+        });
+        AtomicReference<Long> chosen_exposureRef = new AtomicReference<>();
+        mActivityRule.getScenario().onActivity(activity -> {
+            View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+            View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.manual_exposure_container);
+            SeekBar isoSeekBar = activity.findViewById(net.sourceforge.opencamera.R.id.iso_seekbar);
+            SeekBar exposureTimeSeekBar = activity.findViewById(net.sourceforge.opencamera.R.id.exposure_time_seekbar);
+            assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+            assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
+            assertEquals(isoSeekBar.getVisibility(), View.VISIBLE);
+            assertEquals(exposureTimeSeekBar.getVisibility(), (activity.getPreview().supportsExposureTime() ? View.VISIBLE : View.GONE));
+            //subTestISOButtonAvailability();
+
+            // change exposure time to min of (max, 0.5s)
+            int progress = exposureTimeSeekBar.getMax();
+            while( progress > exposureTimeSeekBar.getMin() && activity.getManualSeekbars().getExposureTime(progress) > 1000000000L/2 ) {
+                progress--;
+            }
+            chosen_exposureRef.set(activity.getManualSeekbars().getExposureTime(progress));
+
+            Log.d(TAG, "change exposure time to progress " + progress + " time " + chosen_exposureRef.get());
+            exposureTimeSeekBar.setProgress(progress);
+        });
+        long chosen_exposure = chosen_exposureRef.get();
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(activity.getPreview().getCameraController().getISO(), 100);
+            assertEquals(activity.getPreview().getCameraController().getExposureTime(), chosen_exposure);
+
+            // close the exposure UI
+            View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+            clickView(exposureButton);
+        });
+        mActivityRule.getScenario().onActivity(activity -> {
+            View exposureButton = activity.findViewById(net.sourceforge.opencamera.R.id.exposure);
+            View exposureContainer = activity.findViewById(net.sourceforge.opencamera.R.id.manual_exposure_container);
+            assertEquals(exposureButton.getVisibility(), View.VISIBLE);
+            assertEquals(exposureContainer.getVisibility(), View.GONE);
+        });
+
+        subTestTakePhoto(false, false, true, true, false, false, false, false);
+
     }
 
     private int getNFiles() {

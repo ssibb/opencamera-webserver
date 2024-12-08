@@ -6871,7 +6871,7 @@ public class CameraController2 extends CameraController {
      */
     private boolean adjustPreview(CaptureRequest stillRequest) {
         boolean adjust_preview = false;
-        if( is_samsung && !previewIsVideoMode ) {
+        if( (is_samsung || test_force_run_post_capture) && !previewIsVideoMode ) {
             // don't do this if in video snapshot mode
             Integer ae_mode = stillRequest.get(CaptureRequest.CONTROL_AE_MODE);
             Long exposure_time = stillRequest.get(CaptureRequest.SENSOR_EXPOSURE_TIME);
