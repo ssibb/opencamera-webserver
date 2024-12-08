@@ -19,8 +19,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.Point;
 //import android.net.Uri;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -36,11 +38,12 @@ import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -414,7 +417,22 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                         about_string.append(Build.MANUFACTURER);
                         about_string.append("\nDevice model: ");
                         about_string.append(Build.MODEL);
-                        {
+                        if( Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R ) {
+                            // use non-deprecated equivalent of Display.getSize()
+                            WindowMetrics window_metrics = MyPreferenceFragment.this.getActivity().getWindowManager().getCurrentWindowMetrics();
+                            final WindowInsets windowInsets = window_metrics.getWindowInsets();
+                            Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
+                            int insetsWidth = insets.right + insets.left;
+                            int insetsHeight = insets.top + insets.bottom;
+                            final Rect bounds = window_metrics.getBounds();
+                            int display_x = bounds.width() - insetsWidth;
+                            int display_y = bounds.height() - insetsHeight;
+                            about_string.append("\nDisplay size: ");
+                            about_string.append(display_x);
+                            about_string.append("x");
+                            about_string.append(display_y);
+                        }
+                        else {
                             Point display_size = new Point();
                             Display display = MyPreferenceFragment.this.getActivity().getWindowManager().getDefaultDisplay();
                             display.getSize(display_size);
@@ -422,12 +440,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                             about_string.append(display_size.x);
                             about_string.append("x");
                             about_string.append(display_size.y);
-                            DisplayMetrics outMetrics = new DisplayMetrics();
-                            display.getMetrics(outMetrics);
-                            about_string.append("\nDisplay metrics: ");
-                            about_string.append(outMetrics.widthPixels);
-                            about_string.append("x");
-                            about_string.append(outMetrics.heightPixels);
                         }
                         about_string.append("\nCurrent camera ID: ");
                         about_string.append(cameraId);
