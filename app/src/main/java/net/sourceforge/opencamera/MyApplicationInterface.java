@@ -1897,8 +1897,21 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public void getDisplaySize(Point display_size) {
-        Display display = main_activity.getWindowManager().getDefaultDisplay();
-        display.getSize(display_size);
+        if( Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R ) {
+            // use non-deprecated equivalent of Display.getSize()
+            WindowMetrics window_metrics = main_activity.getWindowManager().getCurrentWindowMetrics();
+            final WindowInsets windowInsets = window_metrics.getWindowInsets();
+            Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
+            int insetsWidth = insets.right + insets.left;
+            int insetsHeight = insets.top + insets.bottom;
+            final Rect bounds = window_metrics.getBounds();
+            display_size.x = bounds.width() - insetsWidth;
+            display_size.y = bounds.height() - insetsHeight;
+        }
+        else {
+            Display display = main_activity.getWindowManager().getDefaultDisplay();
+            display.getSize(display_size);
+        }
     }
 
     @Override
