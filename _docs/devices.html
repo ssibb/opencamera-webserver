@@ -146,27 +146,32 @@ manual controls, RAW and 120fps video.</p>
 
 <h3>Samsung</h3>
 
-<p>I have tested Open Camera on a Samsung Galaxy S10e (Exynos SM-G970F). Mostly things work, including with Camera2
+<p>I have tested Open Camera on a Samsung Galaxy S24+ (Exynos SM-S926B) and Galaxy S10e (Exynos SM-G970F). Mostly things work, including with Camera2
         API. Known issues are:</p>
 <ul>
-        <li>Slow motion and high speed frame rate video doesn't work (see below for more details).</li>
-        <li>The "Image quality" setting has no effect for JPEGs (unless post-processing options such as auto-level or
+        <li>Night mode is available via X-Night, but unreliable on the Galaxy S24+ (it takes a zoomed in image; explicitly zooming in can cause the
+        phone to crash!)</li>
+        <li>Slow motion and high speed frame rate video doesn't work on the Galaxy S10e (see below for more details), but fine on the Galaxy S24+.</li>
+        <li>The "Image quality" setting has no effect for JPEGs on the Galaxy S10e (unless post-processing options such as auto-level or
         photo stamp are applied). This has also been reported for other Samsung devices; I also have the same
-        issue with other third party camera applications on my S10e. See
+        issue with other third party camera applications on my S10e. Howevever the image quality setting does work on the Galaxy S24+. See
         <a href="https://sourceforge.net/p/opencamera/discussion/general/thread/1abb56eb/">this thread</a>
         for details.</li>
+        <li>The photo shutter sound always plays at maximum volume on Camera2 API, this seems to be
+                <a href="https://issuetracker.google.com/issues/182811267">a Samsung issue</a> - a workaround is to turn off the shutter sound
+        via Settings/More camera controls/"Shutter sound".</li>
 </ul>
-<p>Both rear physical cameras (standard and ultra wide) are available to Open Camera (as separate cameras); also the two modes for the front camera
-        ("cropped" and "wide") are available to Open Camera.<p>
 
-<p>At least some Samsung Galaxy devices support the camera extension modes (X-Auto, X-Night, X-Bokeh, X-Bty) (including the Galaxy S10e;
+<p>All the Galaxy S10e and Galaxy S24+ rear cameras are available, you can switch by zooming in or out.
+        As of Open Camera 1.54, you can also select individual cameras directly.
+        Also the two modes for the front camera
+        ("cropped" and "wide") are available to Open Camera.</p>
+
+<p>At least some Samsung Galaxy devices support the camera extension modes (X-Night, X-Bokeh, X-Bty) (including the Galaxy S10e and Galaxy S24+;
 in general this is likely available for the flagship S devices running Android 12+).</p>
 
 <p>More generally I have occasionally tested on various Samsung devices using their remote test labs - although useful, this is limited
         compared to owning a real device (especially when the test labs are dark!)</p>
-
-<p>A few Samsung devices have shown problems with corrupted video recording with Open Camera, though this seems to be rare (and doesn't
-        seem to be consistent enough to name any particular device - my S10e seems fine).</p>
 
 <p>I've had reports of the audio being out of sync with video on the Galaxy S7 and S8 when in Camera2 API mode.</p>
 
