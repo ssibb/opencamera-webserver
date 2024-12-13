@@ -9104,8 +9104,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
     /* Tests we don't save location data; also tests that we save other exif data.
      * May fail on devices without mobile network, especially if we don't even have wifi.
-     * Fails on Android emulator with Camera2 API, due to photos having Exif TAG_GPS_LATITUDE tag
-     * set to "0/1000,0/1000,0/1000" instead of null.
      */
     public void testLocationOff() throws IOException {
         Log.d(TAG, "testLocationOff");
@@ -9447,8 +9445,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
     /* Tests we can stamp date/time and location to photo.
      * May fail on devices without mobile network, especially if we don't even have wifi.
-     * Fails on Android emulator with Camera2 API, due to photos having Exif TAG_GPS_LATITUDE tag
-     * set to "0/1000,0/1000,0/1000" instead of null.
      */
     public void testPhotoStamp() throws IOException {
         Log.d(TAG, "testPhotoStamp");

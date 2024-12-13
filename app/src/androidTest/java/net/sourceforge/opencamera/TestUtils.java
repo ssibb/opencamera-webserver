@@ -1417,6 +1417,10 @@ public class TestUtils {
             assertEquals(preview.getCameraController().getFocusValue(), focus_value);
     }
 
+    private static boolean gpsIsNull(String gps_string) {
+        return gps_string == null || gps_string.equals("0/1,0/1,0/100000");
+    }
+
     /** Tests the Exif tags in the resultant file. If the file is null, the uri will be
      *  used instead to read the Exif tags.
      */
@@ -1485,19 +1489,20 @@ public class TestUtils {
             }
 
             if( expect_gps ) {
-                assertNotNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
+                assertFalse(gpsIsNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)));
                 assertNotNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
-                assertNotNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
-                assertNotNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+                assertFalse(gpsIsNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)));
+                assertNotNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
                 // can't read custom tags, even though we can write them?!
                 //assertTrue(exif.getAttribute(TAG_GPS_IMG_DIRECTION) != null);
                 //assertTrue(exif.getAttribute(TAG_GPS_IMG_DIRECTION_REF) != null);
             }
             else {
-                assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
-                assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
-                assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
-                assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+                assertTrue(gpsIsNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)));
+                assertTrue(gpsIsNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)));
+                // TAG_GPS_LATITUDE_REF, TAG_GPS_LONGITUDE_REF are still non-null on Samsung Galaxy S24+ with Camera2 API
+                //assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+                //assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
                 // can't read custom tags, even though we can write them?!
                 //assertTrue(exif.getAttribute(TAG_GPS_IMG_DIRECTION) == null);
                 //assertTrue(exif.getAttribute(TAG_GPS_IMG_DIRECTION_REF) == null);
