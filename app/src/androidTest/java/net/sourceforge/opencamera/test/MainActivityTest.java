@@ -3968,9 +3968,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
     /** Tests cycling through cameras, simulating the multi-camera icon.
      */
-    private void subTestCycleMultiCameras(Set<Integer> camera_ids) throws InterruptedException {
+    private void subTestCycleMultiCameras(Set<Integer> visited_camera_ids) throws InterruptedException {
         if( mActivity.showSwitchMultiCamIcon() ) {
-            int cameraId = mPreview.getCameraId();
+            final int cameraId = mPreview.getCameraId();
             CameraController.Facing facing = mPreview.getCameraControllerManager().getFacing(cameraId);
 
             List<Integer> logical_camera_ids = mActivity.getSameFacingLogicalCameras(cameraId);
@@ -3993,10 +3993,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 int new_cameraId = mPreview.getCameraId();
                 Log.d(TAG, "multi cam button switched to " + new_cameraId);
                 Log.d(TAG, "cameraId: " + cameraId);
-                Log.d(TAG, "camera_ids was: " + camera_ids);
+                Log.d(TAG, "visited_camera_ids was: " + visited_camera_ids);
                 assertEquals(id, new_cameraId);
-                assertFalse(camera_ids.contains(new_cameraId));
-                camera_ids.add(new_cameraId);
+                if( id != cameraId ) {
+                    assertFalse(visited_camera_ids.contains(new_cameraId));
+                    visited_camera_ids.add(new_cameraId);
+                }
 
                 CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
                 assertEquals(facing, new_facing);
@@ -4037,10 +4039,10 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 int new_cameraId = mPreview.getCameraId();
                 Log.d(TAG, "multi cam button switched to " + new_cameraId);
                 Log.d(TAG, "cameraId: " + cameraId);
-                Log.d(TAG, "camera_ids was: " + camera_ids);
+                Log.d(TAG, "visited_camera_ids was: " + visited_camera_ids);
                 assertTrue(new_cameraId != cameraId);
-                assertFalse(camera_ids.contains(new_cameraId));
-                camera_ids.add(new_cameraId);
+                assertFalse(visited_camera_ids.contains(new_cameraId));
+                visited_camera_ids.add(new_cameraId);
 
                 CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
                 assertEquals(facing, new_facing);
@@ -4064,11 +4066,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 int new_cameraId = mPreview.getCameraId();
                 Log.d(TAG, "multi cam button switched to " + new_cameraId);
                 Log.d(TAG, "cameraId: " + cameraId);
-                Log.d(TAG, "camera_ids was: " + camera_ids);
+                Log.d(TAG, "visited_camera_ids was: " + visited_camera_ids);
                 assertTrue(new_cameraId != cameraId);
                 assertTrue(new_cameraId == next_multi_cameraId);
-                assertFalse(camera_ids.contains(new_cameraId));
-                camera_ids.add(new_cameraId);
+                assertFalse(visited_camera_ids.contains(new_cameraId));
+                visited_camera_ids.add(new_cameraId);
 
                 CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
                 assertEquals(facing, new_facing);
@@ -4101,8 +4103,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         }
 
         int orig_cameraId = mPreview.getCameraId();
-        Set<Integer> camera_ids = new HashSet<>();
-        //camera_ids.add(orig_cameraId);
+        Set<Integer> visited_camera_ids = new HashSet<>();
+        visited_camera_ids.add(orig_cameraId);
 
         boolean done_front_test = false;
         for(int i=0;i<(cycle_all_cameras ? n_cameras-1 : 1);i++) {
@@ -4116,7 +4118,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
             if( test_multi_cam ) {
                 // first test cycling through the cameras with this facing
-                subTestCycleMultiCameras(camera_ids);
+                subTestCycleMultiCameras(visited_camera_ids);
             }
 
             View switchCameraButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_camera);
@@ -4130,8 +4132,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 // in this mode, we should just be iterating over the camera IDs
                 assertEquals((cameraId + 1) % n_cameras, new_cameraId);
             }
-            assertFalse(camera_ids.contains(new_cameraId));
-            //camera_ids.add(new_cameraId);
+            assertFalse(visited_camera_ids.contains(new_cameraId));
+            visited_camera_ids.add(new_cameraId);
 
             CameraController.Facing new_facing = mPreview.getCameraControllerManager().getFacing(new_cameraId);
             CharSequence new_contentDescription = switchCameraButton.getContentDescription();
@@ -4234,12 +4236,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         }
 
         if( test_multi_cam ) {
-            subTestCycleMultiCameras(camera_ids);
+            subTestCycleMultiCameras(visited_camera_ids);
         }
 
         if( cycle_all_cameras || test_multi_cam ) {
             // test we visited all cameras
-            assertEquals(n_cameras, camera_ids.size());
+            assertEquals(n_cameras, visited_camera_ids.size());
         }
 
         // now check we really do return to the first camera
