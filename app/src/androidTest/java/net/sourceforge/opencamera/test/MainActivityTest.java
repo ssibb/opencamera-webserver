@@ -7106,20 +7106,23 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         // change video resolution
         List<String> video_sizes = mPreview.getSupportedVideoQuality(mActivity.getApplicationInterface().getVideoFPSPref());
-        assertTrue(video_sizes.size() >= 2);
         // find current index
         int video_size_index = -1;
         for(int i=0;i<video_sizes.size();i++) {
             String video_size = video_sizes.get(i);
             if( video_size.equals(mPreview.getVideoQualityHander().getCurrentVideoQuality()) ) {
+                Log.d(TAG, "video_size: " + video_size);
                 video_size_index = i;
                 break;
             }
         }
         Log.d(TAG, "video_size_index: " + video_size_index);
         assertTrue(video_size_index != -1);
-        // should have defaulted to largest resolution
-        assertEquals(0, video_size_index);
+        // should have defaulted to largest resolution, or FullHD
+        assertTrue(video_size_index <= 1);
+        assertTrue( video_sizes.get(video_size_index).equals(""+CamcorderProfile.QUALITY_HIGH) || video_sizes.get(video_size_index).equals(""+CamcorderProfile.QUALITY_1080P) );
+        // make sure we can switch to a lower quality video size index
+        assertTrue(video_sizes.size() > video_size_index+1);
         video_size_index++;
         String quality = video_sizes.get(video_size_index);
         settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
