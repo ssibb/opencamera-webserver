@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -55,6 +56,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 import android.widget.ImageButton;
 
 import androidx.annotation.RequiresApi;
