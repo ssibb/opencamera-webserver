@@ -20,7 +20,6 @@ import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.renderscript.Allocation;
 import android.util.Log;
 import android.view.View;
 
