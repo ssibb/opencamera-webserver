@@ -4051,15 +4051,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public void setWindowFlagsForCamera() {
         if( MyDebug.LOG )
             Log.d(TAG, "setWindowFlagsForCamera");
-    	/*{
-    		Intent intent = new Intent(this, MyWidgetProvider.class);
-    		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-    		AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
-    		ComponentName widgetComponent = new ComponentName(this, MyWidgetProvider.class);
-    		int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
-    		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
-    		sendBroadcast(intent);
-    	}*/
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
