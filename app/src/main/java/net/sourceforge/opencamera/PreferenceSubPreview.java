@@ -1,6 +1,5 @@
 package net.sourceforge.opencamera;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -35,12 +34,6 @@ public class PreferenceSubPreview extends PreferenceSubScreen {
 
         {
             ListPreference pref = (ListPreference)findPreference("preference_ghost_image");
-
-            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-                // require Storage Access Framework to select a ghost image
-                pref.setEntries(R.array.preference_ghost_image_entries_preandroid5);
-                pref.setEntryValues(R.array.preference_ghost_image_values_preandroid5);
-            }
 
             pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override

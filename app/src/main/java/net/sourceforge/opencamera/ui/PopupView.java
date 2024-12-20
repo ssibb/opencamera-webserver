@@ -22,7 +22,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.camera2.CameraExtensionCharacteristics;
-import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -1644,12 +1643,7 @@ public class PopupView extends LinearLayout {
                                         if( MyDebug.LOG )
                                             Log.d(TAG, "onGlobalLayout()");
                                         // stop listening - only want to call this once!
-                                        if( Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ) {
-                                            popup_container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                        }
-                                        else {
-                                            popup_container.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                                        }
+                                        popup_container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                                         // so that the user sees the options appear, if the button is at the bottom of the current scrollview position
                                         if( rg.getChildCount() > 0 ) {

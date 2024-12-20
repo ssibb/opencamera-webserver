@@ -71,7 +71,6 @@ import android.view.TextureView;
 /** Provides support using Android 5's Camera 2 API
  *  android.hardware.camera2.*.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class CameraController2 extends CameraController {
     private static final String TAG = "CameraController2";
 

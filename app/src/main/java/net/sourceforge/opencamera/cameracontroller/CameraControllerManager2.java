@@ -3,20 +3,17 @@ package net.sourceforge.opencamera.cameracontroller;
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.R;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
-import android.os.Build;
 import android.util.Log;
 import android.util.SizeF;
 
 /** Provides support using Android 5's Camera 2 API
  *  android.hardware.camera2.*.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraControllerManager2 extends CameraControllerManager {
     private static final String TAG = "CControllerManager2";
 

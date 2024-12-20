@@ -3,7 +3,6 @@ package net.sourceforge.opencamera;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -36,18 +35,10 @@ public class PreferenceSubCameraControlsMore extends PreferenceSubScreen {
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-            // BluetoothLeService requires Android 4.3+
-            Preference pref = findPreference("preference_screen_remote_control");
-            //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_camera_controls_more");
-            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
-            pg.removePreference(pref);
-        }
-
         final boolean can_disable_shutter_sound = bundle.getBoolean("can_disable_shutter_sound");
         if( MyDebug.LOG )
             Log.d(TAG, "can_disable_shutter_sound: " + can_disable_shutter_sound);
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 || !can_disable_shutter_sound ) {
+        if( !can_disable_shutter_sound ) {
             // Camera.enableShutterSound requires JELLY_BEAN_MR1 or greater
             Preference pref = findPreference("preference_shutter_sound");
             //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_camera_controls_more");
@@ -113,13 +104,7 @@ public class PreferenceSubCameraControlsMore extends PreferenceSubScreen {
             });
         }
 
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-            Preference pref = findPreference("preference_using_saf");
-            //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_camera_controls_more");
-            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
-            pg.removePreference(pref);
-        }
-        else {
+        {
             final Preference pref = findPreference("preference_using_saf");
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override

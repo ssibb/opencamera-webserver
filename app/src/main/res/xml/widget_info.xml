@@ -3,5 +3,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:initialLayout="@layout/widget_layout"
     android:widgetCategory="keyguard"
-    tools:targetApi="jelly_bean_mr1">
+    >
 </appwidget-provider>

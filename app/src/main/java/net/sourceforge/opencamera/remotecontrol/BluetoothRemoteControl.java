@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 import net.sourceforge.opencamera.MainActivity;
@@ -45,10 +44,6 @@ public class BluetoothRemoteControl {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             if( MyDebug.LOG )
                 Log.d(TAG, "onServiceConnected");
-            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-                // BluetoothLeService requires Android 4.3+
-                return;
-            }
             if( main_activity.isAppPaused() ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "but app is now paused");
@@ -83,10 +78,7 @@ public class BluetoothRemoteControl {
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 public void run() {
-                    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-                        // BluetoothLeService requires Android 4.3+
-                        bluetoothLeService.connect(remoteDeviceAddress);
-                    }
+                    bluetoothLeService.connect(remoteDeviceAddress);
                 }
             }, 5000);
 
@@ -101,10 +93,6 @@ public class BluetoothRemoteControl {
     private final BroadcastReceiver remoteControlCommandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-                // BluetoothLeService requires Android 4.3+
-                return;
-            }
             final String action = intent.getAction();
             MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
             MainUI mainUI = main_activity.getMainUI();
@@ -233,7 +221,6 @@ public class BluetoothRemoteControl {
     }
 
     // TODO: refactor for a filter than receives generic remote control intents
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private static IntentFilter makeRemoteCommandIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
@@ -251,10 +238,6 @@ public class BluetoothRemoteControl {
     public void startRemoteControl() {
         if( MyDebug.LOG )
             Log.d(TAG, "BLE Remote control service start check...");
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-            // BluetoothLeService requires Android 4.3+
-            return;
-        }
         Intent gattServiceIntent = new Intent(main_activity, BluetoothLeService.class);
         // Check isAppPaused() just to be safe - in theory shouldn't be needed, but don't want to
         // start up the service if we're in background! (And we might as well then try to stop the
@@ -317,10 +300,6 @@ public class BluetoothRemoteControl {
      * @return true if this is the case
      */
     public boolean remoteEnabled() {
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-            // BluetoothLeService requires Android 4.3+
-            return false;
-        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
         boolean remote_enabled = sharedPreferences.getBoolean(PreferenceKeys.EnableRemote, false);
         remoteDeviceType = sharedPreferences.getString(PreferenceKeys.RemoteType, "undefined");

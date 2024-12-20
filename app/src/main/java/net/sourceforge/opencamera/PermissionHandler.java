@@ -1,7 +1,6 @@
 package net.sourceforge.opencamera;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -51,7 +50,6 @@ public class PermissionHandler {
     /** Show a "rationale" to the user for needing a particular permission, then request that permission again
      *  once they close the dialog.
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void showRequestPermissionRationale(final int permission_code) {
         if( MyDebug.LOG )
             Log.d(TAG, "showRequestPermissionRational: " + permission_code);

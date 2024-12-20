@@ -20,7 +20,6 @@ import net.sourceforge.opencamera.preview.Preview;
 import net.sourceforge.opencamera.preview.VideoProfile;
 import net.sourceforge.opencamera.ui.DrawPreview;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -844,7 +843,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             }
         }
         rates.add(1.0f);
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        {
             // add timelapse options
             // in theory this should work on any Android version, though video fails to record in timelapse mode on Galaxy Nexus...
             rates.add(2.0f);
@@ -3787,7 +3786,6 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void trashImage(LastImagesType image_type, Uri image_uri, String image_name, boolean from_user) {
         if( MyDebug.LOG )
             Log.d(TAG, "trashImage");

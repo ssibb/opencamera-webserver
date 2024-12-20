@@ -1,7 +1,6 @@
 package net.sourceforge.opencamera;
 
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
@@ -61,14 +60,6 @@ public class PreferenceSubGUI extends PreferenceSubScreen {
         final boolean has_physical_cameras = bundle.getBoolean("has_physical_cameras");
         if( MyDebug.LOG )
             Log.d(TAG, "has_physical_cameras: " + has_physical_cameras);
-
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ) {
-            // Some immersive modes require KITKAT - simpler to require Kitkat for any of the menu options
-            Preference pref = findPreference("preference_immersive_mode");
-            //PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_gui");
-            PreferenceGroup pg = (PreferenceGroup)this.findPreference("preferences_root");
-            pg.removePreference(pref);
-        }
 
         if( !supports_face_detection  && ( camera_open || sharedPreferences.getBoolean(PreferenceKeys.FaceDetectionPreferenceKey, false) == false ) ) {
             // if camera not open, we'll think this setting isn't supported - but should only remove

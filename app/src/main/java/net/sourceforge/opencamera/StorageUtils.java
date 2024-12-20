@@ -10,7 +10,6 @@ import java.util.TimeZone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentUris;
 //import android.content.ContentValues;
@@ -34,7 +33,6 @@ import android.provider.MediaStore.Video;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Video.VideoColumns;
 import android.provider.OpenableColumns;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import android.system.Os;
@@ -366,8 +364,7 @@ public class StorageUtils {
     }
 
     public boolean isUsingSAF() {
-        // check Android version just to be safe
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             if( sharedPreferences.getBoolean(PreferenceKeys.UsingSAFPreferenceKey, false) ) {
                 return true;
@@ -405,7 +402,6 @@ public class StorageUtils {
      *  Note that if isUsingSAF(), this may return null - it can't be assumed that there is a
      *  File corresponding to the SAF Uri.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public String getImageFolderPath() {
         File file = getImageFolder();
         return file == null ? null : file.getAbsolutePath();
@@ -415,7 +411,6 @@ public class StorageUtils {
      *  But note that if isUsingSAF(), this may return null - it can't be assumed that there is a
      *  File corresponding to the SAF Uri.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     File getImageFolder() {
         File file;
         if( isUsingSAF() ) {
@@ -481,7 +476,6 @@ public class StorageUtils {
      *  Only use this for needing e.g. human-readable strings for UI.
      *  This should not be used to create a File - instead, use getFileFromDocumentUriSAF().
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public String getFilePathFromDocumentUriSAF(Uri uri, boolean is_folder) {
         File file = getFileFromDocumentUriSAF(uri, is_folder);
         return file == null ? null : file.getAbsolutePath();
@@ -499,7 +493,6 @@ public class StorageUtils {
         Also note that this will return null for media store Uris with Android Q's scoped storage: https://developer.android.com/preview/privacy/scoped-storage
         "The DATA column is redacted for each file in the media store."
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public File getFileFromDocumentUriSAF(Uri uri, boolean is_folder) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "getFileFromDocumentUriSAF: " + uri);
@@ -802,7 +795,6 @@ public class StorageUtils {
     }
 
     // only valid if isUsingSAF()
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     Uri createOutputFileSAF(String filename, String mimeType) throws IOException {
         try {
             Uri treeUri = getTreeUriSAF();
@@ -892,7 +884,6 @@ public class StorageUtils {
     }
 
     // only valid if isUsingSAF()
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     Uri createOutputMediaFileSAF(int type, String suffix, String extension, Date current_date) throws IOException {
         String mimeType;
         switch (type) {
@@ -1317,7 +1308,6 @@ public class StorageUtils {
      *  using the SAF uri, and if we need the media uri (e.g., to pass to Gallery application), use
      *  Media.getMediaStoreUri(). What a mess!
      */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private Media getLatestMediaSAF(Uri treeUri) {
         if (MyDebug.LOG)
             Log.d(TAG, "getLatestMediaSAF: " + treeUri);
@@ -1590,7 +1580,6 @@ public class StorageUtils {
     }
 
     // only valid if isUsingSAF()
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private long freeMemorySAF() {
         Uri treeUri = applicationInterface.getStorageUtils().getTreeUriSAF();
         ParcelFileDescriptor pfd = null;
@@ -1644,7 +1633,7 @@ public class StorageUtils {
     public long freeMemory() { // return free memory in MB
         if( MyDebug.LOG )
             Log.d(TAG, "freeMemory");
-        if( applicationInterface.getStorageUtils().isUsingSAF() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        if( applicationInterface.getStorageUtils().isUsingSAF() ) {
             // if we fail for SAF, don't fall back to the methods below, as this may be incorrect (especially for external SD card)
             return freeMemorySAF();
         }
@@ -1655,18 +1644,8 @@ public class StorageUtils {
                 throw new IllegalArgumentException(); // so that we fall onto the backup
             }
             StatFs statFs = new StatFs(folder.getAbsolutePath());
-            long blocks, size;
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-                blocks = statFs.getAvailableBlocksLong();
-                size = statFs.getBlockSizeLong();
-            }
-            else {
-                // cast to long to avoid overflow!
-                //noinspection deprecation
-                blocks = statFs.getAvailableBlocks();
-                //noinspection deprecation
-                size = statFs.getBlockSize();
-            }
+            long blocks = statFs.getAvailableBlocksLong();
+            long size = statFs.getBlockSizeLong();
             return (blocks*size) / 1048576;
         }
         catch(IllegalArgumentException e) {
@@ -1679,18 +1658,8 @@ public class StorageUtils {
                     if( !saveFolderIsFull(folder_name) ) {
                         File folder = getBaseFolder();
                         StatFs statFs = new StatFs(folder.getAbsolutePath());
-                        long blocks, size;
-                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
-                            blocks = statFs.getAvailableBlocksLong();
-                            size = statFs.getBlockSizeLong();
-                        }
-                        else {
-                            // cast to long to avoid overflow!
-                            //noinspection deprecation
-                            blocks = statFs.getAvailableBlocks();
-                            //noinspection deprecation
-                            size = statFs.getBlockSize();
-                        }
+                        long blocks = statFs.getAvailableBlocksLong();
+                        long size = statFs.getBlockSizeLong();
                         return (blocks*size) / 1048576;
                     }
                 }

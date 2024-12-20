@@ -384,13 +384,7 @@ public class CameraController1 extends CameraController {
         if( MyDebug.LOG )
             Log.d(TAG, "camera parameters: " + parameters.flatten());
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ) {
-            // Camera.canDisableShutterSound requires JELLY_BEAN_MR1 or greater
-            camera_features.can_disable_shutter_sound = camera_info.canDisableShutterSound;
-        }
-        else {
-            camera_features.can_disable_shutter_sound = false;
-        }
+        camera_features.can_disable_shutter_sound = camera_info.canDisableShutterSound;
 
         // Determine view angles. Note that these can vary based on the resolution - and since we read these before the caller has
         // set the desired resolution, this isn't strictly correct. However these are presumably view angles for the photo anyway,
@@ -1378,9 +1372,7 @@ public class CameraController1 extends CameraController {
     }
 
     public void enableShutterSound(boolean enabled) {
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ) {
-            camera.enableShutterSound(enabled);
-        }
+        camera.enableShutterSound(enabled);
         sounds_enabled = enabled;
     }
 
@@ -1741,8 +1733,7 @@ public class CameraController1 extends CameraController {
     public void setContinuousFocusMoveCallback(final ContinuousFocusMoveCallback cb) {
         if( MyDebug.LOG )
             Log.d(TAG, "setContinuousFocusMoveCallback");
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ) {
-            // setAutoFocusMoveCallback() requires JELLY_BEAN
+        {
             try {
                 if( cb != null ) {
                     camera.setAutoFocusMoveCallback(new AutoFocusMoveCallback() {
@@ -1764,10 +1755,6 @@ public class CameraController1 extends CameraController {
                     Log.e(TAG, "runtime exception from setAutoFocusMoveCallback");
                 e.printStackTrace();
             }
-        }
-        else {
-            if( MyDebug.LOG )
-                Log.d(TAG, "setContinuousFocusMoveCallback requires Android JELLY_BEAN or higher");
         }
     }
 

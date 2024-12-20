@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -38,7 +37,6 @@ import net.sourceforge.opencamera.R;
 
 import java.util.ArrayList;
 
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 //public class DeviceScanner extends ListActivity {
 //public class DeviceScanner extends Activity {
 public class DeviceScanner extends AppCompatActivity {

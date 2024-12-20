@@ -20,7 +20,6 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Environment;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
@@ -29,7 +28,6 @@ import android.renderscript.RenderScript;
 import android.renderscript.Script;
 //import android.renderscript.ScriptIntrinsicResize;
 import android.renderscript.Type;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 public class PanoramaProcessor {
@@ -91,7 +89,6 @@ public class PanoramaProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Allocation reduceBitmapRS(ScriptC_pyramid_blending script, Allocation allocation) {
         if( MyDebug.LOG )
             Log.d(TAG, "reduceBitmapRS");
@@ -192,7 +189,6 @@ public class PanoramaProcessor {
         return reduced_bitmap;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Allocation expandBitmapRS(ScriptC_pyramid_blending script, Allocation allocation) {
         if( MyDebug.LOG )
             Log.d(TAG, "expandBitmapRS");
@@ -410,7 +406,6 @@ public class PanoramaProcessor {
     /** Creates an allocation where each pixel equals the pixel from allocation0 minus the corresponding
      *  pixel from allocation1.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Allocation subtractBitmapRS(ScriptC_pyramid_blending script, Allocation allocation0, Allocation allocation1) {
         if( MyDebug.LOG )
             Log.d(TAG, "subtractBitmapRS");
@@ -451,7 +446,6 @@ public class PanoramaProcessor {
      *  corresponding pixel from allocation1.
      *  allocation0 should be of type RGBA_8888, allocation1 should be of type F32_3.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void addBitmapRS(ScriptC_pyramid_blending script, Allocation allocation0, Allocation allocation1) {
         if( MyDebug.LOG )
             Log.d(TAG, "addBitmapRS");
@@ -482,7 +476,6 @@ public class PanoramaProcessor {
         JavaImageProcessing.applyFunction(function, bitmap0, bitmap0, 0, 0, bitmap0.getWidth(), bitmap0.getHeight());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private List<Allocation> createGaussianPyramidRS(ScriptC_pyramid_blending script, Bitmap bitmap, int n_levels) {
         if( MyDebug.LOG )
             Log.d(TAG, "createGaussianPyramidRS");
@@ -519,7 +512,6 @@ public class PanoramaProcessor {
      *  The allocations are of type floating point (F32_3), except the last which is of type
      *  RGBA_8888.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private List<Allocation> createLaplacianPyramidRS(ScriptC_pyramid_blending script, Bitmap bitmap, int n_levels, String name) {
         if( MyDebug.LOG )
             Log.d(TAG, "createLaplacianPyramidRS");
@@ -678,7 +670,6 @@ public class PanoramaProcessor {
         return pyramid;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Bitmap collapseLaplacianPyramidRS(ScriptC_pyramid_blending script, List<Allocation> pyramid) {
         if( MyDebug.LOG )
             Log.d(TAG, "collapseLaplacianPyramidRS");
@@ -798,7 +789,6 @@ public class PanoramaProcessor {
      *  Note that the width of the blend region will be half of the width of each image.
      * @param best_path If non-null, the blend region will follow the supplied best path.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void mergePyramidsRS(ScriptC_pyramid_blending script, List<Allocation> pyramid0, List<Allocation> pyramid1, int [] best_path, int best_path_n_x) {
         if( MyDebug.LOG )
             Log.d(TAG, "mergePyramidsRS");
@@ -998,7 +988,6 @@ public class PanoramaProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void saveAllocation(String name, Allocation allocation) {
         Bitmap bitmap;
         int width = allocation.getType().getX();
@@ -1044,8 +1033,7 @@ public class PanoramaProcessor {
         bitmap.recycle();
     }
 
-    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void savePyramid(String name, List<Allocation> pyramid) {
+    /*private void savePyramid(String name, List<Allocation> pyramid) {
         for(int i=0;i<pyramid.size();i++) {
             Allocation allocation = pyramid.get(i);
             saveAllocation(name + "_" + i + ".jpg", allocation);
@@ -1065,7 +1053,6 @@ public class PanoramaProcessor {
      *  Note that the width of the blend region will be half of the width of the image. The blend
      *  region will follow a path in order to minimise the transition between the images.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Bitmap blendPyramids(Bitmap lhs, Bitmap rhs) {
         long time_s = 0;
         if( MyDebug.LOG )
@@ -1493,7 +1480,6 @@ public class PanoramaProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private AutoAlignmentByFeatureResult autoAlignmentByFeature(int width, int height, List<Bitmap> bitmaps, int debug_index) throws PanoramaProcessorException {
         if( MyDebug.LOG ) {
             Log.d(TAG, "autoAlignmentByFeature");
@@ -2724,7 +2710,6 @@ public class PanoramaProcessor {
         return projected_bitmap;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void renderPanoramaImage(final int i, final int n_bitmaps, final Rect src_rect_workspace, final Rect dst_rect_workspace,
                                      final Bitmap bitmap, final Paint p, final int bitmap_width, final int bitmap_height,
                                      final int blend_hwidth, final int slice_width, final int offset_x,
@@ -2967,7 +2952,6 @@ public class PanoramaProcessor {
     /**
      * @return Returns the ratio between maximum and minimum computed brightnesses.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private float adjustExposuresLocal(List<Bitmap> bitmaps, int bitmap_width, int bitmap_height, int slice_width, long time_s) {
         final int exposure_hwidth = bitmap_width/10;
         final int offset_x = (bitmap_width - slice_width)/2;
@@ -3125,8 +3109,7 @@ public class PanoramaProcessor {
         return ratio_brightnesses;
     }
 
-    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void adjustExposures(List<Bitmap> bitmaps, long time_s) {
+    /*private void adjustExposures(List<Bitmap> bitmaps, long time_s) {
         List<HDRProcessor.HistogramInfo> histogramInfos = new ArrayList<>();
 
         float mean_median_brightness = 0.0f;
@@ -3195,7 +3178,6 @@ public class PanoramaProcessor {
         }
     }*/
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void computePanoramaTransforms(List<Matrix> cumulative_transforms, List<Integer> align_x_values, List<Integer> dst_offset_x_values,
                                            List<Bitmap> bitmaps, final int bitmap_width, final int bitmap_height,
                                            final int offset_x, final int slice_width, final int align_hwidth,
@@ -3444,7 +3426,6 @@ public class PanoramaProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void renderPanorama(List<Bitmap> bitmaps, int bitmap_width, int bitmap_height,
                                 List<Matrix> cumulative_transforms, List<Integer> align_x_values, List<Integer> dst_offset_x_values,
                                 final int blend_hwidth, final int slice_width, final int offset_x,
@@ -3557,7 +3538,6 @@ public class PanoramaProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public Bitmap panorama(List<Bitmap> bitmaps, float panorama_pics_per_screen, float camera_angle_y, final boolean crop) throws PanoramaProcessorException {
         if( MyDebug.LOG ) {
             Log.d(TAG, "panorama");

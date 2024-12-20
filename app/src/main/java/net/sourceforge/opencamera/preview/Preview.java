@@ -44,7 +44,6 @@ import java.util.concurrent.TimeoutException;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -81,7 +80,6 @@ import android.renderscript.RenderScript;
 import android.renderscript.Type;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
@@ -461,7 +459,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             Log.d(TAG, "is_test_junit4: " + is_test_junit4);
         }
 
-        this.using_android_l = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && applicationInterface.useCamera2();
+        this.using_android_l = applicationInterface.useCamera2();
         if( MyDebug.LOG ) {
             Log.d(TAG, "using_android_l?: " + using_android_l);
         }
@@ -1176,7 +1174,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         cameraSurface.setTransform(matrix);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void stopVideo(boolean from_restart) {
         if( MyDebug.LOG )
             Log.d(TAG, "stopVideo()");
@@ -1878,10 +1875,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                     }
                 }
             };
-            if( using_android_l && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                // n.b., using_android_l should only be set if Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP,
-                // but Android inspection warnings aren't clever enough to figure that out, and would otherwise
-                // complain about use of CameraController2
+            if( using_android_l ) {
                 CameraController.ErrorCallback previewErrorCallback = new CameraController.ErrorCallback() {
                     public void onError() {
                         if( MyDebug.LOG )
@@ -2549,9 +2543,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                     /** Accessibility: report number of faces for talkback etc.
                      */
                     private void reportFaces(CameraController.Face[] local_faces) {
-                        // View.announceForAccessibility requires JELLY_BEAN
-                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                            ) {
+                        {
                             int n_faces = local_faces.length;
                             FaceLocation face_location = FaceLocation.FACELOCATION_UNKNOWN;
                             if( n_faces > 0 ) {
@@ -2661,9 +2653,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                                         public void run() {
                                             if( MyDebug.LOG )
                                                 Log.d(TAG, "announceForAccessibility: " + string_f);
-                                            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ) {
-                                                Preview.this.getView().announceForAccessibility(string_f);
-                                            }
+                                            Preview.this.getView().announceForAccessibility(string_f);
                                         }
                                     }, 500);
                                 }
@@ -3400,7 +3390,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             profiles.add(CamcorderProfile.QUALITY_HIGH);
             dimensions.add(new VideoQualityHandler.Dimension2D(profile.videoFrameWidth, profile.videoFrameHeight));
         }
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        {
             if( CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_2160P) ) {
                 CamcorderProfile profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_2160P);
                 profiles.add(CamcorderProfile.QUALITY_2160P);
@@ -3663,7 +3653,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
         // we repeat the Build.VERSION check to avoid Android Lint warning; also needs to be an "if" statement rather than using the
         // "?" operator, otherwise we still get the Android Lint warning
-        if( using_android_l && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        if( using_android_l ) {
             video_profile.videoSource = MediaRecorder.VideoSource.SURFACE;
         }
         else {
@@ -3759,7 +3749,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 // leave others at default
                 break;
             case "preference_video_output_format_webm":
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                {
                     // n.b., audio isn't recorded on any device I've tested with WEBM, seems this may
                     // not be supported yet, see:
                     // https://developer.android.com/guide/topics/media/media-formats#audio-formats
@@ -5832,7 +5822,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
     /** Start video recording.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void startVideoRecording(final boolean max_filesize_restart) {
         if( MyDebug.LOG )
             Log.d(TAG, "startVideoRecording");
@@ -8619,7 +8608,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             return new_histogram;
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         protected RefreshPreviewBitmapTaskResult doInBackground(Void... voids) {
             long debug_time = 0;
@@ -8985,8 +8973,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         long time_now = System.currentTimeMillis();
         if( want_preview_bitmap &&
                 ( ( use_preview_bitmap_small && preview_bitmap != null ) || ( use_preview_bitmap_full && preview_bitmap_full_w != -1 && preview_bitmap_full_h != -1 ) )
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                !is_paused && !applicationInterface.isPreviewInBackground() &&
+                && !is_paused && !applicationInterface.isPreviewInBackground() &&
                 !refreshPreviewBitmapTaskIsRunning() && time_now > last_preview_bitmap_time_ms + refresh_time ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "refreshPreviewBitmap");

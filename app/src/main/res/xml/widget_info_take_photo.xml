@@ -5,5 +5,5 @@
     android:minHeight="40dp"
     android:initialLayout="@layout/widget_layout_take_photo"
     android:widgetCategory="home_screen|keyguard"
-    tools:targetApi="jelly_bean_mr1">
+    >
 </appwidget-provider>

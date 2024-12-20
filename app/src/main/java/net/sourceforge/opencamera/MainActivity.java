@@ -56,7 +56,6 @@ import android.provider.MediaStore;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
@@ -74,7 +73,6 @@ import android.speech.tts.TextToSpeech;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.exifinterface.media.ExifInterface;
@@ -388,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             setWindowFlagsForSettings();
         }
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
+        {
             // don't show orientation animations
             // must be done after creating Preview (so we know if Camera2 API or not)
             WindowManager.LayoutParams layout = getWindow().getAttributes();
@@ -1012,7 +1010,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "initCamera2Support");
         supports_camera2 = false;
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        {
             // originally we allowed Camera2 if all cameras support at least LIMITED
             // as of 1.45, we allow Camera2 if at least one camera supports at least LIMITED - this
             // is to support devices that might have a camera with LIMITED or better support, but
@@ -1036,11 +1034,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         //test_force_supports_camera2 = true; // test
         if( test_force_supports_camera2 ) {
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                if( MyDebug.LOG )
-                    Log.d(TAG, "forcing supports_camera2");
-                supports_camera2 = true;
-            }
+            if( MyDebug.LOG )
+                Log.d(TAG, "forcing supports_camera2");
+            supports_camera2 = true;
         }
 
         if( MyDebug.LOG )
@@ -1697,7 +1693,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private class MyDisplayListener implements DisplayManager.DisplayListener {
         private int old_rotation;
 
@@ -1746,7 +1741,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private void registerDisplayListener() {
         if( MyDebug.LOG )
             Log.d(TAG, "registerDisplayListener");
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && !lock_to_landscape ) {
+        if( !lock_to_landscape ) {
             displayListener = new MyDisplayListener();
             DisplayManager displayManager = (DisplayManager) this.getSystemService(Context.DISPLAY_SERVICE);
             displayManager.registerDisplayListener(displayListener, null);
@@ -1756,7 +1751,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private void unregisterDisplayListener() {
         if( MyDebug.LOG )
             Log.d(TAG, "unregisterDisplayListener");
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && displayListener != null ) {
+        if( displayListener != null ) {
             DisplayManager displayManager = (DisplayManager) this.getSystemService(Context.DISPLAY_SERVICE);
             displayManager.unregisterDisplayListener(displayListener);
             displayListener = null;
@@ -2530,8 +2525,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         if( MyDebug.LOG )
                             Log.d(TAG, "clickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
                     }
-                    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                        // SizeF requires Build.VERSION_CODES.LOLLIPOP - but we'll only have physical cameras for Camera2 API which requires Build.VERSION_CODES.LOLLIPOP anyway
+                    {
                         Collections.sort(physical_cameras, new Comparator<PhysicalCamera>() {
                             @Override
                             public int compare(PhysicalCamera o1, PhysicalCamera o2) {
@@ -3717,7 +3711,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "showUnderNavigation: " + enable);
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ) {
+        {
             // We used to use window flag FLAG_LAYOUT_NO_LIMITS, but this didn't work properly on
             // Android 11 (didn't take effect until orientation changed or application paused/resumed).
             // Although system ui visibility flags are deprecated on Android 11, this still works better
@@ -3734,9 +3728,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             test_set_show_under_navigation = enable;
             WindowCompat.setDecorFitsSystemWindows(getWindow(), !enable);
         }
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-            getWindow().setNavigationBarColor(enable ? Color.TRANSPARENT : Color.BLACK);
-        }
+        getWindow().setNavigationBarColor(enable ? Color.TRANSPARENT : Color.BLACK);
     }
 
     public int getNavigationGap() {
@@ -3780,7 +3772,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private void setupSystemUiVisibilityListener() {
         View decorView = getWindow().getDecorView();
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        {
             // set a window insets listener to find the navigation_gap
             if( MyDebug.LOG )
                 Log.d(TAG, "set a window insets listener");
@@ -3928,23 +3920,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     public boolean usingKitKatImmersiveMode() {
         // whether we are using a Kit Kat style immersive mode (either hiding navigation bar, GUI, or everything)
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
-            if( immersive_mode.equals("immersive_mode_navigation") || immersive_mode.equals("immersive_mode_gui") || immersive_mode.equals("immersive_mode_everything") )
-                return true;
-        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
+        if( immersive_mode.equals("immersive_mode_navigation") || immersive_mode.equals("immersive_mode_gui") || immersive_mode.equals("immersive_mode_everything") )
+            return true;
         return false;
     }
 
     public boolean usingKitKatImmersiveModeEverything() {
         // whether we are using a Kit Kat style immersive mode for everything
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
-            if( immersive_mode.equals("immersive_mode_everything") )
-                return true;
-        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String immersive_mode = sharedPreferences.getString(PreferenceKeys.ImmersiveModePreferenceKey, "immersive_mode_off");
+        if( immersive_mode.equals("immersive_mode_everything") )
+            return true;
         return false;
     }
 
@@ -3983,14 +3971,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             Log.d(TAG, "setImmersiveMode: " + on);
         // n.b., preview.setImmersiveMode() is called from onSystemUiVisibilityChange()
         int saved_flags = 0;
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ) {
+        {
             // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
             saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         }
         if( MyDebug.LOG )
             Log.d(TAG, "saved_flags?: " + saved_flags);
         if( on ) {
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && usingKitKatImmersiveMode() ) {
+            if( usingKitKatImmersiveMode() ) {
                 if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ) {
                     // don't allow the kitkat-style immersive mode for panorama mode (problem that in "full" immersive mode, the gyro spot can't be seen - we could fix this, but simplest to just disallow)
                     getWindow().getDecorView().setSystemUiVisibility(saved_flags);
@@ -4789,7 +4777,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     /** Opens the Storage Access Framework dialog to select a folder for save location.
      * @param from_preferences Whether called from the Preferences
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void openFolderChooserDialogSAF(boolean from_preferences) {
         if( MyDebug.LOG )
             Log.d(TAG, "openFolderChooserDialogSAF: " + from_preferences);
@@ -4803,7 +4790,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     /** Opens the Storage Access Framework dialog to select a file for ghost image.
      * @param from_preferences Whether called from the Preferences
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void openGhostImageChooserDialogSAF(boolean from_preferences) {
         if( MyDebug.LOG )
             Log.d(TAG, "openGhostImageChooserDialogSAF: " + from_preferences);
@@ -4825,7 +4811,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     /** Opens the Storage Access Framework dialog to select a file for loading settings.
      * @param from_preferences Whether called from the Preferences
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void openLoadSettingsChooserDialogSAF(boolean from_preferences) {
         if( MyDebug.LOG )
             Log.d(TAG, "openLoadSettingsChooserDialogSAF: " + from_preferences);
@@ -4860,7 +4845,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     /** Listens for the response from the Storage Access Framework dialog to select a folder
      *  (as opened with openFolderChooserDialogSAF()).
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if( MyDebug.LOG )
             Log.d(TAG, "onActivityResult: " + requestCode);
@@ -5999,13 +5983,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( applicationInterface.isRawOnly(MyApplicationInterface.PhotoMode.DRO) )
             return false; // if not saving JPEGs, no point having DRO mode, as it won't affect the RAW images
         // require at least Android 5, for the Renderscript support in HDRProcessor
-        return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP );
+        return true;
     }
 
     public boolean supportsHDR() {
         // we also require the device have sufficient memory to do the processing
         // also require at least Android 5, for the Renderscript support in HDRProcessor
-        return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && large_heap_memory >= 128 && preview.supportsExpoBracketing() );
+        return large_heap_memory >= 128 && preview.supportsExpoBracketing();
     }
 
     public boolean supportsExpoBracketing() {
@@ -6028,7 +6012,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // require 256MB just to be safe, due to the large number of images that may be created
         // also require at least Android 5, for Renderscript
         // remember to update the FAQ "Why isn't Panorama supported on my device?" if this changes
-        return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && large_heap_memory >= 256 && applicationInterface.getGyroSensor().hasSensors() );
+        return large_heap_memory >= 256 && applicationInterface.getGyroSensor().hasSensors();
         //return false; // currently blocked for release
     }
 
@@ -6070,7 +6054,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public boolean supportsPreviewBitmaps() {
         // In practice we only use TextureView on Android 5+ (with Camera2 API enabled) anyway, but have put an explicit check here -
         // even if in future we allow TextureView pre-Android 5, we still need Android 5+ for Renderscript.
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && preview.getView() instanceof TextureView && large_heap_memory >= 128;
+        return preview.getView() instanceof TextureView && large_heap_memory >= 128;
     }
 
     public boolean supportsPreShots() {

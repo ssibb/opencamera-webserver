@@ -28,7 +28,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ContentValues;
@@ -965,7 +964,7 @@ public class ImageSaver extends Thread {
     private void addRequest(Request request, int cost) {
         if( MyDebug.LOG )
             Log.d(TAG, "addRequest, cost: " + cost);
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && main_activity.isDestroyed() ) {
+        if( main_activity.isDestroyed() ) {
             // If the application is being destroyed as a new photo is being taken, it's not safe to continue, e.g., we'll
             // crash if needing to use RenderScript.
             // MainDestroy.onDestroy() does call waitUntilDone(), but this is extra protection in case an image comes in after that.
@@ -1112,10 +1111,6 @@ public class ImageSaver extends Thread {
             Log.d(TAG, "options.inMutable is: " + options.inMutable);
         options.inMutable = mutable;
         setBitmapOptionsSampleSize(options, inSampleSize);
-        if( Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ) {
-            // setting is ignored in Android 5 onwards
-            options.inPurgeable = true;
-        }
         Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg_image, 0, jpeg_image.length, options);
         if( bitmap == null ) {
             Log.e(TAG, "failed to decode bitmap");
@@ -1153,11 +1148,6 @@ public class ImageSaver extends Thread {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inMutable = false; // later bitmaps don't need to be writable
         setBitmapOptionsSampleSize(options, inSampleSize);
-        if( Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ) {
-            // setting is ignored in Android 5 onwards
-            mutable_options.inPurgeable = true;
-            options.inPurgeable = true;
-        }
         LoadBitmapThread [] threads = new LoadBitmapThread[jpeg_images.size()];
         for(int i=0;i<jpeg_images.size();i++) {
             threads[i] = new LoadBitmapThread( i==mutable_id ? mutable_options : options, jpeg_images.get(i) );
@@ -1423,13 +1413,7 @@ public class ImageSaver extends Thread {
         if( MyDebug.LOG )
             Log.d(TAG, "before HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
         try {
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                hdrProcessor.processHDR(bitmaps, true, null, true, null, hdr_alpha, 4, true, request.preference_hdr_tonemapping_algorithm, HDRProcessor.DROTonemappingAlgorithm.DROALGORITHM_GAINGAMMA); // this will recycle all the bitmaps except bitmaps.get(0), which will contain the hdr image
-            }
-            else {
-                Log.e(TAG, "shouldn't have offered HDR as an option if not on Android 5");
-                throw new RuntimeException();
-            }
+            hdrProcessor.processHDR(bitmaps, true, null, true, null, hdr_alpha, 4, true, request.preference_hdr_tonemapping_algorithm, HDRProcessor.DROTonemappingAlgorithm.DROALGORITHM_GAINGAMMA); // this will recycle all the bitmaps except bitmaps.get(0), which will contain the hdr image
         }
         catch(HDRProcessorException e) {
             Log.e(TAG, "HDRProcessorException from processHDR: " + e.getCode());
@@ -1516,7 +1500,7 @@ public class ImageSaver extends Thread {
                 throw new RuntimeException();
             }*/
             Bitmap nr_bitmap;
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+            {
                 try {
                     long time_s = System.currentTimeMillis();
                     // initialise allocation from first two bitmaps
@@ -1643,10 +1627,6 @@ public class ImageSaver extends Thread {
                     e.printStackTrace();
                     throw new RuntimeException();
                 }
-            }
-            else {
-                Log.e(TAG, "shouldn't have offered NoiseReduction as an option if not on Android 5");
-                throw new RuntimeException();
             }
 
             if( MyDebug.LOG )
@@ -1856,13 +1836,7 @@ public class ImageSaver extends Thread {
 
             Bitmap panorama;
             try {
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                    panorama = panoramaProcessor.panorama(bitmaps, MyApplicationInterface.getPanoramaPicsPerScreen(), request.camera_view_angle_y, request.panorama_crop);
-                }
-                else {
-                    Log.e(TAG, "shouldn't have offered panorama as an option if not on Android 5");
-                    throw new RuntimeException();
-                }
+                panorama = panoramaProcessor.panorama(bitmaps, MyApplicationInterface.getPanoramaPicsPerScreen(), request.camera_view_angle_y, request.panorama_crop);
             }
             catch(PanoramaProcessorException e) {
                 Log.e(TAG, "PanoramaProcessorException from panorama: " + e.getCode());
@@ -1911,7 +1885,6 @@ public class ImageSaver extends Thread {
     /** Alternative to android.util.Range&lt;Integer&gt;, since that is not mocked so can't be used
      *  in unit testing.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static class IntRange {
         private final int lower;
         private final int upper;
@@ -1942,7 +1915,6 @@ public class ImageSaver extends Thread {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static CameraController.Size adjustResolutionForVideoCapabilities(int video_width, int video_height, IntRange supported_widths, IntRange supported_heights, int width_alignment, int height_alignment) {
         if( !supported_widths.contains(video_width) ) {
             double aspect = ((double)video_height) / ((double)video_width);
@@ -3383,10 +3355,6 @@ public class ImageSaver extends Thread {
             if( bitmap == null ) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inMutable = false;
-                if( Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ) {
-                    // setting is ignored in Android 5 onwards
-                    options.inPurgeable = true;
-                }
                 options.inSampleSize = sample_size;
                 thumbnail = BitmapFactory.decodeByteArray(data, 0, data.length, options);
                 if( MyDebug.LOG ) {
@@ -4073,16 +4041,10 @@ public class ImageSaver extends Thread {
 
     /** May be run in saver thread or picture callback thread (depending on whether running in background).
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private boolean saveImageNowRaw(Request request) {
         if( MyDebug.LOG )
             Log.d(TAG, "saveImageNowRaw");
 
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-            if( MyDebug.LOG )
-                Log.e(TAG, "RAW requires LOLLIPOP or higher");
-            return false;
-        }
         StorageUtils storageUtils = main_activity.getStorageUtils();
         boolean success = false;
 

@@ -14,7 +14,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 //import android.media.MediaScannerConnection;
-import android.os.Build;
 //import android.os.Environment;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
@@ -26,7 +25,6 @@ import android.renderscript.ScriptIntrinsicHistogram;
 import android.renderscript.Type;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 public class HDRProcessor {
@@ -351,7 +349,6 @@ public class HDRProcessor {
      * @param dro_tonemapping_algorithm
      *                      Algorithm to use for tonemapping (if single image is received).
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void processHDR(List<Bitmap> bitmaps, boolean release_bitmaps, Bitmap output_bitmap, boolean assume_sorted, SortCallback sort_cb, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks, TonemappingAlgorithm tonemapping_algorithm, DROTonemappingAlgorithm dro_tonemapping_algorithm) throws HDRProcessorException {
         if( MyDebug.LOG )
             Log.d(TAG, "processHDR");
@@ -533,7 +530,6 @@ public class HDRProcessor {
      *  Android 5.0 anyway; even if we later added support for CameraController1, we can simply say HDR requires
      *  Android 5.0).
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void processHDRCore(List<Bitmap> bitmaps, boolean release_bitmaps, Bitmap output_bitmap, boolean assume_sorted, SortCallback sort_cb, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks, TonemappingAlgorithm tonemapping_algorithm) {
         if( MyDebug.LOG )
             Log.d(TAG, "processHDRCore");
@@ -1022,7 +1018,6 @@ public class HDRProcessor {
             Log.d(TAG, "### time for processHDRCore: " + (System.currentTimeMillis() - time_s));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void processSingleImage(List<Bitmap> bitmaps, boolean release_bitmaps, Bitmap output_bitmap, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks, DROTonemappingAlgorithm dro_tonemapping_algorithm) {
         if( MyDebug.LOG )
             Log.d(TAG, "processSingleImage");
@@ -1084,7 +1079,6 @@ public class HDRProcessor {
             Log.d(TAG, "### time for processSingleImage: " + (System.currentTimeMillis() - time_s));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void processSingleImageRS(List<Bitmap> bitmaps, boolean release_bitmaps, Bitmap output_bitmap, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks, DROTonemappingAlgorithm dro_tonemapping_algorithm) {
         if( MyDebug.LOG )
             Log.d(TAG, "processSingleImage");
@@ -1334,7 +1328,6 @@ public class HDRProcessor {
      * @param exposure_time  The exposure time used to take the photos.
      * @param zoom_factor    The digital zoom factor used to take the photos.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public AvgData processAvg(Bitmap bitmap_avg, Bitmap bitmap_new, float avg_factor, int iso, long exposure_time, float zoom_factor) throws HDRProcessorException {
         if( MyDebug.LOG ) {
             Log.d(TAG, "processAvg");
@@ -1412,7 +1405,6 @@ public class HDRProcessor {
      * @param exposure_time  The exposure time used to take the photos.
      * @param zoom_factor    The digital zoom factor used to take the photos.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void updateAvg(AvgData avg_data, int width, int height, Bitmap bitmap_new, float avg_factor, int iso, long exposure_time, float zoom_factor) throws HDRProcessorException {
         if( MyDebug.LOG ) {
             Log.d(TAG, "updateAvg");
@@ -1452,7 +1444,6 @@ public class HDRProcessor {
      * @param zoom_factor    The digital zoom factor used to take the photos.
      * @param time_s         Time, for debugging.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private AvgData processAvgCore(AvgData avg_data, Bitmap bitmap_avg, Bitmap bitmap_new, int width, int height, float avg_factor, int iso, long exposure_time, float zoom_factor, long time_s) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "processAvgCore");
@@ -1839,7 +1830,6 @@ public class HDRProcessor {
      * @param bitmaps Input bitmaps. The resultant bitmap will be stored as the first bitmap on exit,
      *                the other input bitmaps will be recycled.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void processAvgMulti(List<Bitmap> bitmaps, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks) throws HDRProcessorException {
         if( MyDebug.LOG ) {
             Log.d(TAG, "processAvgMulti");
@@ -1954,7 +1944,6 @@ public class HDRProcessor {
             Log.d(TAG, "### time for processAvgMulti: " + (System.currentTimeMillis() - time_s));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     void autoAlignment(int[] offsets_x, int[] offsets_y, int width, int height, List<Bitmap> bitmaps, int base_bitmap, boolean use_mtb, int max_align_scale) {
         if( MyDebug.LOG )
             Log.d(TAG, "autoAlignment");
@@ -1996,7 +1985,6 @@ public class HDRProcessor {
      * @param use_mtb       Whether to align based on the median threshold bitmaps or not.
      * @param max_align_scale If larger than 1, start from a larger start area.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private BrightnessDetails autoAlignment(int [] offsets_x, int [] offsets_y, Allocation [] allocations, int width, int height, List<Bitmap> bitmaps, int base_bitmap, boolean assume_sorted, SortCallback sort_cb, boolean use_mtb, int min_step_size, boolean crop_to_centre, int max_align_scale, int full_width, int full_height, long time_s) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "autoAlignment");
@@ -2882,7 +2870,6 @@ public class HDRProcessor {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     void adjustHistogramRS(Allocation allocation_in, Allocation allocation_out, int width, int height, float hdr_alpha, int n_tiles, boolean ce_preserve_blacks, long time_s) {
         if( MyDebug.LOG )
             Log.d(TAG, "adjustHistogram [renderscript]");
@@ -3029,7 +3016,6 @@ public class HDRProcessor {
      * @param floating_point Whether the allocation_in is in floating point (F32_3) format, or
      *                       RGBA_8888 format.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Allocation computeHistogramAllocation(Allocation allocation_in, boolean avg, boolean floating_point, long time_s) {
         if( MyDebug.LOG )
             Log.d(TAG, "computeHistogramAllocation");
@@ -3091,7 +3077,6 @@ public class HDRProcessor {
     /**
      * @param type The type of histogram to compute.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public int [] computeHistogram(Bitmap bitmap, HistogramType type) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "computeHistogram [bitmap]");
@@ -3190,7 +3175,6 @@ public class HDRProcessor {
      * @param width Width of the allocation.
      * @param height Height of the allocation.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private int [] computeHistogramRS(Allocation allocation, int width, int height, boolean avg, boolean floating_point) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "computeHistogram [renderscript/allocation]");
@@ -3571,7 +3555,6 @@ public class HDRProcessor {
      * @param exposure_time Exposure time used for the original images.
      * @return              Resultant bitmap.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Bitmap avgBrightenRS(Allocation input, int width, int height, int iso, long exposure_time) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "avgBrightenRS");
@@ -3696,7 +3679,6 @@ public class HDRProcessor {
      * @param exposure_time  Exposure time used for the original images.
      * @return               Resultant bitmap.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public Bitmap avgBrighten(AvgData avg_data, int width, int height, int iso, long exposure_time) {
         if( !use_renderscript ) {
             //float [] pixels_rgbf = HDRProcessor.AllocationToRGBf(avg_data.allocation_out, width, height);
@@ -3714,7 +3696,6 @@ public class HDRProcessor {
      * @param allocation_in The input allocation.
      * @param width         The width of the allocation.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private float computeSharpness(Allocation allocation_in, int width, long time_s) {
         if( MyDebug.LOG )
             Log.d(TAG, "computeSharpness");

@@ -168,9 +168,6 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
         if( Build.VERSION.SDK_INT < Build.VERSION_CODES.N ) {
             MyPreferenceFragment.filterArrayEntry((ListPreference)findPreference("preference_video_output_format"), "preference_video_output_format_mpeg4_hevc");
         }
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-            MyPreferenceFragment.filterArrayEntry((ListPreference)findPreference("preference_video_output_format"), "preference_video_output_format_webm");
-        }
 
         {
             ListPreference pref = (ListPreference)findPreference("preference_record_audio_src");
@@ -216,7 +213,7 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
                 boolean using_saf = false;
                 // n.b., not safe to call main_activity.getApplicationInterface().getStorageUtils().isUsingSAF() if fragment
                 // is being recreated
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                {
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
                     if( sharedPreferences.getBoolean(PreferenceKeys.UsingSAFPreferenceKey, false) ) {
                         using_saf = true;
