@@ -2206,7 +2206,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                     }
                     if( !current_size.supportsRequirements(is_burst, is_extension, extension) ) {
                         if( MyDebug.LOG )
-                            Log.d(TAG, "burst mode: current picture size doesn't support required burst and/or extension");
+                            Log.d(TAG, "current picture size doesn't support required burst and/or extension");
                         // set to next largest that supports what we need
                         CameraController.Size new_size = null;
                         for(int i=0;i<photo_sizes.size();i++) {
