@@ -287,6 +287,7 @@ public class CameraController2 extends CameraController {
     private ContinuousFocusMoveCallback continuous_focus_move_callback;
     
     private final MediaActionSound media_action_sound = new MediaActionSound();
+    private final int shutter_click_sound; // which sound to use for shutter click
     private boolean sounds_enabled = true;
 
     private boolean has_received_frame;
@@ -1536,7 +1537,7 @@ public class CameraController2 extends CameraController {
                             // From a user mode, the gap between shots in focus bracketing mode makes this more analogous to the auto-repeat mode
                             // (at the Preview level), which makes the shutter sound per shot.
 
-                            playSound(MediaActionSound.SHUTTER_CLICK);
+                            playSound(shutter_click_sound);
                         }
                         try {
                             captureSession.capture(slow_burst_capture_requests.get(n_burst_taken), previewCaptureCallback, handler);
@@ -2402,6 +2403,9 @@ public class CameraController2 extends CameraController {
         media_action_sound.load(MediaActionSound.START_VIDEO_RECORDING);
         media_action_sound.load(MediaActionSound.STOP_VIDEO_RECORDING);
         media_action_sound.load(MediaActionSound.SHUTTER_CLICK);
+        // Samsung Galaxy devices have bug where MediaActionSound always plays at 100% volume - the SHUTTER_CLICK sounds
+        // really harsh/loud, so the video recording beep reduces this problem
+        shutter_click_sound = is_samsung ? MediaActionSound.START_VIDEO_RECORDING : MediaActionSound.SHUTTER_CLICK;
 
         // expand tonemap curves
         jtvideo_values = enforceMinTonemapCurvePoints(jtvideo_values_base);
@@ -7093,7 +7097,7 @@ public class CameraController2 extends CameraController {
                         //captureSession.capture(stillBuilder.build(), new CameraCaptureSession.CaptureCallback() {
                         //}, handler);
                     }
-                    playSound(MediaActionSound.SHUTTER_CLICK); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
+                    playSound(shutter_click_sound); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
                 }
                 catch(CameraAccessException e) {
                     if( MyDebug.LOG ) {
@@ -7559,7 +7563,7 @@ public class CameraController2 extends CameraController {
                         }
                     }
 
-                    playSound(MediaActionSound.SHUTTER_CLICK); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
+                    playSound(shutter_click_sound); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
                 }
                 catch(CameraAccessException e) {
                     if( MyDebug.LOG ) {
@@ -7845,7 +7849,7 @@ public class CameraController2 extends CameraController {
                     }
 
                     if( !continuing_fast_burst ) {
-                        playSound(MediaActionSound.SHUTTER_CLICK); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
+                        playSound(shutter_click_sound); // play shutter sound asap, otherwise user has the illusion of being slow to take photos
                     }
                 }
                 catch(CameraAccessException e) {
