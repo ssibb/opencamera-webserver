@@ -4977,7 +4977,7 @@ public class CameraController2 extends CameraController {
         // If ever we want to change this on future, we should ensure that all image available listeners (JPEG+RAW) are
         // using the same handler/thread.
         imageReader.setOnImageAvailableListener(onImageAvailableListener = new OnImageAvailableListener(), null);
-        if( want_raw && raw_size != null&& !previewIsVideoMode  ) {
+        if( want_raw && raw_size != null && !previewIsVideoMode  ) {
             // unlike the JPEG imageReader, we can't read the data and close the image straight away, so we need to allow a larger
             // value for maxImages
             imageReaderRaw = ImageReader.newInstance(raw_size.getWidth(), raw_size.getHeight(), ImageFormat.RAW_SENSOR, max_raw_images);
