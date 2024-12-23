@@ -1243,4 +1243,23 @@ public class UnitTest {
                 8, 8,
                 160, 200);
     }
+
+    /** Tests for CameraController2.sizeSubset().
+     */
+    @Test
+    public void testSizeSubset() {
+        Log.d(TAG, "testSizeSubset");
+        assertTrue(CameraController2.sizeSubset(null, null, null, null));
+        assertTrue(CameraController2.sizeSubset(null, null, new int[]{1920}, new int[]{1080}));
+        assertFalse(CameraController2.sizeSubset(new int[]{1920}, new int[]{1080}, null, null));
+
+        assertTrue(CameraController2.sizeSubset(new int[]{1920}, new int[]{1080}, new int[]{1920}, new int[]{1080}));
+        assertTrue(CameraController2.sizeSubset(new int[]{1920, 1280}, new int[]{1080, 720}, new int[]{1920, 1280}, new int[]{1080, 720}));
+        assertTrue(CameraController2.sizeSubset(new int[]{1280, 1920}, new int[]{720, 1080}, new int[]{1920, 1280}, new int[]{1080, 720}));
+        assertTrue(CameraController2.sizeSubset(new int[]{1920}, new int[]{1080}, new int[]{1920, 1280}, new int[]{1080, 720}));
+        assertTrue(CameraController2.sizeSubset(new int[]{1920}, new int[]{1080}, new int[]{1280, 1920}, new int[]{720, 1080}));
+
+        assertFalse(CameraController2.sizeSubset(new int[]{1920, 1280}, new int[]{1080, 720}, new int[]{1920}, new int[]{1080}));
+        assertFalse(CameraController2.sizeSubset(new int[]{1920, 1280}, new int[]{1080, 720}, new int[]{2380}, new int[]{720}));
+    }
 }

@@ -3615,15 +3615,15 @@ public class CameraController2 extends CameraController {
     /** Returns true iff every entry in camera_sizes is also a member of alt_camera_sizes (order
      *  doesn't matter).
      */
-    private static boolean sizeSubset(android.util.Size [] camera_sizes, android.util.Size [] alt_camera_sizes) {
-        if( camera_sizes == null )
+    public static boolean sizeSubset(int [] camera_widths, int [] camera_heights, int [] alt_camera_widths, int [] alt_camera_heights) {
+        if( camera_widths == null && camera_heights == null)
             return true;
-        if( alt_camera_sizes == null )
+        if( alt_camera_widths == null && alt_camera_heights == null)
             return false;
-        for(android.util.Size sz : camera_sizes) {
+        for(int i=0;i<camera_widths.length;i++) {
             boolean found = false;
-            for(android.util.Size sz2 : alt_camera_sizes) {
-                if( sz2.equals(sz) ) {
+            for(int j=0;j<alt_camera_widths.length;j++) {
+                if( camera_widths[i] == alt_camera_widths[j] && camera_heights[i] == alt_camera_heights[j] ) {
                     found = true;
                     break;
                 }
@@ -3632,6 +3632,30 @@ public class CameraController2 extends CameraController {
                 return false;
         }
         return true;
+    }
+
+    private static boolean sizeSubset(android.util.Size [] camera_sizes, android.util.Size [] alt_camera_sizes) {
+        int [] camera_widths = null;
+        int [] camera_heights = null;
+        int [] alt_camera_widths = null;
+        int [] alt_camera_heights = null;
+        if( camera_sizes != null ) {
+            camera_widths = new int[camera_sizes.length];
+            camera_heights = new int[camera_sizes.length];
+            for(int i=0;i<camera_sizes.length;i++) {
+                camera_widths[i] = camera_sizes[i].getWidth();
+                camera_heights[i] = camera_sizes[i].getHeight();
+            }
+        }
+        if( alt_camera_sizes != null ) {
+            alt_camera_widths = new int[alt_camera_sizes.length];
+            alt_camera_heights = new int[alt_camera_sizes.length];
+            for(int i=0;i<alt_camera_sizes.length;i++) {
+                alt_camera_widths[i] = alt_camera_sizes[i].getWidth();
+                alt_camera_heights[i] = alt_camera_sizes[i].getHeight();
+            }
+        }
+        return sizeSubset(camera_widths, camera_heights, alt_camera_widths, alt_camera_heights);
     }
 
     /** For each of the picture_sizes, update the CameraController.Size.supported_extensions field to record if that resolution
