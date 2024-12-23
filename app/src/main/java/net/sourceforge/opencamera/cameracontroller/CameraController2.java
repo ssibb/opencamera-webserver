@@ -2923,6 +2923,10 @@ public class CameraController2 extends CameraController {
                 // we test for at least Android M just to be safe (this is needed for createConstrainedHighSpeedCaptureSession())
                 capabilities_high_speed_video = true;
             }
+            else if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "camera supports ultra high resolution");
+            }
         }
         boolean capabilities_logical_multi_camera = false;
         for(int capability : logical_capabilities) {
