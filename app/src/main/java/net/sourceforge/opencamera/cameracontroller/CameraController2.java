@@ -38,6 +38,7 @@ import android.hardware.camera2.DngCreator;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.Capability;
 import android.hardware.camera2.params.ColorSpaceTransform;
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.OutputConfiguration;
@@ -225,6 +226,7 @@ public class CameraController2 extends CameraController {
     private boolean dummy_capture_hack = false;
     //private boolean dummy_capture_hack = true; // test
 
+    private boolean want_jpeg_r;
     private boolean want_raw;
     //private boolean want_raw = true;
     private int max_raw_images;
@@ -2897,6 +2899,7 @@ public class CameraController2 extends CameraController {
         boolean capabilities_manual_post_processing = false;
         boolean capabilities_raw = false;
         boolean capabilities_high_speed_video = false;
+        boolean capabilities_10bit = false;
         for(int capability : capabilities) {
             /*if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR ) {
                 // At least some Huawei devices (at least, the Huawei device model FIG-LX3, device code-name hi6250) don't
@@ -2922,6 +2925,9 @@ public class CameraController2 extends CameraController {
             else if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
                 // we test for at least Android M just to be safe (this is needed for createConstrainedHighSpeedCaptureSession())
                 capabilities_high_speed_video = true;
+            }
+            else if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT ) {
+                capabilities_10bit = true;
             }
             else if( capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ) {
                 if( MyDebug.LOG )
@@ -2952,6 +2958,7 @@ public class CameraController2 extends CameraController {
             Log.d(TAG, "capabilities_raw?: " + capabilities_raw);
             Log.d(TAG, "supports_burst?: " + camera_features.supports_burst);
             Log.d(TAG, "capabilities_high_speed_video?: " + capabilities_high_speed_video);
+            Log.d(TAG, "capabilities_10bit?: " + capabilities_10bit);
         }
 
         StreamConfigurationMap configs;
@@ -2968,6 +2975,54 @@ public class CameraController2 extends CameraController {
         }
 
         android.util.Size [] camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG);
+
+        camera_features.supports_jpeg_r = false;
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && capabilities_10bit ) {
+            long debug_time = 0;
+            if( MyDebug.LOG ) {
+                debug_time = System.currentTimeMillis();
+            }
+
+            android.util.Size [] jpeg_r_camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG_R);
+            if( jpeg_r_camera_picture_sizes != null ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "JPEG_R sizes: " + Arrays.toString(jpeg_r_camera_picture_sizes));
+                camera_features.supports_jpeg_r = true;
+                // For simplicity, we only support JPEG_R if it has the same support as for JPEG.
+                // Further checks are done below for getHighResolutionOutputSizes.
+                // Note that extensions don't support JPEG_R (extension_characteristics.getExtensionSupportedSizes
+                // is documented that it throws IllegalArgumentException if not JPEG or YUV_420_888).
+                if( !sizeSubset(camera_picture_sizes, jpeg_r_camera_picture_sizes) ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "don't support JPEG_R: some picture sizes not supported");
+                    camera_features.supports_jpeg_r = false;
+                }
+
+                if( camera_features.supports_jpeg_r ) {
+                    // documentation says HLG10 must be supported by all devices with REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                    // but check just to be safe
+                    DynamicRangeProfiles profiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES);
+                    if( profiles == null ) {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "don't support JPEG_R: no DynamicRangeProfiles");
+                        camera_features.supports_jpeg_r = false;
+                    }
+                    else if( !profiles.getSupportedProfiles().contains(DynamicRangeProfiles.HLG10) ) {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "don't support JPEG_R: no HLG10");
+                        camera_features.supports_jpeg_r = false;
+                    }
+                }
+            }
+            else {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "JPEG_R not supported");
+            }
+
+            if( MyDebug.LOG )
+                Log.d(TAG, "time for jpeg_r testing: " + (System.currentTimeMillis() - debug_time));
+        }
+
         camera_features.picture_sizes = new ArrayList<>();
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
             android.util.Size [] camera_picture_sizes_hires = configs.getHighResolutionOutputSizes(ImageFormat.JPEG);
@@ -2990,6 +3045,15 @@ public class CameraController2 extends CameraController {
                         CameraController.Size size = new CameraController.Size(camera_size.getWidth(), camera_size.getHeight());
                         size.supports_burst = false;
                         camera_features.picture_sizes.add(size);
+                    }
+                }
+
+                if( camera_features.supports_jpeg_r && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ) {
+                    android.util.Size [] camera_picture_sizes_hires_jpeg_r = configs.getHighResolutionOutputSizes(ImageFormat.JPEG_R);
+                    if( !sizeSubset(camera_picture_sizes_hires, camera_picture_sizes_hires_jpeg_r) ) {
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "don't support JPEG_R: some high resolution (non-burst) picture sizes not supported");
+                        camera_features.supports_jpeg_r = false;
                     }
                 }
             }
@@ -3046,19 +3110,6 @@ public class CameraController2 extends CameraController {
 
         if( MyDebug.LOG ) {
             Log.d(TAG, "output_formats: " + Arrays.toString(configs.getOutputFormats()));
-        }
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            if( MyDebug.LOG ) {
-                android.util.Size [] jpeg_r_camera_picture_sizes = configs.getOutputSizes(ImageFormat.JPEG_R);
-                if( jpeg_r_camera_picture_sizes != null ) {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "JPEG_R sizes: " + Arrays.toString(jpeg_r_camera_picture_sizes));
-                }
-                else {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "JPEG_R not supported");
-                }
-            }
         }
 
         ae_fps_ranges = new ArrayList<>();
@@ -3554,7 +3605,33 @@ public class CameraController2 extends CameraController {
             }
         }
 
+        if( !camera_features.supports_jpeg_r ) {
+            want_jpeg_r = false; // just in case it got set to true somehow
+        }
+
         return camera_features;
+    }
+
+    /** Returns true iff every entry in camera_sizes is also a member of alt_camera_sizes (order
+     *  doesn't matter).
+     */
+    private static boolean sizeSubset(android.util.Size [] camera_sizes, android.util.Size [] alt_camera_sizes) {
+        if( camera_sizes == null )
+            return true;
+        if( alt_camera_sizes == null )
+            return false;
+        for(android.util.Size sz : camera_sizes) {
+            boolean found = false;
+            for(android.util.Size sz2 : alt_camera_sizes) {
+                if( sz2.equals(sz) ) {
+                    found = true;
+                    break;
+                }
+            }
+            if( !found )
+                return false;
+        }
+        return true;
     }
 
     /** For each of the picture_sizes, update the CameraController.Size.supported_extensions field to record if that resolution
@@ -4580,6 +4657,28 @@ public class CameraController2 extends CameraController {
     }
 
     @Override
+    public void setJpegR(boolean want_jpeg_r) {
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "setJpegR: " + want_jpeg_r);
+        }
+        if( camera == null ) {
+            if( MyDebug.LOG )
+                Log.e(TAG, "no camera");
+            return;
+        }
+        if( this.want_jpeg_r == want_jpeg_r ) {
+            return;
+        }
+        if( hasCaptureSession() ) {
+            // can only call this when captureSession not created - as it affects how we create the imageReader
+            if( MyDebug.LOG )
+                Log.e(TAG, "can't set jpeg_r when captureSession running!");
+            throw new RuntimeException(); // throw as RuntimeException, as this is a programming error
+        }
+        this.want_jpeg_r = want_jpeg_r;
+    }
+
+    @Override
     public void setRaw(boolean want_raw, int max_raw_images) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "setRaw: " + want_raw);
@@ -4868,7 +4967,7 @@ public class CameraController2 extends CameraController {
             throw new RuntimeException(); // throw as RuntimeException, as this is a programming error
         }
         // maxImages only needs to be 2, as we always read the JPEG data and close the image straight away in the imageReader
-        imageReader = ImageReader.newInstance(picture_width, picture_height, ImageFormat.JPEG, 2);
+        imageReader = ImageReader.newInstance(picture_width, picture_height, Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && want_jpeg_r ? ImageFormat.JPEG_R : ImageFormat.JPEG, 2);
         //imageReader = ImageReader.newInstance(picture_width, picture_height, ImageFormat.YUV_420_888, 2);
         if( MyDebug.LOG ) {
             Log.d(TAG, "created new imageReader: " + imageReader);
@@ -6042,12 +6141,16 @@ public class CameraController2 extends CameraController {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private List<OutputConfiguration> createOutputConfigurationList(List<Surface> surfaces) {
+    private List<OutputConfiguration> createOutputConfigurationList(List<Surface> surfaces, Surface preview_surface) {
         List<OutputConfiguration> outputs = new ArrayList<>();
         for(Surface surface : surfaces) {
             OutputConfiguration config = new OutputConfiguration(surface);
             if( cameraIdSPhysical != null ) {
                 config.setPhysicalCameraId(cameraIdSPhysical);
+            }
+            // On Galaxy S24+ at least, we seem to get UltraHDR photos even without setting DynamicRangeProfiles.HLG10 - but do this to be safe
+            if( want_jpeg_r && surface == preview_surface && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
+                config.setDynamicRangeProfile(DynamicRangeProfiles.HLG10);
             }
             outputs.add(config);
         }
@@ -6081,6 +6184,9 @@ public class CameraController2 extends CameraController {
             }
             else if( burst_type != BurstType.BURSTTYPE_NONE ) {
                 throw new RuntimeException("burst_type not supported for extension session");
+            }
+            else if( want_jpeg_r ) {
+                throw new RuntimeException("want_jpeg_r not supported for extension session");
             }
             else if( want_raw ) {
                 throw new RuntimeException("want_raw not supported for extension session");
@@ -6267,9 +6373,10 @@ public class CameraController2 extends CameraController {
             }
             final MyStateCallback myStateCallback = new MyStateCallback();
 
+            Surface preview_surface;
             List<Surface> surfaces;
             synchronized( background_camera_lock ) {
-                Surface preview_surface = getPreviewSurface();
+                preview_surface = getPreviewSurface();
                 if( video_recorder != null ) {
                     if( supports_photo_video_recording && !want_video_high_speed && want_photo_video_recording ) {
                         surfaces = Arrays.asList(preview_surface, video_recorder_surface, imageReader.getSurface());
@@ -6320,7 +6427,7 @@ public class CameraController2 extends CameraController {
                     //int extension = CameraExtensionCharacteristics.EXTENSION_AUTOMATIC;
                     //int extension = CameraExtensionCharacteristics.EXTENSION_BOKEH;
                     int extension = camera_extension;
-                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
+                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces, preview_surface);
                     ExtensionSessionConfiguration extensionConfiguration = new ExtensionSessionConfiguration(
                             extension,
                             outputs,
@@ -6358,8 +6465,8 @@ public class CameraController2 extends CameraController {
             //if( want_video_high_speed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "create high speed capture session");
-                if( cameraIdSPhysical != null  && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
-                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
+                if( ( cameraIdSPhysical != null || want_jpeg_r ) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+                    List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces, preview_surface);
                     SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionConfiguration.SESSION_HIGH_SPEED, outputs, executor, myStateCallback);
                     camera.createCaptureSession(sessionConfiguration);
                 }
@@ -6374,8 +6481,8 @@ public class CameraController2 extends CameraController {
                 if( MyDebug.LOG )
                     Log.d(TAG, "create capture session");
                 try {
-                    if( cameraIdSPhysical != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
-                        List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces);
+                    if( ( cameraIdSPhysical != null || want_jpeg_r ) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ) {
+                        List<OutputConfiguration> outputs = createOutputConfigurationList(surfaces, preview_surface);
                         /*camera.createCaptureSessionByOutputConfigurations(outputs,
                                 myStateCallback,
                                 handler);*/

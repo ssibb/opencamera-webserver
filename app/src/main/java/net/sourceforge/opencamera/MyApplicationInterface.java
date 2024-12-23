@@ -1763,6 +1763,25 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         return PhotoMode.Standard;
     }
 
+    @Override
+    public boolean getJpegRPref() {
+        if( sharedPreferences.getString(PreferenceKeys.ImageFormatPreferenceKey, "preference_image_format_jpeg").equals("preference_image_format_jpeg_r") ) {
+            if( main_activity.getPreview().isVideo() ) {
+                // don't support JPEG R, either for video recording or video snapshot - problem that video recording fails
+                // if CameraController2 sets "config.setDynamicRangeProfile(DynamicRangeProfiles.HLG10);" for the preview
+                return false;
+            }
+            else {
+                PhotoMode photo_mode = getPhotoMode();
+                if( photo_mode == PhotoMode.NoiseReduction || photo_mode == PhotoMode.HDR || photo_mode == PhotoMode.Panorama )
+                    return false; // not supported for these photo modes
+                // n.b., JPEG R won't be supported by x- extension modes either, although this is automatically handled by Preview
+                return true;
+            }
+        }
+        return false;
+    }
+
     private ImageSaver.Request.ImageFormat getImageFormatPref() {
         switch( sharedPreferences.getString(PreferenceKeys.ImageFormatPreferenceKey, "preference_image_format_jpeg") ) {
             case "preference_image_format_webp":

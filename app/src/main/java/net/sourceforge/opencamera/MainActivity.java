@@ -2962,6 +2962,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         bundle.putBoolean("supports_force_video_4k", this.supports_force_video_4k);
         bundle.putBoolean("supports_camera2", this.supports_camera2);
         bundle.putBoolean("supports_face_detection", this.preview.supportsFaceDetection());
+        bundle.putBoolean("supports_jpeg_r", this.preview.supportsJpegR());
         bundle.putBoolean("supports_raw", this.preview.supportsRaw());
         bundle.putBoolean("supports_burst_raw", this.supportsBurstRaw());
         bundle.putBoolean("supports_optimise_focus_latency", this.supportsOptimiseFocusLatency());

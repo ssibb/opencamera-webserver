@@ -43,6 +43,10 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
         final int [] heights = bundle.getIntArray("resolution_heights");
         final boolean [] supports_burst = bundle.getBooleanArray("resolution_supports_burst");
 
+        final boolean supports_jpeg_r = bundle.getBoolean("supports_jpeg_r");
+        if( MyDebug.LOG )
+            Log.d(TAG, "supports_jpeg_r: " + supports_jpeg_r);
+
         final boolean supports_raw = bundle.getBoolean("supports_raw");
         if( MyDebug.LOG )
             Log.d(TAG, "supports_raw: " + supports_raw);
@@ -118,6 +122,12 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
             ArraySeekBarPreference sp = (ArraySeekBarPreference)findPreference("preference_quality");
             sp.setEntries(entries);
             sp.setEntryValues(values);
+        }
+
+        if( !supports_jpeg_r ) {
+            ListPreference pref = (ListPreference)findPreference("preference_image_format");
+            pref.setEntries(R.array.preference_image_format_entries_nojpegr);
+            pref.setEntryValues(R.array.preference_image_format_values_nojpegr);
         }
 
         if( !supports_raw ) {

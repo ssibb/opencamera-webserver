@@ -179,7 +179,7 @@
     <string name="preference_location">Store location data (Geotagging)</string>
     <string name="preference_location_summary">Store GPS location data in the photos/videos (for photos, location data can only be stored in JPEG and DNG formats)</string>
     <string name="preference_gps_direction">Store compass direction</string>
-    <string name="preference_gps_direction_summary">Store GPS compass direction in the photos (JPEG format only)</string>
+    <string name="preference_gps_direction_summary">Store GPS compass direction in the photos (JPEG formats only)</string>
     <string name="preference_require_location">Require location data</string>
     <string name="preference_require_location_summary">If location data is enabled, only take photo/video if location data is available</string>
     <string name="preference_stamp">Stamp photos</string>
@@ -459,9 +459,9 @@
 
     <string name="preference_category_exif_tags">Custom EXIF tags</string>
     <string name="preference_exif_artist">Artist</string>
-    <string name="preference_exif_artist_summary">Text to store in the image metadata for the "artist" tag  (JPEG format only). (Leave blank for none.)</string>
+    <string name="preference_exif_artist_summary">Text to store in the image metadata for the "artist" tag  (JPEG formats only). (Leave blank for none.)</string>
     <string name="preference_exif_copyright">Copyright</string>
-    <string name="preference_exif_copyright_summary">Text to store in the image metadata for the "copyright" tag  (JPEG format only). (Leave blank for none.)</string>
+    <string name="preference_exif_copyright_summary">Text to store in the image metadata for the "copyright" tag  (JPEG formats only). (Leave blank for none.)</string>
 
     <string name="processing">Processing…</string>
 
@@ -737,6 +737,7 @@
 
     <string name="preference_image_format">Image format</string>
     <string name="preference_image_format_jpeg">JPEG</string>
+    <string name="preference_image_format_jpeg_r">UltraHDR JPEG</string>
     <string name="preference_image_format_webp">WebP</string>
     <string name="preference_image_format_png">PNG</string>
 
@@ -853,10 +854,10 @@
     <string name="preference_show_cycle_flash_summary">Whether to show an on-screen icon for cycling through the flash options, instead of displaying flash options on the popup menu. Note that torch is not available if using this icon.</string>
 
     <string name="preference_raw_expo_bracketing">Allow RAW for expo bracketing</string>
-    <string name="preference_raw_expo_bracketing_summary">Whether the RAW option should also apply for expo bracketing photo mode (or for HDR mode when \"Save all images for HDR mode\" is enabled). If this option is disabled, only JPEGs will be saved in those photo modes.</string>
+    <string name="preference_raw_expo_bracketing_summary">Whether the RAW option should also apply for expo bracketing photo mode (or for HDR mode when \"Save all images for HDR mode\" is enabled). If this option is disabled, only non-DNG (JPEG/etc) images will be saved in those photo modes.</string>
 
     <string name="preference_raw_focus_bracketing">Allow RAW for focus bracketing</string>
-    <string name="preference_raw_focus_bracketing_summary">Whether the RAW option should also apply for focus bracketing photo mode. If this option is disabled, only JPEGs will be saved in focus bracketing photo modes.</string>
+    <string name="preference_raw_focus_bracketing_summary">Whether the RAW option should also apply for focus bracketing photo mode. If this option is disabled, only non-DNG (JPEG/etc) images will be saved in focus bracketing photo modes.</string>
 
     <string name="cycle_raw">Cycle RAW modes</string>
     <string name="preference_show_cycle_raw">Show RAW icon</string>
@@ -892,7 +893,7 @@
 
     <string name="exposure_compensation_seekbar">Seekbar to change exposure compensation</string>
 
-    <string name="preference_image_format_summary">Select the file format used for saving photos. This affects \"standard\" (not RAW) photos. Only JPEG supports saving Exif metadata. Note that PNG format is not truly lossless, instead it is converted from a JPEG at 100%% quality.\n%s</string>
+    <string name="preference_image_format_summary">Select the file format used for saving photos. This affects \"standard\" (not RAW) photos. Only JPEG formats support saving Exif metadata. UltraHDR not supported for NR, HDR, Pano, X- modes. Note that PNG format is not truly lossless, instead it is converted from a JPEG at 100%% quality.\n%s</string>
 
     <string name="preference_camera_api">Camera API</string>
     <string name="preference_camera_api_summary">Select Camera2 API to enable extra features such as manual modes for exposure, focus, white balance, along with RAW (if supported by the device). Changing the API will cause a restart.\n%s</string>
@@ -972,7 +973,7 @@
     <string name="error_features_slow_motion">Slow motion</string>
 
     <string name="preference_comment_ypr">Store yaw, pitch and roll</string>
-    <string name="preference_comment_ypr_summary">Store the yaw, pitch and roll of the device in the photo\'s Exif user comment (JPEG format only)</string>
+    <string name="preference_comment_ypr_summary">Store the yaw, pitch and roll of the device in the photo\'s Exif user comment (JPEG formats only)</string>
 
     <string name="array_seekbar_preference_seekbar">Seekbar to change current preference value</string>
 

@@ -331,6 +331,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private int max_expo_bracketing_n_images;
     private boolean supports_focus_bracketing;
     private boolean supports_burst;
+    private boolean supports_jpeg_r;
     private boolean supports_raw;
     private float view_angle_x;
     private float view_angle_y;
@@ -1678,6 +1679,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         max_expo_bracketing_n_images = 0;
         supports_focus_bracketing = false;
         supports_burst = false;
+        supports_jpeg_r = false;
         supports_raw = false;
         view_angle_x = 55.0f; // set a sensible default
         view_angle_y = 43.0f; // set a sensible default
@@ -2179,6 +2181,14 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 Log.d(TAG, "set_flash_value_after_autofocus is now: " + set_flash_value_after_autofocus);
         }
 
+        boolean is_extension = camera_controller.isCameraExtension();
+        if( this.supports_jpeg_r && !is_extension && applicationInterface.getJpegRPref() ) {
+            camera_controller.setJpegR(true);
+        }
+        else {
+            camera_controller.setJpegR(false);
+        }
+
         if( this.supports_raw && applicationInterface.getRawPref() != ApplicationInterface.RawPref.RAWPREF_JPEG_ONLY ) {
             camera_controller.setRaw(true, applicationInterface.getMaxRawImages());
         }
@@ -2190,7 +2200,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
         {
             boolean is_burst = camera_controller.isBurstOrExpo();
-            boolean is_extension = camera_controller.isCameraExtension();
             int extension = is_extension ? camera_controller.getCameraExtension() : -1;
             if( is_burst || is_extension ) {
                 if( MyDebug.LOG ) {
@@ -2445,6 +2454,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             this.max_expo_bracketing_n_images = camera_features.max_expo_bracketing_n_images;
             this.supports_focus_bracketing = camera_features.supports_focus_bracketing;
             this.supports_burst = camera_features.supports_burst;
+            this.supports_jpeg_r = camera_features.supports_jpeg_r;
             this.supports_raw = camera_features.supports_raw;
             this.view_angle_x = camera_features.view_angle_x;
             this.view_angle_y = camera_features.view_angle_y;
@@ -7450,6 +7460,10 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
      */
     public boolean supportsZoomForCameraExtension(int extension) {
         return this.supported_extensions_zoom != null && this.supported_extensions_zoom.contains(extension);
+    }
+
+    public boolean supportsJpegR() {
+        return this.supports_jpeg_r;
     }
 
     public boolean supportsRaw() {

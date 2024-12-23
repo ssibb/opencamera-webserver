@@ -375,6 +375,11 @@ public abstract class BasicApplicationInterface implements ApplicationInterface 
     }
 
     @Override
+    public boolean getJpegRPref() {
+        return false;
+    }
+
+    @Override
     public RawPref getRawPref() {
         return RawPref.RAWPREF_JPEG_ONLY;
     }

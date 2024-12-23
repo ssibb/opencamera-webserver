@@ -121,6 +121,7 @@ public abstract class CameraController {
         public int max_expo_bracketing_n_images;
         public boolean supports_focus_bracketing; // whether setBurstTye(BURSTTYPE_FOCUS) can be used
         public boolean supports_burst; // whether setBurstTye(BURSTTYPE_NORMAL) can be used
+        public boolean supports_jpeg_r; // whether supports JPEG_R (UltraHDR)
         public boolean supports_raw;
         public float view_angle_x; // horizontal angle of view in degrees (when unzoomed)
         public float view_angle_y; // vertical angle of view in degrees (when unzoomed)
@@ -505,6 +506,11 @@ public abstract class CameraController {
      *  burst if known. If not known (e.g., for continuous burst mode), returns 0.
      */
     public abstract int getBurstTotal();
+
+    /**
+     * @param want_jpeg_r Whether to enable taking photos in JPEG_R (UltraHDR) format.
+     */
+    public abstract void setJpegR(boolean want_jpeg_r);
 
     /**
      * @param want_raw       Whether to enable taking photos in RAW (DNG) format.
