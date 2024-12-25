@@ -14,4 +14,4 @@ import org.junit.runners.Suite;
 @RunWith(Categories.class)
 @Categories.IncludeCategory(AvgTests.class)
 @Suite.SuiteClasses({InstrumentedTest.class})
-public class AvgTestSuite {}
+public class AvgInstrumentedTests {}

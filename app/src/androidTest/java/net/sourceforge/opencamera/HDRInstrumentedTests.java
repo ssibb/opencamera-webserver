@@ -14,4 +14,4 @@ import org.junit.runners.Suite;
 @RunWith(Categories.class)
 @Categories.IncludeCategory(HDRTests.class)
 @Suite.SuiteClasses({InstrumentedTest.class})
-public class HDRTestSuite {}
+public class HDRInstrumentedTests {}
