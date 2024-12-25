@@ -1020,13 +1020,16 @@ public class TestUtils {
             String filename_base_dng;
             if( is_hdr ) {
                 filename_base_jpeg = filename_jpeg.substring(0, filename_jpeg.length()-7);
+                //noinspection DuplicateExpressions
                 filename_base_dng = filename_dng.substring(0, filename_dng.length()-5);
             }
             else if( is_expo ) {
                 filename_base_jpeg = filename_jpeg.substring(0, filename_jpeg.length()-5);
+                //noinspection DuplicateExpressions
                 filename_base_dng = filename_dng.substring(0, filename_dng.length()-5);
             }
             else {
+                //noinspection DuplicateExpressions
                 filename_base_jpeg = filename_jpeg.substring(0, filename_jpeg.length()-4);
                 filename_base_dng = filename_dng.substring(0, filename_dng.length()-4);
             }
@@ -1037,6 +1040,7 @@ public class TestUtils {
 
         if( is_preshot ) {
             // check we have same filenames (ignoring extensions)
+            //noinspection DuplicateExpressions
             String filename_base_jpeg = filename_jpeg.substring(0, filename_jpeg.length()-4);
             String filename_base_preshot_video = filename_preshot_video.substring(0, filename_jpeg.length()-4);
             Log.d(TAG, "filename_base_jpeg: " + filename_base_jpeg);
@@ -1065,6 +1069,7 @@ public class TestUtils {
                 projection = new String[] {MediaStore.Images.ImageColumns.DISPLAY_NAME};
                 break;
             case MEDIASTORE_VIDEOS:
+                //noinspection DuplicateBranchesInSwitch
                 projection = new String[] {MediaStore.Video.VideoColumns.DISPLAY_NAME};
                 break;
             case STORAGE_ACCESS_FRAMEWORK:
@@ -1080,6 +1085,7 @@ public class TestUtils {
                 selection = MediaStore.Images.ImageColumns.BUCKET_ID + " = " + bucket_id;
                 break;
             case MEDIASTORE_VIDEOS:
+                //noinspection DuplicateBranchesInSwitch
                 selection = MediaStore.Video.VideoColumns.BUCKET_ID + " = " + bucket_id;
                 break;
             case STORAGE_ACCESS_FRAMEWORK:
