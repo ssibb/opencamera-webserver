@@ -57,8 +57,8 @@ public class PreferenceSubPreview extends PreferenceSubScreen {
             CharSequence [] values = new CharSequence[n_ghost_image_alpha];
             for(int i=0;i<n_ghost_image_alpha;i++) {
                 int alpha = ghost_image_alpha_step*(i+1);
-                entries[i] = "" + alpha + "%";
-                values[i] = "" + alpha;
+                entries[i] = alpha + "%";
+                values[i] = String.valueOf(alpha);
             }
             ArraySeekBarPreference sp = (ArraySeekBarPreference)findPreference("ghost_image_alpha");
             sp.setEntries(entries);

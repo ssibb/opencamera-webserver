@@ -129,8 +129,8 @@ public class BluetoothRemoteControl {
                 if( MyDebug.LOG )
                     Log.d(TAG, "Sensor values: depth: " + depth + " - temp: " + temp);
                 // Create two OSD lines
-                String line1 = "" + temp + " \u00B0C";
-                String line2 = "" + depth + " m";
+                String line1 = temp + " \u00B0C";
+                String line2 = depth + " m";
                 applicationInterface.getDrawPreview().onExtraOSDValuesChanged(line1, line2);
             }
             else if( BluetoothLeService.ACTION_REMOTE_COMMAND.equals(action) ) {

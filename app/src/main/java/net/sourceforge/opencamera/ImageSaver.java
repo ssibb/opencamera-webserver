@@ -1263,41 +1263,41 @@ public class ImageSaver extends Thread {
         xmlSerializer.setOutput(writer);
         xmlSerializer.startDocument("UTF-8", true);
         xmlSerializer.startTag(null, gyro_info_doc_tag);
-        xmlSerializer.attribute(null, gyro_info_panorama_pics_per_screen_tag, "" + MyApplicationInterface.getPanoramaPicsPerScreen());
-        xmlSerializer.attribute(null, gyro_info_camera_view_angle_x_tag, "" + request.camera_view_angle_x);
-        xmlSerializer.attribute(null, gyro_info_camera_view_angle_y_tag, "" + request.camera_view_angle_y);
+        xmlSerializer.attribute(null, gyro_info_panorama_pics_per_screen_tag, String.valueOf(MyApplicationInterface.getPanoramaPicsPerScreen()));
+        xmlSerializer.attribute(null, gyro_info_camera_view_angle_x_tag, String.valueOf(request.camera_view_angle_x));
+        xmlSerializer.attribute(null, gyro_info_camera_view_angle_y_tag, String.valueOf(request.camera_view_angle_y));
 
         float [] inVector = new float[3];
         float [] outVector = new float[3];
         for(int i=0;i<request.gyro_rotation_matrix.size();i++) {
             xmlSerializer.startTag(null, gyro_info_image_tag);
-            xmlSerializer.attribute(null, "index", "" + i);
+            xmlSerializer.attribute(null, "index", String.valueOf(i));
 
             GyroSensor.setVector(inVector, 1.0f, 0.0f, 0.0f); // vector pointing in "right" direction
             GyroSensor.transformVector(outVector, request.gyro_rotation_matrix.get(i), inVector);
             xmlSerializer.startTag(null, gyro_info_vector_tag);
             xmlSerializer.attribute(null, "type", gyro_info_vector_right_type);
-            xmlSerializer.attribute(null, "x", "" + outVector[0]);
-            xmlSerializer.attribute(null, "y", "" + outVector[1]);
-            xmlSerializer.attribute(null, "z", "" + outVector[2]);
+            xmlSerializer.attribute(null, "x", String.valueOf(outVector[0]));
+            xmlSerializer.attribute(null, "y", String.valueOf(outVector[1]));
+            xmlSerializer.attribute(null, "z", String.valueOf(outVector[2]));
             xmlSerializer.endTag(null, gyro_info_vector_tag);
 
             GyroSensor.setVector(inVector, 0.0f, 1.0f, 0.0f); // vector pointing in "up" direction
             GyroSensor.transformVector(outVector, request.gyro_rotation_matrix.get(i), inVector);
             xmlSerializer.startTag(null, gyro_info_vector_tag);
             xmlSerializer.attribute(null, "type", gyro_info_vector_up_type);
-            xmlSerializer.attribute(null, "x", "" + outVector[0]);
-            xmlSerializer.attribute(null, "y", "" + outVector[1]);
-            xmlSerializer.attribute(null, "z", "" + outVector[2]);
+            xmlSerializer.attribute(null, "x", String.valueOf(outVector[0]));
+            xmlSerializer.attribute(null, "y", String.valueOf(outVector[1]));
+            xmlSerializer.attribute(null, "z", String.valueOf(outVector[2]));
             xmlSerializer.endTag(null, gyro_info_vector_tag);
 
             GyroSensor.setVector(inVector, 0.0f, 0.0f, -1.0f); // vector pointing behind the device's screen
             GyroSensor.transformVector(outVector, request.gyro_rotation_matrix.get(i), inVector);
             xmlSerializer.startTag(null, gyro_info_vector_tag);
             xmlSerializer.attribute(null, "type", gyro_info_vector_screen_type);
-            xmlSerializer.attribute(null, "x", "" + outVector[0]);
-            xmlSerializer.attribute(null, "y", "" + outVector[1]);
-            xmlSerializer.attribute(null, "z", "" + outVector[2]);
+            xmlSerializer.attribute(null, "x", String.valueOf(outVector[0]));
+            xmlSerializer.attribute(null, "y", String.valueOf(outVector[1]));
+            xmlSerializer.attribute(null, "z", String.valueOf(outVector[2]));
             xmlSerializer.endTag(null, gyro_info_vector_tag);
 
             xmlSerializer.endTag(null, gyro_info_image_tag);

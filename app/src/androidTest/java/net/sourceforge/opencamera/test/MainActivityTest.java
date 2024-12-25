@@ -2689,12 +2689,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             int min_iso = mPreview.getMinimumISO();
             int max_iso = mPreview.getMaximumISO();
             for(int test_iso : test_isos) {
-                subTestPopupButtonAvailability("TEST_ISO", "" + test_iso, test_iso >= min_iso && test_iso <= max_iso);
+                subTestPopupButtonAvailability("TEST_ISO", String.valueOf(test_iso), test_iso >= min_iso && test_iso <= max_iso);
             }
-            subTestPopupButtonAvailability("TEST_ISO", "" + (min_iso-1), false);
-            subTestPopupButtonAvailability("TEST_ISO", "" + min_iso, true);
-            subTestPopupButtonAvailability("TEST_ISO", "" + max_iso, true);
-            subTestPopupButtonAvailability("TEST_ISO", "" + (max_iso+1), false);
+            subTestPopupButtonAvailability("TEST_ISO", String.valueOf(min_iso - 1), false);
+            subTestPopupButtonAvailability("TEST_ISO", String.valueOf(min_iso), true);
+            subTestPopupButtonAvailability("TEST_ISO", String.valueOf(max_iso), true);
+            subTestPopupButtonAvailability("TEST_ISO", String.valueOf(max_iso + 1), false);
         }
         else {
             List<String> supported_iso_values = mPreview.getSupportedISOs();
@@ -6983,12 +6983,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 else {
                     expect_high_speed = (fps_value >= 60);
                 }
-                assertEquals(expect_high_speed, mPreview.fpsIsHighSpeed("" + fps_value));
+                assertEquals(expect_high_speed, mPreview.fpsIsHighSpeed(String.valueOf(fps_value)));
             }
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
+            editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), String.valueOf(fps_value));
             editor.apply();
             updateForSettings();
 
@@ -7024,11 +7024,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             return;
         }
 
-        assertTrue( mPreview.fpsIsHighSpeed("" + fps_value) );
+        assertTrue( mPreview.fpsIsHighSpeed(String.valueOf(fps_value)) );
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), String.valueOf(fps_value));
         editor.apply();
         updateForSettings();
 
@@ -7077,7 +7077,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             return;
         }
 
-        assertTrue( mPreview.fpsIsHighSpeed("" + fps_value) );
+        assertTrue( mPreview.fpsIsHighSpeed(String.valueOf(fps_value)) );
 
         // switch to video mode
         View switchVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
@@ -7097,7 +7097,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         // switch to high speed fps
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), String.valueOf(fps_value));
         editor.apply();
         updateForSettings();
 
@@ -7166,7 +7166,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "switch to high speed fps again");
         settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         editor = settings.edit();
-        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), "" + fps_value);
+        editor.putString(PreferenceKeys.getVideoFPSPreferenceKey(mPreview.getCameraId(), mActivity.getApplicationInterface().getCameraIdSPhysicalPref()), String.valueOf(fps_value));
         editor.apply();
         updateForSettings();
 

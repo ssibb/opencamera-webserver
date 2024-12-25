@@ -3149,7 +3149,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             List<Integer> video_fps = new ArrayList<>();
             List<Boolean> video_fps_high_speed = new ArrayList<>();
             for(int fps : candidate_fps) {
-                if( preview.fpsIsHighSpeed("" + fps) ) {
+                if( preview.fpsIsHighSpeed(String.valueOf(fps)) ) {
                     video_fps.add(fps);
                     video_fps_high_speed.add(true);
                 }
@@ -6226,7 +6226,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
 
             double capture_rate = profile.videoCaptureRate;
-            String capture_rate_string = (capture_rate < 9.5f) ? new DecimalFormat("#0.###").format(capture_rate) : "" + (int)(profile.videoCaptureRate+0.5);
+            String capture_rate_string = (capture_rate < 9.5f) ? new DecimalFormat("#0.###").format(capture_rate) : String.valueOf((int) (profile.videoCaptureRate + 0.5));
             toast_string = getResources().getString(R.string.video) + ": " + profile.videoFrameWidth + "x" + profile.videoFrameHeight + "\n" +
                     capture_rate_string + getResources().getString(R.string.fps) + (video_high_speed ? " [" + getResources().getString(R.string.high_speed) + "]" : "") + ", " + bitrate_string + " (" + extension_string + ")";
 

@@ -779,7 +779,7 @@ public class PopupView extends LinearLayout {
                             capture_rate_std_index = i;
                         }
                         else {
-                            capture_rate_str.add("" + this_capture_rate + "x");
+                            capture_rate_str.add(this_capture_rate + "x");
                         }
                         if( Math.abs(capture_rate_value - this_capture_rate) < 1.0e-5 ) {
                             video_capture_rate_index = i;

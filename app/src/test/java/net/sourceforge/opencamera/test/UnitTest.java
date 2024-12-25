@@ -1130,7 +1130,7 @@ public class UnitTest {
             for(int i=0;i<iso_button_values.length;i++) {
                 String button_text = PopupView.getButtonOptionString(false, "ISO", MainUI.ISOToButtonText(iso_button_values[i]));
                 //Log.d(TAG, "    i = " + i + " iso: " + iso_button_values[i] + " : " + button_text);
-                assertEquals(i==index, MainUI.ISOTextEquals(button_text, ""+current_iso));
+                assertEquals(i==index, MainUI.ISOTextEquals(button_text, String.valueOf(current_iso)));
             }
         }
     }

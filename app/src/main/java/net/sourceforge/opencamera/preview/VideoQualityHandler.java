@@ -106,14 +106,14 @@ public class VideoQualityHandler {
                 continue;
             CameraController.Size size = video_sizes.get(i);
             if( size.width == min_resolution_w && size.height == min_resolution_h ) {
-                String str = "" + base_profile;
+                String str = String.valueOf(base_profile);
                 video_quality.add(str);
                 done_video_size[i] = true;
                 if( MyDebug.LOG )
                     Log.d(TAG, "added: " + i + ":"+ str + " " + size.width + "x" + size.height);
             }
             else if( base_profile == CamcorderProfile.QUALITY_LOW || size.width * size.height >= min_resolution_w*min_resolution_h ) {
-                String str = "" + base_profile + "_r" + size.width + "x" + size.height;
+                String str = base_profile + "_r" + size.width + "x" + size.height;
                 video_quality.add(str);
                 done_video_size[i] = true;
                 if( MyDebug.LOG )

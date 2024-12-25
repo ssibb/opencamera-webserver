@@ -1960,7 +1960,7 @@ public class DrawPreview {
                 if( geo_angle < 0.0f ) {
                     geo_angle += 360.0f;
                 }
-                String string = "" + Math.round(geo_angle) + (char)0x00B0;
+                String string = String.valueOf(Math.round(geo_angle)) + (char)0x00B0;
                 applicationInterface.drawTextWithBackground(canvas, p, string, color, Color.BLACK, canvas.getWidth() / 2 + pixels_offset_x, text_base_y, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, ybounds_text, MyApplicationInterface.Shadow.SHADOW_OUTLINE);
             }
             if( preview.isOnTimer() ) {
@@ -1973,7 +1973,7 @@ public class DrawPreview {
                     String time_s;
                     if( remaining_time < 60 ) {
                         // simpler to just show seconds when less than a minute
-                        time_s = "" + remaining_time;
+                        time_s = String.valueOf(remaining_time);
                     }
                     else {
                         time_s = getTimeStringFromSeconds(remaining_time);
@@ -2492,7 +2492,7 @@ public class DrawPreview {
                         canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
                         p.clearShadowLayer();
                         // draw pitch angle indicator
-                        applicationInterface.drawTextWithBackground(canvas, p, "" + latitude_angle + "\u00B0", p.getColor(), Color.BLACK, (int)(cx + pitch_radius + 4*hthickness), (int)(cy + pitch_distance - 2*hthickness), MyApplicationInterface.Alignment.ALIGNMENT_CENTRE);
+                        applicationInterface.drawTextWithBackground(canvas, p, latitude_angle + "\u00B0", p.getColor(), Color.BLACK, (int)(cx + pitch_radius + 4*hthickness), (int)(cy + pitch_distance - 2*hthickness), MyApplicationInterface.Alignment.ALIGNMENT_CENTRE);
                     }
                 }
             }
@@ -2532,7 +2532,7 @@ public class DrawPreview {
                         canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
                         p.clearShadowLayer();
                         // draw geo direction angle indicator
-                        applicationInterface.drawTextWithBackground(canvas, p, "" + longitude_angle + "\u00B0", p.getColor(), Color.BLACK, (int)(cx + geo_distance), (int)(cy - geo_radius - 4*hthickness), MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM);
+                        applicationInterface.drawTextWithBackground(canvas, p, longitude_angle + "\u00B0", p.getColor(), Color.BLACK, (int)(cx + geo_distance), (int)(cy - geo_radius - 4*hthickness), MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM);
                     }
                 }
             }

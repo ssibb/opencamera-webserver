@@ -2916,7 +2916,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             if( min_exposure != 0 || max_exposure != 0 ) {
                 exposures = new ArrayList<>();
                 for(int i=min_exposure;i<=max_exposure;i++) {
-                    exposures.add("" + i);
+                    exposures.add(String.valueOf(i));
                 }
                 // if in manual ISO mode, we still want to get the valid exposure compensations, but shouldn't set exposure compensation
                 if( !is_manual_iso ) {
@@ -3143,7 +3143,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 CameraController.Size best_video_size = video_quality_handler.findVideoSizeForFrameRate(profile.videoFrameWidth, profile.videoFrameHeight, capture_rate, false);
                     // n.b., we should pass videoCaptureRate (capture_rate) and not videoFrameRate (as for slow motion, it's videoCaptureRate that will be high, not videoFrameRate)
 
-                if( best_video_size == null && fpsIsHighSpeed("" + capture_rate) && video_quality_handler.getSupportedVideoSizesHighSpeed() != null ) {
+                if( best_video_size == null && fpsIsHighSpeed(String.valueOf(capture_rate)) && video_quality_handler.getSupportedVideoSizesHighSpeed() != null ) {
                     Log.e(TAG, "can't find match for capture rate: " + capture_rate + " and video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight + " at fps " + profile.videoFrameRate);
                     // If fpsIsHighSpeed() returns true for capture_rate, then it means an fps is one that isn't
                     // supported by any standard video sizes, but it is supported by a high speed video size. If
@@ -4514,7 +4514,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 new_iso = max_iso;
             if( camera_controller.setISO(new_iso) ) {
                 // now save
-                applicationInterface.setISOPref("" + new_iso);
+                applicationInterface.setISOPref(String.valueOf(new_iso));
                 showToast(null, getISOString(new_iso), 0, true);
             }
         }

@@ -121,9 +121,9 @@ public class PreferenceSubVideo extends PreferenceSubScreen {
                     entries[i] = fps + high_speed_append;
                 }
                 else {
-                    entries[i] = "" + fps;
+                    entries[i] = String.valueOf(fps);
                 }
-                values[i] = "" + fps;
+                values[i] = String.valueOf(fps);
                 i++;
             }
 

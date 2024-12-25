@@ -1862,13 +1862,13 @@ public class MainUI {
         boolean found = false;
         for(int i = 0; i < count; i++) {
             Button button = (Button)iso_buttons.get(i);
-            String button_text = "" + button.getText();
+            String button_text = String.valueOf(button.getText());
             if( ISOTextEquals(button_text, current_iso) ) {
                 found = true;
                 // Select next one, unless it's "Manual", which we skip since
                 // it's not practical in remote mode.
                 Button nextButton = (Button) iso_buttons.get((i + count + step)%count);
-                String nextButton_text = "" + nextButton.getText();
+                String nextButton_text = String.valueOf(nextButton.getText());
                 if( nextButton_text.contains("m") ) {
                     nextButton = (Button) iso_buttons.get((i+count+ 2*step)%count);
                 }
@@ -1909,7 +1909,7 @@ public class MainUI {
             Button manualButton = null;
             for(View view : iso_buttons) {
                 Button button = (Button)view;
-                String button_text = "" + button.getText();
+                String button_text = String.valueOf(button.getText());
                 if( ISOTextEquals(button_text, current_iso) ) {
                     PopupView.setButtonSelected(button, true);
                     //button.setBackgroundColor(highlightColorExposureUIElement);
@@ -2137,8 +2137,8 @@ public class MainUI {
                                 int iso = preview.getCameraController().captureResultIso();
                                 if( MyDebug.LOG )
                                     Log.d(TAG, "apply existing iso of " + iso);
-                                editor.putString(PreferenceKeys.ISOPreferenceKey, "" + iso);
-                                toast_option = "" + iso;
+                                editor.putString(PreferenceKeys.ISOPreferenceKey, String.valueOf(iso));
+                                toast_option = String.valueOf(iso);
                             }
                             else {
                                 if( MyDebug.LOG )
@@ -2173,7 +2173,7 @@ public class MainUI {
                             // if user selected the generic "manual", then just keep the previous non-ISO option
                             if( MyDebug.LOG )
                                 Log.d(TAG, "keep existing iso of " + old_iso);
-                            editor.putString(PreferenceKeys.ISOPreferenceKey, "" + old_iso);
+                            editor.putString(PreferenceKeys.ISOPreferenceKey, old_iso);
                         }
 
                         editor.apply();
@@ -2274,7 +2274,7 @@ public class MainUI {
     public static String ISOToButtonText(int iso) {
         // n.b., if we change how the ISO is converted to a string for the button, will also need
         // to update updateSelectedISOButton()
-        return "" + iso;
+        return String.valueOf(iso);
     }
 
     /** If the exposure panel is open, updates the selected ISO button to match the current ISO value,
@@ -2295,7 +2295,7 @@ public class MainUI {
                 Button button = (Button)view;
                 if( MyDebug.LOG )
                     Log.d(TAG, "button: " + button.getText());
-                String button_text = "" + button.getText();
+                String button_text = String.valueOf(button.getText());
                 if( ISOTextEquals(button_text, current_iso) ) {
                     PopupView.setButtonSelected(button, true);
                     found = true;

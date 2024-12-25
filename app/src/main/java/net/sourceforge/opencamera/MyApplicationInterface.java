@@ -771,7 +771,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                 Log.d(TAG, "preferred_fps: " + preferred_fps);
             if( main_activity.getPreview().getVideoQualityHander().videoSupportsFrameRateHighSpeed(preferred_fps) ||
                     main_activity.getPreview().getVideoQualityHander().videoSupportsFrameRate(preferred_fps) )
-                return "" + preferred_fps;
+                return String.valueOf(preferred_fps);
             // just in case say we support 120fps but NOT 60fps, getSupportedSlowMotionRates() will have returned that 2x slow
             // motion is supported, but we need to set 120fps instead of 60fps
             while( preferred_fps < 240 ) {
@@ -780,7 +780,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                     Log.d(TAG, "preferred_fps not supported, try: " + preferred_fps);
                 if( main_activity.getPreview().getVideoQualityHander().videoSupportsFrameRateHighSpeed(preferred_fps) ||
                         main_activity.getPreview().getVideoQualityHander().videoSupportsFrameRate(preferred_fps) )
-                    return "" + preferred_fps;
+                    return String.valueOf(preferred_fps);
             }
             // shouln't happen based on getSupportedSlowMotionRates()
             Log.e(TAG, "can't find valid fps for slow motion");
@@ -2937,7 +2937,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                 Log.d(TAG, "speak countdown!");
             int remaining_time_s = (int)(remaining_time/1000);
             if( remaining_time_s <= 60 )
-                main_activity.speak("" + remaining_time_s);
+                main_activity.speak(String.valueOf(remaining_time_s));
         }
     }
 
@@ -3073,7 +3073,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     @Override
     public void setExposureCompensationPref(int exposure) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PreferenceKeys.ExposurePreferenceKey, "" + exposure);
+        editor.putString(PreferenceKeys.ExposurePreferenceKey, String.valueOf(exposure));
         editor.apply();
     }
 

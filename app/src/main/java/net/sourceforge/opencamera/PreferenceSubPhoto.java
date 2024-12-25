@@ -116,8 +116,8 @@ public class PreferenceSubPhoto extends PreferenceSubScreen {
             CharSequence [] entries = new CharSequence[n_quality];
             CharSequence [] values = new CharSequence[n_quality];
             for(int i=0;i<n_quality;i++) {
-                entries[i] = "" + (i+1) + "%";
-                values[i] = "" + (i+1);
+                entries[i] = (i+1) + "%";
+                values[i] = String.valueOf(i + 1);
             }
             ArraySeekBarPreference sp = (ArraySeekBarPreference)findPreference("preference_quality");
             sp.setEntries(entries);
