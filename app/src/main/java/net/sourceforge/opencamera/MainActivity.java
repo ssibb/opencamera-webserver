@@ -3971,11 +3971,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "setImmersiveMode: " + on);
         // n.b., preview.setImmersiveMode() is called from onSystemUiVisibilityChange()
-        int saved_flags = 0;
-        {
-            // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-        }
+        // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        int saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         if( MyDebug.LOG )
             Log.d(TAG, "saved_flags?: " + saved_flags);
         if( on ) {
