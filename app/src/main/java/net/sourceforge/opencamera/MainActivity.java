@@ -6582,7 +6582,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     void speak(String text) {
         if( textToSpeech != null && textToSpeechSuccess ) {
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         }
     }
 
