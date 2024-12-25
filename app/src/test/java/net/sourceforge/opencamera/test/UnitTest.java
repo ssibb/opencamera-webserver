@@ -1,7 +1,6 @@
 package net.sourceforge.opencamera.test;
 
 import android.media.CamcorderProfile;
-import android.util.Range;
 
 import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyApplicationInterface;
