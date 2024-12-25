@@ -77,7 +77,7 @@ public class InstrumentedTest {
     @Rule
     //public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class);
     //public ActivityScenarioRule<MainActivity> mActivityRule = new ActivityScenarioRule<>(MainActivity.class);
-    public ActivityScenarioRule<MainActivity> mActivityRule = new ActivityScenarioRule<>(intent);
+    public final ActivityScenarioRule<MainActivity> mActivityRule = new ActivityScenarioRule<>(intent);
 
     /** This is run before each test, but after the activity is started (unlike MainActivityTest.setUp() which
      *  is run before the activity is started).
