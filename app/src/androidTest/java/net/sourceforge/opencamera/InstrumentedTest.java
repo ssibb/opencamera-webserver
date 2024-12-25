@@ -58,6 +58,8 @@ interface AvgTests {}
 
 interface PanoramaTests {}
 
+// ignore warning about "Call to Thread.sleep in a loop", this is only test code
+/** @noinspection BusyWait*/
 @RunWith(AndroidJUnit4.class)
 public class InstrumentedTest {
 
