@@ -3781,24 +3781,24 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 private boolean has_last_system_orientation;
                 private SystemOrientation last_system_orientation;
                 @Override
-                public @NonNull WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets insets) {
+                public @NonNull WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets windowInsets) {
                     if( MyDebug.LOG ) {
-                        Log.d(TAG, "inset left: " + insets.getSystemWindowInsetLeft());
-                        Log.d(TAG, "inset top: " + insets.getSystemWindowInsetTop());
-                        Log.d(TAG, "inset right: " + insets.getSystemWindowInsetRight());
-                        Log.d(TAG, "inset bottom: " + insets.getSystemWindowInsetBottom());
+                        Log.d(TAG, "inset left: " + windowInsets.getSystemWindowInsetLeft());
+                        Log.d(TAG, "inset top: " + windowInsets.getSystemWindowInsetTop());
+                        Log.d(TAG, "inset right: " + windowInsets.getSystemWindowInsetRight());
+                        Log.d(TAG, "inset bottom: " + windowInsets.getSystemWindowInsetBottom());
                     }
                     SystemOrientation system_orientation = getSystemOrientation();
                     int new_navigation_gap;
                     switch ( system_orientation ) {
                         case PORTRAIT:
-                            new_navigation_gap = insets.getSystemWindowInsetBottom();
+                            new_navigation_gap = windowInsets.getSystemWindowInsetBottom();
                             break;
                         case LANDSCAPE:
-                            new_navigation_gap = insets.getSystemWindowInsetRight();
+                            new_navigation_gap = windowInsets.getSystemWindowInsetRight();
                             break;
                         case REVERSE_LANDSCAPE:
-                            new_navigation_gap = insets.getSystemWindowInsetLeft();
+                            new_navigation_gap = windowInsets.getSystemWindowInsetLeft();
                             break;
                         default:
                             Log.e(TAG, "unknown system_orientation?!: " + system_orientation);
@@ -3870,7 +3870,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
                     // see comments in MainUI.layoutUI() for why we don't use this
                     /*if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && getSystemOrientation() == SystemOrientation.LANDSCAPE ) {
-                        Rect privacy_indicator_rect = insets.getPrivacyIndicatorBounds();
+                        Rect privacy_indicator_rect = windowInsets.getPrivacyIndicatorBounds();
                         if( privacy_indicator_rect != null ) {
                             Rect window_bounds = getWindowManager().getCurrentWindowMetrics().getBounds();
                             if( MyDebug.LOG ) {
@@ -3887,7 +3887,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     else {
                         privacy_indicator_gap = 0;
                     }*/
-                    return getWindow().getDecorView().getRootView().onApplyWindowInsets(insets);
+                    return getWindow().getDecorView().getRootView().onApplyWindowInsets(windowInsets);
                 }
             });
         }
