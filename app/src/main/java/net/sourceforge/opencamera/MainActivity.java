@@ -3970,26 +3970,22 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "setImmersiveMode: " + on);
         // n.b., preview.setImmersiveMode() is called from onSystemUiVisibilityChange()
-        // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+
+        // don't allow the kitkat-style immersive mode for panorama mode (problem that in "full" immersive mode, the gyro spot can't be seen - we could fix this, but simplest to just disallow)
+        boolean enable_immersive = on && usingKitKatImmersiveMode() && applicationInterface.getPhotoMode() != MyApplicationInterface.PhotoMode.Panorama;
+        if( MyDebug.LOG )
+            Log.d(TAG, "enable_immersive?: " + enable_immersive);
+
+        // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION - since this flag might be enabled for showUnderNavigation(true), at least indirectly by setDecorFitsSystemWindows() on old versions of Android
         int saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         if( MyDebug.LOG )
             Log.d(TAG, "saved_flags?: " + saved_flags);
-        if( on ) {
-            if( usingKitKatImmersiveMode() ) {
-                if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ) {
-                    // don't allow the kitkat-style immersive mode for panorama mode (problem that in "full" immersive mode, the gyro spot can't be seen - we could fix this, but simplest to just disallow)
-                    getWindow().getDecorView().setSystemUiVisibility(saved_flags);
-                }
-                else {
-                    getWindow().getDecorView().setSystemUiVisibility(saved_flags | View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-                }
-            }
-            else {
-                getWindow().getDecorView().setSystemUiVisibility(saved_flags);
-            }
+        if( enable_immersive ) {
+            getWindow().getDecorView().setSystemUiVisibility(saved_flags | View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         }
-        else
+        else {
             getWindow().getDecorView().setSystemUiVisibility(saved_flags);
+        }
     }
 
     /** Sets the brightness level for normal operation (when camera preview is visible).
