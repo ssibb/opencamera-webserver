@@ -3782,23 +3782,27 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 private SystemOrientation last_system_orientation;
                 @Override
                 public @NonNull WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets windowInsets) {
+                    int inset_left = windowInsets.getSystemWindowInsetLeft();
+                    //int inset_top = windowInsets.getSystemWindowInsetTop();
+                    int inset_right = windowInsets.getSystemWindowInsetRight();
+                    int inset_bottom = windowInsets.getSystemWindowInsetBottom();
                     if( MyDebug.LOG ) {
-                        Log.d(TAG, "inset left: " + windowInsets.getSystemWindowInsetLeft());
-                        Log.d(TAG, "inset top: " + windowInsets.getSystemWindowInsetTop());
-                        Log.d(TAG, "inset right: " + windowInsets.getSystemWindowInsetRight());
-                        Log.d(TAG, "inset bottom: " + windowInsets.getSystemWindowInsetBottom());
+                        Log.d(TAG, "inset left: " + inset_left);
+                        //Log.d(TAG, "inset top: " + inset_top);
+                        Log.d(TAG, "inset right: " + inset_right);
+                        Log.d(TAG, "inset bottom: " + inset_bottom);
                     }
                     SystemOrientation system_orientation = getSystemOrientation();
                     int new_navigation_gap;
                     switch ( system_orientation ) {
                         case PORTRAIT:
-                            new_navigation_gap = windowInsets.getSystemWindowInsetBottom();
+                            new_navigation_gap = inset_bottom;
                             break;
                         case LANDSCAPE:
-                            new_navigation_gap = windowInsets.getSystemWindowInsetRight();
+                            new_navigation_gap = inset_right;
                             break;
                         case REVERSE_LANDSCAPE:
-                            new_navigation_gap = windowInsets.getSystemWindowInsetLeft();
+                            new_navigation_gap = inset_left;
                             break;
                         default:
                             Log.e(TAG, "unknown system_orientation?!: " + system_orientation);
