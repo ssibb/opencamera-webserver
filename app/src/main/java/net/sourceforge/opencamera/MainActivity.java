@@ -34,6 +34,7 @@ import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -75,6 +76,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import android.text.Html;
@@ -156,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     //private boolean ui_placement_right = true;
 
+    private boolean edge_to_edge_mode = false; // whether running always in edge-to-edge mode
+    //private boolean edge_to_edge_mode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM; // whether running always in edge-to-edge mode
     private boolean want_no_limits; // whether we want to run with FLAG_LAYOUT_NO_LIMITS
     private boolean set_window_insets_listener; // whether we've enabled a setOnApplyWindowInsetsListener()
     private int navigation_gap;
@@ -2950,6 +2955,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         this.enableScreenLockOnBackPressedCallback(false);
 
         Bundle bundle = new Bundle();
+        bundle.putBoolean("edge_to_edge_mode", edge_to_edge_mode);
         bundle.putInt("cameraId", this.preview.getCameraId());
         bundle.putString("cameraIdSPhysical", this.applicationInterface.getCameraIdSPhysicalPref());
         bundle.putInt("nCameras", preview.getCameraControllerManager().getNumberOfCameras());
@@ -3706,6 +3712,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         super.onBackPressed();
     }*/
 
+    /** Returns whether we are always running in edge-to-edge mode. (If false, we may still sometimes
+     *  run edge-to-edge.)
+     */
+    public boolean getEdgeToEdgeMode() {
+        return this.edge_to_edge_mode;
+    }
+
     /** Whether to allow the application to show under the navigation bar, or not.
      *  Arguably we could enable this all the time, but in practice we only enable for cases when
      *  want_no_limits==true and navigation_gap!=0 (if want_no_limits==false, there's no need to
@@ -3714,6 +3727,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private void showUnderNavigation(boolean enable) {
         if( MyDebug.LOG )
             Log.d(TAG, "showUnderNavigation: " + enable);
+
+        if( edge_to_edge_mode ) {
+            // we are already always in edge-to-edge mode
+            return;
+        }
 
         {
             // We used to use window flag FLAG_LAYOUT_NO_LIMITS, but this didn't work properly on
@@ -3736,7 +3754,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     public int getNavigationGap() {
-        return want_no_limits ? navigation_gap : 0;
+        return (want_no_limits || edge_to_edge_mode) ? navigation_gap : 0;
     }
 
     /** The system is now such that we have entered or exited immersive mode. If visible is true,
@@ -3786,16 +3804,42 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 private SystemOrientation last_system_orientation;
                 @Override
                 public @NonNull WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets windowInsets) {
-                    int inset_left = windowInsets.getSystemWindowInsetLeft();
-                    //int inset_top = windowInsets.getSystemWindowInsetTop();
-                    int inset_right = windowInsets.getSystemWindowInsetRight();
-                    int inset_bottom = windowInsets.getSystemWindowInsetBottom();
+                    int inset_left;
+                    //int inset_top;
+                    int inset_right;
+                    int inset_bottom;
+                    if( edge_to_edge_mode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
+                        // take opportunity to use non-deprecated versions; also for edge_to_edge_mode==true, we need to use getInsetsIgnoringVisibility for
+                        // immersive mode (since for edge_to_edge_mode==true, we are not using setSystemUiVisibility() / SYSTEM_UI_FLAG_LAYOUT_STABLE in setImmersiveMode())
+                        Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars());
+                        inset_left = insets.left;
+                        //inset_top = insets.top;
+                        inset_right = insets.right;
+                        inset_bottom = insets.bottom;
+                    }
+                    else {
+                        inset_left = windowInsets.getSystemWindowInsetLeft();
+                        //inset_top = windowInsets.getSystemWindowInsetTop();
+                        inset_right = windowInsets.getSystemWindowInsetRight();
+                        inset_bottom = windowInsets.getSystemWindowInsetBottom();
+                    }
                     if( MyDebug.LOG ) {
                         Log.d(TAG, "inset left: " + inset_left);
                         //Log.d(TAG, "inset top: " + inset_top);
                         Log.d(TAG, "inset right: " + inset_right);
                         Log.d(TAG, "inset bottom: " + inset_bottom);
                     }
+
+                    if( edge_to_edge_mode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
+                        // easier to ensure the entire activity avoids display cutouts - for the preview, we still support
+                        // it showing under the navigation bar
+                        Insets insets = windowInsets.getInsets(WindowInsets.Type.displayCutout());
+                        v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+                        // also handle change of immersive mode (instead of using deprecated setOnSystemUiVisibilityChangeListener below
+                        immersiveModeChanged( windowInsets.isVisible(WindowInsets.Type.navigationBars()) );
+                    }
+
                     SystemOrientation system_orientation = getSystemOrientation();
                     int new_navigation_gap;
                     switch ( system_orientation ) {
@@ -3822,7 +3866,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
                         if( MyDebug.LOG )
                             Log.d(TAG, "want_no_limits: " + want_no_limits);
-                        if( want_no_limits ) {
+                        if( want_no_limits || edge_to_edge_mode ) {
                             // If we want no_limits mode, then need to take care in case of device orientation
                             // in cases where that changes the navigation_gap:
                             // - Need to set showUnderNavigation() (in case navigation_gap when from zero to non-zero or vice versa).
@@ -3900,7 +3944,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             });
         }
 
-        decorView.setOnSystemUiVisibilityChangeListener
+        if( edge_to_edge_mode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
+            // already handled by the setOnApplyWindowInsetsListener above
+        }
+        else {
+            decorView.setOnSystemUiVisibilityChangeListener
                 (new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
@@ -3924,6 +3972,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         }
                     }
                 });
+        }
     }
 
     public boolean usingKitKatImmersiveMode() {
@@ -3996,15 +4045,28 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "enable_immersive?: " + enable_immersive);
 
-        // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION - since this flag might be enabled for showUnderNavigation(true), at least indirectly by setDecorFitsSystemWindows() on old versions of Android
-        int saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-        if( MyDebug.LOG )
-            Log.d(TAG, "saved_flags?: " + saved_flags);
-        if( enable_immersive ) {
-            getWindow().getDecorView().setSystemUiVisibility(saved_flags | View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        if( edge_to_edge_mode ) {
+            // take opportunity to avoid deprecated setSystemUiVisibility
+            WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+            int type = WindowInsetsCompat.Type.navigationBars(); // only show/hide navigation bars, as we run with system bars always hidden
+            if( enable_immersive ) {
+                windowInsetsController.hide(type);
+            }
+            else {
+                windowInsetsController.show(type);
+            }
         }
         else {
-            getWindow().getDecorView().setSystemUiVisibility(saved_flags);
+            // save whether we set SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION - since this flag might be enabled for showUnderNavigation(true), at least indirectly by setDecorFitsSystemWindows() on old versions of Android
+            int saved_flags = getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            if( MyDebug.LOG )
+                Log.d(TAG, "saved_flags?: " + saved_flags);
+            if( enable_immersive ) {
+                getWindow().getDecorView().setSystemUiVisibility(saved_flags | View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+            else {
+                getWindow().getDecorView().setSystemUiVisibility(saved_flags);
+            }
         }
     }
 
@@ -5540,7 +5602,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             // device orientation (because application can e.g. be in landscape mode even if device
             // has switched to portrait)
         }
-        else if( set_window_insets_listener ) {
+        else if( set_window_insets_listener && !edge_to_edge_mode ) {
             Point display_size = new Point();
             applicationInterface.getDisplaySize(display_size);
             int display_width = Math.max(display_size.x, display_size.y);

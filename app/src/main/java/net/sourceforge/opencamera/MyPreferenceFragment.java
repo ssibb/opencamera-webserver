@@ -47,6 +47,9 @@ import android.view.WindowMetrics;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -70,6 +73,8 @@ import java.util.List;
 public class MyPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
     private static final String TAG = "MyPreferenceFragment";
 
+    private boolean edge_to_edge_mode = false;
+
     private int cameraId;
 
     /* Any AlertDialogs we create should be added to dialogs, and removed when dismissed. Any dialogs still
@@ -91,6 +96,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         addPreferencesFromResource(R.xml.preferences);
 
         final Bundle bundle = getArguments();
+        this.edge_to_edge_mode = bundle.getBoolean("edge_to_edge_mode");
         this.cameraId = bundle.getInt("cameraId");
         if( MyDebug.LOG )
             Log.d(TAG, "cameraId: " + cameraId);
@@ -749,6 +755,26 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         }
 
         setupDependencies();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if( edge_to_edge_mode ) {
+            handleEdgeToEdge(view);
+        }
+    }
+
+    static void handleEdgeToEdge(View view) {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            //androidx.core.graphics.Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            // don't need to avoid WindowInsetsCompat.Type.displayCutout(), as we already do this for the entire activity (see MainActivity's setOnApplyWindowInsetsListener)
+            androidx.core.graphics.Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+        view.requestApplyInsets();
     }
 
     /** Adds a TextView to an AlertDialog builder, placing it inside a scrollview and adding appropriate padding.
