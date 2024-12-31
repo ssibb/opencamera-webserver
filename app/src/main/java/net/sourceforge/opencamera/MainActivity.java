@@ -1688,6 +1688,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // intentionally do this again, just in case something turned location on since - keep this right at the end:
         applicationInterface.getLocationSupplier().freeLocationListeners();
 
+        // don't want to enter immersive mode when in background
+        // needs to be last in case anything above indirectly called initImmersiveMode()
+        cancelImmersiveTimer();
+
         if( MyDebug.LOG ) {
             Log.d(TAG, "onPause: total time to pause: " + (System.currentTimeMillis() - debug_time));
         }
@@ -3944,9 +3948,20 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private Handler immersive_timer_handler = null;
     private Runnable immersive_timer_runnable = null;
 
-    private void setImmersiveTimer() {
+    private void cancelImmersiveTimer() {
         if( immersive_timer_handler != null && immersive_timer_runnable != null ) {
             immersive_timer_handler.removeCallbacks(immersive_timer_runnable);
+            immersive_timer_handler = null;
+            immersive_timer_runnable = null;
+        }
+    }
+
+    private void setImmersiveTimer() {
+        cancelImmersiveTimer();
+        if( app_is_paused ) {
+            // don't want to enter immersive mode from background
+            // problem that even after onPause, we can end up here via various callbacks
+            return;
         }
         immersive_timer_handler = new Handler();
         immersive_timer_handler.postDelayed(immersive_timer_runnable = new Runnable(){
@@ -3954,7 +3969,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             public void run(){
                 if( MyDebug.LOG )
                     Log.d(TAG, "setImmersiveTimer: run");
-                if( !camera_in_background && !popupIsOpen() && usingKitKatImmersiveMode() )
+                // even though timer should have been cancelled when in background, check app_is_paused just in case
+                if( !app_is_paused && !camera_in_background && !popupIsOpen() && usingKitKatImmersiveMode() )
                     setImmersiveMode(true);
             }
         }, 5000);
