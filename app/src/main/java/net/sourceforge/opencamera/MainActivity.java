@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     //private boolean edge_to_edge_mode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM; // whether running always in edge-to-edge mode
     private boolean want_no_limits; // whether we want to run with FLAG_LAYOUT_NO_LIMITS
     private boolean set_window_insets_listener; // whether we've enabled a setOnApplyWindowInsetsListener()
-    private int navigation_gap;
+    private int navigation_gap; // gap for navigation bar along bottom (portrait) or right (landscape)
     public static volatile boolean test_preview_want_no_limits; // test flag, if set to true then instead use test_preview_want_no_limits_value; needs to be static, as it needs to be set before activity is created to take effect
     public static volatile boolean test_preview_want_no_limits_value;
     public volatile boolean test_set_show_under_navigation; // test flag, the value of enable for the last call of showUnderNavigation() (or false if not yet called)
