@@ -170,7 +170,7 @@ public class LocationSupplier {
         }
     }
 
-    /* Best to only call this from MainActivity.initLocation().
+    /** Best to only call this from MainActivity.initLocation().
      * @return Returns false if location permission not available for either coarse or fine.
      *         Important to only return false if we actually want/need to ask the user for location
      *         permission!
