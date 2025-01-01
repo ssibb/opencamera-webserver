@@ -687,7 +687,7 @@ public class MainUI {
 
             view = main_activity.findViewById(R.id.zoom_seekbar);
             layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-            // if we are showing the zoom control, the align next to that; otherwise have it aligned close to the edge of screen
+            // if we are showing the zoom control, then align next to that; otherwise have it aligned close to the edge of screen
             if( sharedPreferences.getBoolean(PreferenceKeys.ShowZoomControlsPreferenceKey, false) ) {
                 layoutParams.addRule(align_parent_left, 0);
                 layoutParams.addRule(align_parent_right, RelativeLayout.TRUE);
