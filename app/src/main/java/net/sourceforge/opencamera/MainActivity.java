@@ -3804,6 +3804,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 private SystemOrientation last_system_orientation;
                 @Override
                 public @NonNull WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets windowInsets) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "onApplyWindowInsets");
                     int inset_left;
                     //int inset_top;
                     int inset_right;
