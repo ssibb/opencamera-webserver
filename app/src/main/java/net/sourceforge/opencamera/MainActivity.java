@@ -3846,12 +3846,18 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     int new_navigation_gap;
                     switch ( system_orientation ) {
                         case PORTRAIT:
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "portrait");
                             new_navigation_gap = inset_bottom;
                             break;
                         case LANDSCAPE:
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "landscape");
                             new_navigation_gap = inset_right;
                             break;
                         case REVERSE_LANDSCAPE:
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "reverse landscape");
                             new_navigation_gap = inset_left;
                             break;
                         default:
