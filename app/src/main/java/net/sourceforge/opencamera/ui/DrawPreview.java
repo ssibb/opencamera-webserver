@@ -2436,7 +2436,9 @@ public class DrawPreview {
             updateCachedViewAngles(time_ms); // ensure view_angle_x_preview, view_angle_y_preview are computed and up to date
             float camera_angle_x, camera_angle_y;
             if( system_orientation_portrait ) {
+                //noinspection SuspiciousNameCombination
                 camera_angle_x = this.view_angle_y_preview;
+                //noinspection SuspiciousNameCombination
                 camera_angle_y = this.view_angle_x_preview;
             }
             else {
@@ -3020,7 +3022,9 @@ public class DrawPreview {
                         updateCachedViewAngles(time_ms); // ensure view_angle_x_preview, view_angle_y_preview are computed and up to date
                         float camera_angle_x, camera_angle_y;
                         if( system_orientation_portrait ) {
+                            //noinspection SuspiciousNameCombination
                             camera_angle_x = this.view_angle_y_preview;
+                            //noinspection SuspiciousNameCombination
                             camera_angle_y = this.view_angle_x_preview;
                         }
                         else {
