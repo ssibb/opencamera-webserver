@@ -8218,7 +8218,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertEquals(display_size.x, settingsButton.getRight());
             // position may be 1 coordinate different on some devices, e.g., Galaxy Nexus
             // have 14 pixel gap on Pixel 6 Pro
-            assertEquals((double)(display_size.y-1-expected_gap), (double)(galleryButton.getBottom()), 14.0+1.0e-5);
+            assertEquals(display_size.y-1-expected_gap, galleryButton.getBottom(), 14.0+1.0e-5);
             assertEquals(display_size.x-expected_gap, galleryButton.getRight());
         }
         else {
@@ -8246,7 +8246,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertEquals(display_size.x, settingsButton.getRight());
             // position may be 1 coordinate different on some devices, e.g., Galaxy Nexus
             // have 14 pixel gap on Pixel 6 Pro
-            assertEquals((double)(display_size.y-1-expected_gap), (double)(galleryButton.getBottom()), 14.0+1.0e-5);
+            assertEquals(display_size.y-1-expected_gap, galleryButton.getBottom(), 14.0+1.0e-5);
             assertEquals(display_size.x-expected_gap, galleryButton.getRight());
         }
         else {
