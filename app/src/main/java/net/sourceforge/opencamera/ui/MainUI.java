@@ -1155,7 +1155,7 @@ public class MainUI {
         pauseVideoButton.setContentDescription(main_activity.getResources().getString(content_description));
     }
 
-    public UIPlacement getUIPlacement() {
+    UIPlacement getUIPlacement() {
         return this.ui_placement;
     }
 
