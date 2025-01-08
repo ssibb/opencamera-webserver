@@ -29,6 +29,7 @@ Android inspection warnings/errors
 
 The file .idea/inspectionProfiles/Project_Default.xml contains settings for Android inpsections (see Editor/Inspections). The following have been disabled:
 
+* AndroidLintUnusedResources - seems to give false warnings "Android Lint: Performance"/"Unused resources" on res/ images.
 * BooleanMethodIsAlwaysInverted - Generates too many useless warnings.
 * CharsetObjectCanBeUsed - This seems fundamentally broken, as it'll recommend using StandardCharsets, and then give an error that that's not available before API level 19! E.g., see Charset.forName("UTF-8") in SettingsManager.saveSettings(). Strangely though it doesn't warn about the API level if we replace it in ImageSaver.saveImageNow().
 * CommentedOutCode - Commented out code is usually intentional!
