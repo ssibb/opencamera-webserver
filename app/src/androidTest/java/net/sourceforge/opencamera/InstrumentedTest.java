@@ -250,7 +250,7 @@ public class InstrumentedTest {
             Log.d(TAG, "controller_flash_value: "+ controller_flash_value);
             if( flash_value.equals("flash_frontscreen_auto") || flash_value.equals("flash_frontscreen_on") ) {
                 // for frontscreen flash, the controller flash value will be "" (due to real flash not supported) - although on Galaxy Nexus this is "flash_off" due to parameters.getFlashMode() returning Camera.Parameters.FLASH_MODE_OFF
-                assertTrue(controller_flash_value.equals("") || controller_flash_value.equals("flash_off"));
+                assertTrue(controller_flash_value.isEmpty() || controller_flash_value.equals("flash_off"));
             }
             else {
                 Log.d(TAG, "expected_flash_value: "+ flash_value);
