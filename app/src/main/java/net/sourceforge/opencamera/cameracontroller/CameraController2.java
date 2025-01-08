@@ -856,7 +856,6 @@ public class CameraController2 extends CameraController {
                 }
 
                 // prefer to set flash via the ae mode (otherwise get even worse results), except for torch which we can't
-                //noinspection DuplicateBranchesInSwitch
                 switch(flash_value) {
                     case "flash_off":
                         builder.set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON);
@@ -895,6 +894,7 @@ public class CameraController2 extends CameraController {
                     case "flash_frontscreen_auto":
                     case "flash_frontscreen_on":
                     case "flash_frontscreen_torch":
+                        //noinspection DuplicateBranchesInSwitch
                         builder.set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON);
                         builder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_OFF);
                         break;
