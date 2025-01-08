@@ -1222,6 +1222,9 @@ public class ImageSaver extends Thread {
                 case "preference_hdr_contrast_enhancement_off":
                     use_hdr_alpha = false;
                     break;
+                case "preference_hdr_contrast_enhancement_always":
+                    use_hdr_alpha = true;
+                    break;
                 case "preference_hdr_contrast_enhancement_smart":
                 default:
                     // Using local contrast enhancement helps scenes where the dynamic range is very large, which tends to be when we choose
@@ -1231,9 +1234,6 @@ public class ImageSaver extends Thread {
                     // (if we used local contrast enhancement) is: testHDR2, testHDR12, testHDR17, testHDR43, testHDR50, testHDR51,
                     // testHDR54, testHDR55, testHDR56.
                     use_hdr_alpha = (exposure_time < 1000000000L/59);
-                    break;
-                case "preference_hdr_contrast_enhancement_always":
-                    use_hdr_alpha = true;
                     break;
             }
         }
