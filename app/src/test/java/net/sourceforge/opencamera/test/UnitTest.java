@@ -259,7 +259,7 @@ public class UnitTest {
         List<String> video_quality = video_quality_handler.getSupportedVideoQuality();
         List<String> exp_video_quality = new ArrayList<>();
         exp_video_quality.add("" + CamcorderProfile.QUALITY_HIGH);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_720P + "_r1600x900");
+        exp_video_quality.add(CamcorderProfile.QUALITY_720P + "_r1600x900");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_720P);
         compareVideoQuality(video_quality, exp_video_quality);
     }
@@ -290,7 +290,7 @@ public class UnitTest {
         List<String> video_quality = video_quality_handler.getSupportedVideoQuality();
         List<String> exp_video_quality = new ArrayList<>();
         exp_video_quality.add("" + CamcorderProfile.QUALITY_HIGH);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_720P + "_r1600x900");
+        exp_video_quality.add(CamcorderProfile.QUALITY_720P + "_r1600x900");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_720P);
         compareVideoQuality(video_quality, exp_video_quality);
     }
@@ -340,17 +340,17 @@ public class UnitTest {
         List<String> exp_video_quality = new ArrayList<>();
         exp_video_quality.add("" + CamcorderProfile.QUALITY_HIGH);
         exp_video_quality.add("" + CamcorderProfile.QUALITY_720P);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r960x720");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r768x576");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r720x576");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r800x480");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r960x720");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r768x576");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r720x576");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r800x480");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_480P);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_CIF + "_r640x480");
+        exp_video_quality.add(CamcorderProfile.QUALITY_CIF + "_r640x480");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_CIF);
         exp_video_quality.add("" + CamcorderProfile.QUALITY_QVGA);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_LOW + "_r240x160");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_LOW + "_r176x144");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_LOW + "_r128x96");
+        exp_video_quality.add(CamcorderProfile.QUALITY_LOW + "_r240x160");
+        exp_video_quality.add(CamcorderProfile.QUALITY_LOW + "_r176x144");
+        exp_video_quality.add(CamcorderProfile.QUALITY_LOW + "_r128x96");
         compareVideoQuality(video_quality, exp_video_quality);
     }
 
@@ -386,10 +386,10 @@ public class UnitTest {
         List<String> video_quality = video_quality_handler.getSupportedVideoQuality();
         List<String> exp_video_quality = new ArrayList<>();
         exp_video_quality.add("" + CamcorderProfile.QUALITY_HIGH);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r1280x720");
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_480P + "_r864x480");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r1280x720");
+        exp_video_quality.add(CamcorderProfile.QUALITY_480P + "_r864x480");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_480P);
-        exp_video_quality.add("" + CamcorderProfile.QUALITY_QCIF + "_r480x320");
+        exp_video_quality.add(CamcorderProfile.QUALITY_QCIF + "_r480x320");
         exp_video_quality.add("" + CamcorderProfile.QUALITY_QCIF);
         compareVideoQuality(video_quality, exp_video_quality);
     }
