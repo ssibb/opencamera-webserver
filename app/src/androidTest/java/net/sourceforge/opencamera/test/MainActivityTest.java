@@ -1,5 +1,7 @@
 package net.sourceforge.opencamera.test;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.File;
 //import java.io.FileInputStream;
 //import java.io.FileNotFoundException;
@@ -574,7 +576,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         String non_default_focus = getNonDefaultFocus();
 
         String focus_value = mPreview.getCameraController().getFocusValue();
-        assertFalse(focus_value.equals(non_default_focus));
+        assertNotEquals(focus_value, non_default_focus);
 
         switchToFocusValue(non_default_focus);
 
@@ -1072,7 +1074,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         CameraController.Size new_size = mPreview.getCurrentPictureSize();
         Log.d(TAG, "new_size: " + new_size.width + " x " + new_size.height);
         if( expect_reduce_resolution ) {
-            assertFalse(new_size.equals(std_size));
+            assertNotEquals(new_size, std_size);
             assertTrue(new_size.width*new_size.height <= max_mp);
         }
         else {
@@ -1140,7 +1142,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
             CameraController.Size new_size3 = mPreview.getCurrentPictureSize();
             assertEquals(change_to_size, new_size3);
-            assertFalse(new_size.equals(new_size3));
+            assertNotEquals(new_size, new_size3);
         }
 
         // switch back to STD, and check we return to the original resolution (or not, if test_change_resolution==true)
@@ -7196,7 +7198,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "quality: " + quality);
         Log.d(TAG, "video_width: " + video_width);
         Log.d(TAG, "video_height: " + video_height);
-        assertFalse(saved_quality.equals(quality));
+        assertNotEquals(saved_quality, quality);
         assertFalse(video_width == saved_video_width && video_height == saved_video_height);
         String high_speed_quality = quality;
         int high_speed_video_width = video_width;
@@ -7883,7 +7885,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "after idle sync");
 
         // test flash now off
-        assertFalse(mPreview.getCameraController().getFlashValue().equals("flash_torch"));
+        assertNotEquals("flash_torch", mPreview.getCameraController().getFlashValue());
     }
 
     // type: 0 - go to background; 1 - go to settings; 2 - go to popup
@@ -10736,7 +10738,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         CameraController.Size new_picture_size = mPreview.getCameraController().getPictureSize();
         Log.d(TAG, "old picture size: " + old_picture_size.width + " x " + old_picture_size.height);
         Log.d(TAG, "old new_picture_size size: " + new_picture_size.width + " x " + new_picture_size.height);
-        assertFalse(new_picture_size.equals(old_picture_size));
+        assertNotEquals(new_picture_size, old_picture_size);
         assertTrue( mActivity.popupIsOpen() );
 
         //exp_size_string = new_picture_size.width + " x " + new_picture_size.height + " " + Preview.getMPString(new_picture_size.width, new_picture_size.height);
@@ -10766,7 +10768,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         // check
         Thread.sleep(500);
         assertTrue( mActivity.popupIsOpen() );
-        assertFalse(videoResolutionButton.getText().equals(oldVideoResolutionString));
+        assertNotEquals(videoResolutionButton.getText(), oldVideoResolutionString);
 
     }
 
