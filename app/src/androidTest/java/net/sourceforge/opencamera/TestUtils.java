@@ -23,7 +23,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
 import net.sourceforge.opencamera.preview.Preview;
@@ -359,7 +358,6 @@ public class TestUtils {
      *  We check that we have a single range of non-zero values.
      * @param bitmap The bitmap to compute and check a histogram for.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static HistogramDetails checkHistogram(MainActivity activity, Bitmap bitmap) {
         int [] histogram = activity.getApplicationInterface().getHDRProcessor().computeHistogram(bitmap, HDRProcessor.HistogramType.HISTOGRAM_TYPE_INTENSITY);
         assertEquals(256, histogram.length);
