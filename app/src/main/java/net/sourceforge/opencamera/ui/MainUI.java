@@ -940,6 +940,7 @@ public class MainUI {
     void setMarginsForSystemUI(RelativeLayout.LayoutParams layoutParams, int left, int top, int right, int bottom) {
         MainActivity.SystemOrientation system_orientation = main_activity.getSystemOrientation();
         if( system_orientation == MainActivity.SystemOrientation.PORTRAIT ) {
+            //noinspection SuspiciousNameCombination
             layoutParams.setMargins(bottom, left, top, right);
         }
         else if( system_orientation == MainActivity.SystemOrientation.REVERSE_LANDSCAPE ) {
