@@ -160,7 +160,7 @@ public class PanoramaProcessor {
             if( MyDebug.LOG )
                 Log.d(TAG, "### time for reduceBitmapX: " + (System.currentTimeMillis() - time_s));
 
-            //noinspection ReassignedVariable,UnusedAssignment
+            // noinspection UnusedAssignment
             bitmap_argb = null; // help garbage collection
 
             byte [] reduced_bitmap_argb = new byte[4*(width/2)*(height/2)];
@@ -169,7 +169,7 @@ public class PanoramaProcessor {
             if( MyDebug.LOG )
                 Log.d(TAG, "### time for reduceBitmapY: " + (System.currentTimeMillis() - time_s));
 
-            //noinspection ReassignedVariable,UnusedAssignment
+            // noinspection UnusedAssignment
             reduced_bitmap_x_argb = null; // help garbage collection
 
             {
@@ -314,7 +314,7 @@ public class PanoramaProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "### expandBitmap: time after expand: " + (System.currentTimeMillis() - time_s));
 
-        //noinspection ReassignedVariable,UnusedAssignment
+        // noinspection UnusedAssignment
         bitmap_argb = null; // help garbage collection
 
         /*Bitmap expanded_bitmap = Bitmap.createBitmap(2*width, 2*height, Bitmap.Config.ARGB_8888);
@@ -378,7 +378,7 @@ public class PanoramaProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "### expandBitmap: time after blur1dY: " + (System.currentTimeMillis() - time_s));
 
-        //noinspection ReassignedVariable,UnusedAssignment
+        // noinspection UnusedAssignment
         temp_bitmap_argb = null; // help garbage collection
 
         Bitmap result_bitmap = Bitmap.createBitmap(2*width, 2*height, Bitmap.Config.ARGB_8888);
