@@ -24,8 +24,8 @@ public class Nexus7Tests {
 
         // tests for testing Camera2 API with LEGACY Camera2 functionality
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhoto"));
-        if( TestUtils.isEmulator() && Build.VERSION.SDK_INT == Build.VERSION_CODES.M ) {
-            // video doesn't work on Android 6 emulator!
+        if( TestUtils.isEmulator() && ( Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP || Build.VERSION.SDK_INT == Build.VERSION_CODES.M ) ) {
+            // video doesn't work on Android 5 or 6 emulator!
         }
         else {
             suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideo"));

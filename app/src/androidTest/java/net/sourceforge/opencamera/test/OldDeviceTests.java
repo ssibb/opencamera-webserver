@@ -1,7 +1,11 @@
 package net.sourceforge.opencamera.test;
 
+import android.os.Build;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import net.sourceforge.opencamera.TestUtils;
 
 public class OldDeviceTests {
     // Small set of tests to run on very old devices.
@@ -29,10 +33,15 @@ public class OldDeviceTests {
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoAutoLevelAngles"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoAutoLevelAnglesLowMemory"));
 
-        suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideo"));
-        suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoSubtitles"));
-        suite.addTest(TestSuite.createTest(MainActivityTest.class, "testIntentVideo"));
-        suite.addTest(TestSuite.createTest(MainActivityTest.class, "testIntentVideoDurationLimit"));
+        if( TestUtils.isEmulator() && (  Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP || Build.VERSION.SDK_INT == Build.VERSION_CODES.M ) ) {
+            // video doesn't work on Android 5 or 6 emulator!
+        }
+        else {
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideo"));
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakeVideoSubtitles"));
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testIntentVideo"));
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testIntentVideoDurationLimit"));
+        }
 
         return suite;
     }
