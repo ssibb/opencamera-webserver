@@ -889,7 +889,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         Log.d(TAG, "preview_aspect_ratio: " + preview_aspect_ratio);
         // we calculate etol like this, due to errors from rounding
         //double etol = 1.0f / Math.min((double)mPreview.getWidth(), (double)mPreview.getHeight()) + 1.0e-5;
-        double etol = (double)mPreview.getView().getWidth() / (double)(mPreview.getView().getHeight() * (mPreview.getView().getHeight()-1) ) + 1.0e-5;
+        double min_dim = Math.min(mPreview.getView().getWidth(), (double)mPreview.getView().getHeight());
+        min_dim = Math.min(min_dim, mPreview.getCameraController().getPreviewSize().width);
+        min_dim = Math.min(min_dim, mPreview.getCameraController().getPreviewSize().height);
+        double etol = 1.0f / min_dim + 1.0e-5;
+        //double etol = (double)mPreview.getView().getWidth() / (double)(mPreview.getView().getHeight() * (mPreview.getView().getHeight()-1) ) + 1.0e-5;
+        Log.d(TAG, "min_dim: " + min_dim);
         Log.d(TAG, "etol: " + etol);
         assertTrue( Math.abs(frame_aspect_ratio - preview_aspect_ratio) <= etol );
     }
