@@ -2051,8 +2051,11 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         @SuppressWarnings("PointlessArithmeticExpression")
         final float target_angle = 1.0f * 0.01745329252f;
         //final float target_angle = 0.5f * 0.01745329252f;
-        final float upright_angle_tol = 2.0f * 0.017452406437f;
-        //final float upright_angle_tol = 1.0f * 0.017452406437f;
+        // good to not allow too small an angle for upright_angle_tol - as sometimes the device may
+        // get in a state where what we think is upright isn't quite right, and frustrating for users
+        // to be told they have to tilt to not be upright
+        final float upright_angle_tol = 3.0f * 0.017452406437f;
+        //final float upright_angle_tol = 2.0f * 0.017452406437f;
         final float too_far_angle = 45.0f * 0.01745329252f;
         gyroSensor.setTarget(x, y, z, target_angle, upright_angle_tol, too_far_angle, new GyroSensor.TargetCallback() {
             @Override
