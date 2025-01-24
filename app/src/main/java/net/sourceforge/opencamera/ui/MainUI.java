@@ -407,7 +407,7 @@ public class MainUI {
             // reset:
             top_icon = null;
 
-            // we use a dummy button, so that the GUI buttons keep their positioning even if the Settings button is hidden (visibility set to View.GONE)
+            // we use a dummy view, so that the GUI buttons keep their positioning even if the Settings button is hidden (visibility set to View.GONE)
             View view = main_activity.findViewById(R.id.gui_anchor);
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
             layoutParams.addRule(iconpanel_align_parent_left, 0);

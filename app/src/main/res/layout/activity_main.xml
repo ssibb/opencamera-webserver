@@ -163,7 +163,7 @@
         android:background="@color/seekbar_background"
         />
 
-    <Button
+    <View
         android:id="@+id/gui_anchor"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -427,7 +427,7 @@
         android:visibility="gone"
         />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/kraken_icon"
         android:layout_width="@dimen/onscreen_button_size"
         android:layout_height="@dimen/onscreen_button_size"
