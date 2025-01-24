@@ -3927,6 +3927,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                                 Log.d(TAG, "set FLAG_LAYOUT_NO_LIMITS");
                             showUnderNavigation(true);
                         }
+                    }
 
                     if( has_last_system_orientation && (
                             ( system_orientation == SystemOrientation.LANDSCAPE && last_system_orientation == SystemOrientation.REVERSE_LANDSCAPE ) ||
