@@ -3927,6 +3927,16 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                                 Log.d(TAG, "set FLAG_LAYOUT_NO_LIMITS");
                             showUnderNavigation(true);
                         }
+
+                    if( has_last_system_orientation && (
+                            ( system_orientation == SystemOrientation.LANDSCAPE && last_system_orientation == SystemOrientation.REVERSE_LANDSCAPE ) ||
+                            ( system_orientation == SystemOrientation.REVERSE_LANDSCAPE && last_system_orientation == SystemOrientation.LANDSCAPE )
+                    ) ) {
+                        // hack - this should be done via MyDisplayListener.onDisplayChanged(), but that doesn't work on Galaxy S24+ (either MyDisplayListener.onDisplayChanged()
+                        // isn't called, or getDefaultDisplay().getRotation() is still returning the old rotation)
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "onApplyWindowInsets: switched between landscape and reverse orientation");
+                        onSystemOrientationChanged();
                     }
 
                     has_last_system_orientation = true;
