@@ -734,6 +734,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             notificationManager.createNotificationChannel(channel);
         }*/
 
+        // so we get the icons rotation even when rotating for the first time - see onSystemOrientationChanged
+        this.hasOldSystemOrientation = true;
+        this.oldSystemOrientation = getSystemOrientation();
+
         if( MyDebug.LOG )
             Log.d(TAG, "onCreate: total time for Activity startup: " + (System.currentTimeMillis() - debug_time));
     }
