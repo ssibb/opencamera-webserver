@@ -1740,7 +1740,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     ( rotation == Surface.ROTATION_270 && old_rotation == Surface.ROTATION_90 )
             ) {
                 if( MyDebug.LOG )
-                    Log.d(TAG, "switched between landscape and reverse orientation");
+                    Log.d(TAG, "onDisplayChanged: switched between landscape and reverse orientation");
                 onSystemOrientationChanged();
             }
 
