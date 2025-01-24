@@ -1805,7 +1805,8 @@ public class DrawPreview {
             // fine tuning to adjust placement of text with respect to the GUI, depending on orientation
             if( ui_placement == MainUI.UIPlacement.UIPLACEMENT_TOP && ( device_ui_rotation == 0 || device_ui_rotation == 180 ) ) {
                 text_base_y = canvas.getHeight() - (int)(0.1*gap_y);
-                avoid_ui = true;
+                if( device_ui_rotation == 0 )
+                    avoid_ui = true;
             }
             else if( device_ui_rotation == ( ui_placement == MainUI.UIPlacement.UIPLACEMENT_RIGHT ? 0 : 180 ) ) {
                 text_base_y = canvas.getHeight() - (int)(0.1*gap_y);
