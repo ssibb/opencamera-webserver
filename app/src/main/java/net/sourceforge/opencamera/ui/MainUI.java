@@ -546,7 +546,13 @@ public class MainUI {
                             // the layout)
                             int margin_first = this_view==first_visible_view ? 0 : margin/2;
                             int margin_last = this_view==last_visible_view ? 0 : margin/2;
-                            setMarginsForSystemUI(layoutParams, 0, margin_first, 0, margin_last);
+                            // avoid risk of privacy dot appearing on top of icon - in practice this is only a risk when in
+                            // reverse landscape mode, but we apply in all orientations to avoid icons jumping about;
+                            // similarly, as noted above we use a hardcoded dp rather than
+                            // WindowInsets.getPrivacyIndicatorBounds(), as we want the icons to stay in the same location even as
+                            // the device is rotated
+                            final int privacy_gap_left = (int) (12 * scale + 0.5f); // convert dps to pixels
+                            setMarginsForSystemUI(layoutParams, privacy_gap_left, margin_first, 0, margin_last);
                             layoutParams.width = button_size;
                             layoutParams.height = button_size;
                             this_view.setLayoutParams(layoutParams);
