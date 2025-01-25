@@ -3949,7 +3949,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         double minDiff = Double.MAX_VALUE;
         Point display_size = new Point();
         {
-            applicationInterface.getDisplaySize(display_size);
+            applicationInterface.getDisplaySize(display_size, false); // don't exclude insets, as preview runs under insets in edge-to-edge mode
             // getSize() is adjusted based on the current rotation, so should already be landscape format, but:
             // (a) it would be good to not assume Open Camera runs in landscape mode (if we ever ran in portrait mode,
             // we'd still want display_size.x > display_size.y as preview resolutions also have width > height,

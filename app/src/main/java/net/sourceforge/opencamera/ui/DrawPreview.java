@@ -804,6 +804,13 @@ public class DrawPreview {
         has_settings = true;
     }
 
+    /** Indicates that navigation gaps have changed, as a hint to avoid cached data.
+     */
+    public void onNavigationGapChanged() {
+        // needed for OnePlus Pad when rotating, to avoid delay in updating last_take_photo_top_time (affects placement of on-screen text e.g. zoom)
+        this.last_take_photo_top_time = 0;
+    }
+
     private void updateCachedViewAngles(long time_ms) {
         if( last_view_angles_time == 0 || time_ms > last_view_angles_time + 10000 ) {
             if( MyDebug.LOG )
@@ -843,7 +850,7 @@ public class DrawPreview {
                     int image_size = Math.max(bounds.outWidth, bounds.outHeight);
 
                     Point point = new Point();
-                    applicationInterface.getDisplaySize(point);
+                    applicationInterface.getDisplaySize(point, true);
                     int display_size = Math.max(point.x, point.y);
 
                     int ratio = (int) Math.ceil((double) image_size / display_size);
@@ -1876,6 +1883,12 @@ public class DrawPreview {
                     diff_x = max_x - mid_x;
                 }
                 text_base_y = canvas.getHeight()/2 + diff_x - (int)(0.5*gap_y);
+            }
+
+            if( device_ui_rotation == 0 || device_ui_rotation == 180 ) {
+                // also avoid navigation bar in (reverse) landscape (for e.g. OnePlus Pad which has a landscape navigation bar when in landscape orientation)
+                int navigation_gap = device_ui_rotation == 0 ? main_activity.getNavigationGapLandscape() : main_activity.getNavigationGapReverseLandscape();
+                text_base_y -= navigation_gap;
             }
 
             if( avoid_ui ) {

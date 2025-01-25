@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private boolean want_no_limits; // whether we want to run with FLAG_LAYOUT_NO_LIMITS
     private boolean set_window_insets_listener; // whether we've enabled a setOnApplyWindowInsetsListener()
     private int navigation_gap; // gap for navigation bar along bottom (portrait) or right (landscape)
+    private int navigation_gap_landscape; // gap for navigation bar along left (portrait) or bottom (landscape); only set for edge_to_edge_mode==true
+    private int navigation_gap_reverse_landscape; // gap for navigation bar along right (portrait) or top (landscape); only set for edge_to_edge_mode==true
     public static volatile boolean test_preview_want_no_limits; // test flag, if set to true then instead use test_preview_want_no_limits_value; needs to be static, as it needs to be set before activity is created to take effect
     public static volatile boolean test_preview_want_no_limits_value;
     public volatile boolean test_set_show_under_navigation; // test flag, the value of enable for the last call of showUnderNavigation() (or false if not yet called)
@@ -514,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode() ) {
                     Point display_size = new Point();
-                    applicationInterface.getDisplaySize(display_size);
+                    applicationInterface.getDisplaySize(display_size, true);
                     if( MyDebug.LOG ) {
                         Log.d(TAG, "    display width: " + display_size.x);
                         Log.d(TAG, "    display height: " + display_size.y);
@@ -3753,6 +3755,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         return (want_no_limits || edge_to_edge_mode) ? navigation_gap : 0;
     }
 
+    public int getNavigationGapLandscape() {
+        return edge_to_edge_mode ? navigation_gap_landscape : 0;
+    }
+
+    public int getNavigationGapReverseLandscape() {
+        return edge_to_edge_mode ? navigation_gap_reverse_landscape : 0;
+    }
+
     /** The system is now such that we have entered or exited immersive mode. If visible is true,
      *  system UI is now visible such that we should exit immersive mode. If visible is false, the
      *  system has entered immersive mode.
@@ -3803,27 +3813,32 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     if( MyDebug.LOG )
                         Log.d(TAG, "onApplyWindowInsets");
                     int inset_left;
-                    //int inset_top;
+                    int inset_top;
                     int inset_right;
                     int inset_bottom;
                     if( edge_to_edge_mode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
                         // take opportunity to use non-deprecated versions; also for edge_to_edge_mode==true, we need to use getInsetsIgnoringVisibility for
                         // immersive mode (since for edge_to_edge_mode==true, we are not using setSystemUiVisibility() / SYSTEM_UI_FLAG_LAYOUT_STABLE in setImmersiveMode())
-                        Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars());
-                        inset_left = insets.left;
-                        //inset_top = insets.top;
-                        inset_right = insets.right;
-                        inset_bottom = insets.bottom;
+                        // also compare with MyApplicationInterface.getDisplaySize() - in particular we don't care about caption/system bar that is returned on e.g.
+                        // OnePlus Pad for insets.top when in landscape orientation (since the system bar isn't shown); however we also need to subtract any from the cutout -
+                        // since this code is for finding what margins we need to set to avoid navigation bars; avoiding the cutout is done below for the entire
+                        // Open Camera view
+                        Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
+                        Insets cutout_insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.displayCutout());
+                        inset_left = insets.left - cutout_insets.left;
+                        inset_top = insets.top - cutout_insets.top;
+                        inset_right = insets.right - cutout_insets.right;
+                        inset_bottom = insets.bottom - cutout_insets.bottom;
                     }
                     else {
                         inset_left = windowInsets.getSystemWindowInsetLeft();
-                        //inset_top = windowInsets.getSystemWindowInsetTop();
+                        inset_top = windowInsets.getSystemWindowInsetTop();
                         inset_right = windowInsets.getSystemWindowInsetRight();
                         inset_bottom = windowInsets.getSystemWindowInsetBottom();
                     }
                     if( MyDebug.LOG ) {
                         Log.d(TAG, "inset left: " + inset_left);
-                        //Log.d(TAG, "inset top: " + inset_top);
+                        Log.d(TAG, "inset top: " + inset_top);
                         Log.d(TAG, "inset right: " + inset_right);
                         Log.d(TAG, "inset bottom: " + inset_bottom);
                     }
@@ -3838,35 +3853,57 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         immersiveModeChanged( windowInsets.isVisible(WindowInsets.Type.navigationBars()) );
                     }
 
+                    resetCachedSystemOrientation(); // don't want to get cached result - this can sometimes happen e.g. on Pixel 6 Pro when switching between landscape and reverse landscape
                     SystemOrientation system_orientation = getSystemOrientation();
-                    int new_navigation_gap;
+                    int new_navigation_gap, new_navigation_gap_landscape, new_navigation_gap_reverse_landscape;
                     switch ( system_orientation ) {
                         case PORTRAIT:
                             if( MyDebug.LOG )
                                 Log.d(TAG, "portrait");
                             new_navigation_gap = inset_bottom;
+                            new_navigation_gap_landscape = inset_left;
+                            new_navigation_gap_reverse_landscape = inset_right;
                             break;
                         case LANDSCAPE:
                             if( MyDebug.LOG )
                                 Log.d(TAG, "landscape");
                             new_navigation_gap = inset_right;
+                            new_navigation_gap_landscape = inset_bottom;
+                            new_navigation_gap_reverse_landscape = inset_top;
                             break;
                         case REVERSE_LANDSCAPE:
                             if( MyDebug.LOG )
                                 Log.d(TAG, "reverse landscape");
                             new_navigation_gap = inset_left;
+                            new_navigation_gap_landscape = inset_top;
+                            new_navigation_gap_reverse_landscape = inset_bottom;
                             break;
                         default:
                             Log.e(TAG, "unknown system_orientation?!: " + system_orientation);
                             new_navigation_gap = 0;
+                            new_navigation_gap_landscape = 0;
+                            new_navigation_gap_reverse_landscape = 0;
                             break;
                     }
+                    if( !edge_to_edge_mode ) {
+                        // we only care about avoiding a landscape navigation bar (e.g., large tablets in landscape orientation) for edge_to_edge_mode==true
+                        // in theory this could be useful when edge_to_edge_mode==false, but in practice we will never enter edge-to-edge-mode if the
+                        // navigation bar is along the landscape-edge, so restrict behaviour change to edge_to_edge_mode==true
+                        new_navigation_gap_landscape = 0;
+                        new_navigation_gap_reverse_landscape = 0;
+                    }
 
-                    if( has_last_system_orientation && system_orientation != last_system_orientation && new_navigation_gap != navigation_gap ) {
+                    // for edge_to_edge_mode==false, we only enter this case if system orientation changes, due to issues where this callback may be called first with 0 navigation gap
+                    // (see notes below)
+                    // for edge_to_edge_mode==true, simpler to always react to updated insets - in particular, in split-window mode, the navigation gaps can
+                    // change when device rotates, even though the application remains in the same orientation
+                    if( (edge_to_edge_mode || (has_last_system_orientation && system_orientation != last_system_orientation)) && (new_navigation_gap != navigation_gap || new_navigation_gap_landscape != navigation_gap_landscape || new_navigation_gap_reverse_landscape != navigation_gap_reverse_landscape ) ) {
                         if( MyDebug.LOG )
-                            Log.d(TAG, "navigation_gap changed due to system orientation change, from " + navigation_gap + " to " + new_navigation_gap);
+                            Log.d(TAG, "navigation_gap changed from " + navigation_gap + " to " + new_navigation_gap);
 
                         navigation_gap = new_navigation_gap;
+                        navigation_gap_landscape = new_navigation_gap_landscape;
+                        navigation_gap_reverse_landscape = new_navigation_gap_reverse_landscape;
 
                         if( MyDebug.LOG )
                             Log.d(TAG, "want_no_limits: " + want_no_limits);
@@ -3898,6 +3935,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                                             Log.d(TAG, "clear FLAG_LAYOUT_NO_LIMITS");
                                         showUnderNavigation(false);
                                     }
+                                    // needed for OnePlus Pad when rotating, to avoid delay in updating last_take_photo_top_time (affects placement of on-screen text e.g. zoom)
+                                    // need to do this from handler for this to take effect (otherwise last_take_photo_top_time won't update to new value)
+                                    applicationInterface.getDrawPreview().onNavigationGapChanged();
+
                                     if( MyDebug.LOG )
                                         Log.d(TAG, "layout UI due to changing navigation_gap");
                                     mainUI.layoutUI();
@@ -3905,7 +3946,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             });
                         }
                     }
-                    else if( navigation_gap == 0 ) {
+                    else if( !edge_to_edge_mode && navigation_gap == 0 ) {
                         if( MyDebug.LOG )
                             Log.d(TAG, "navigation_gap changed from zero to " + new_navigation_gap);
                         navigation_gap = new_navigation_gap;
@@ -4412,7 +4453,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             int bitmap_width = options.outWidth;
             int bitmap_height = options.outHeight;
             Point display_size = new Point();
-            applicationInterface.getDisplaySize(display_size);
+            applicationInterface.getDisplaySize(display_size, true);
             if( MyDebug.LOG ) {
                 Log.d(TAG, "bitmap_width: " + bitmap_width);
                 Log.d(TAG, "bitmap_height: " + bitmap_height);
@@ -5619,7 +5660,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         else if( set_window_insets_listener && !edge_to_edge_mode ) {
             Point display_size = new Point();
-            applicationInterface.getDisplaySize(display_size);
+            applicationInterface.getDisplaySize(display_size, true);
             int display_width = Math.max(display_size.x, display_size.y);
             int display_height = Math.min(display_size.x, display_size.y);
             double display_aspect_ratio = ((double)display_width)/(double)display_height;

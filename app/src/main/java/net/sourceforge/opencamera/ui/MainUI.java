@@ -67,6 +67,8 @@ public class MainUI {
     }
     private UIPlacement ui_placement = UIPlacement.UIPLACEMENT_RIGHT;
     private View top_icon = null;
+    private int navigation_gap_landscape_align_parent_bottom;
+    private int navigation_gap_reverse_landscape_align_parent_bottom;
     private boolean view_rotate_animation;
     private float view_rotate_animation_start; // for MainActivity.lock_to_landscape==false
     private final static int view_rotate_animation_duration = 100; // duration in ms of the icon rotation animation
@@ -98,6 +100,8 @@ public class MainUI {
     public int test_saved_popup_width;
     public int test_saved_popup_height;
     public volatile int test_navigation_gap;
+    public volatile int test_navigation_gap_landscape;
+    public volatile int test_navigation_gap_reversed_landscape;
 
     public MainUI(MainActivity main_activity) {
         if( MyDebug.LOG )
@@ -345,7 +349,7 @@ public class MainUI {
         }
 
         Point display_size = new Point();
-        main_activity.getApplicationInterface().getDisplaySize(display_size);
+        main_activity.getApplicationInterface().getDisplaySize(display_size, true);
         this.layoutUI_display_w = display_size.x;
         this.layoutUI_display_h = display_size.y;
         if( MyDebug.LOG ) {
@@ -372,6 +376,17 @@ public class MainUI {
             }
         }*/
         int navigation_gap = main_activity.getNavigationGap();
+        int navigation_gap_landscape = main_activity.getNavigationGapLandscape();
+        int navigation_gap_reverse_landscape = main_activity.getNavigationGapReverseLandscape();
+        // navigation gaps for UI elements that are aligned to align_parent_bottom (the landscape edge, or reversed landscape edge if left-handed):
+        this.navigation_gap_landscape_align_parent_bottom = navigation_gap_landscape;
+        this.navigation_gap_reverse_landscape_align_parent_bottom = navigation_gap_reverse_landscape;
+        if( ui_placement == UIPlacement.UIPLACEMENT_LEFT ) {
+            navigation_gap_landscape_align_parent_bottom = 0;
+        }
+        else {
+            navigation_gap_reverse_landscape_align_parent_bottom = 0;
+        }
         int gallery_navigation_gap = navigation_gap;
 
         int gallery_top_gap = 0;
@@ -397,6 +412,8 @@ public class MainUI {
             gallery_navigation_gap += privacy_indicator_gap;
         }
         test_navigation_gap = navigation_gap;
+        test_navigation_gap_landscape = navigation_gap_landscape;
+        test_navigation_gap_reversed_landscape = navigation_gap_reverse_landscape;
         if( MyDebug.LOG ) {
             Log.d(TAG, "navigation_gap: " + navigation_gap);
             Log.d(TAG, "gallery_navigation_gap: " + gallery_navigation_gap);
@@ -544,8 +561,8 @@ public class MainUI {
                             // is displayed (when taking a photo) if it is still shown left-most, rather than centred; also
                             // needed for "pause preview" trash/icons to be shown properly (test by rotating the phone to update
                             // the layout)
-                            int margin_first = this_view==first_visible_view ? 0 : margin/2;
-                            int margin_last = this_view==last_visible_view ? 0 : margin/2;
+                            int margin_first = this_view==first_visible_view ? navigation_gap_reverse_landscape : margin/2;
+                            int margin_last = this_view==last_visible_view ? navigation_gap_landscape : margin/2;
                             // avoid risk of privacy dot appearing on top of icon - in practice this is only a risk when in
                             // reverse landscape mode, but we apply in all orientations to avoid icons jumping about;
                             // similarly, as noted above we use a hardcoded dp rather than
@@ -565,14 +582,15 @@ public class MainUI {
                 // need to reset size/margins to their default
                 // except for gallery, which still needs its margins set for navigation gap! (and we
                 // shouldn't change it's size, which isn't necessarily button_size)
+                // other icons still needs margins set for navigation_gap_landscape and navigation_gap_reverse_landscape
                 view = main_activity.findViewById(R.id.gallery);
                 layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                setMarginsForSystemUI(layoutParams, 0, gallery_top_gap, gallery_navigation_gap, 0);
+                setMarginsForSystemUI(layoutParams, 0, Math.max(gallery_top_gap, navigation_gap_reverse_landscape), gallery_navigation_gap, navigation_gap_landscape);
                 view.setLayoutParams(layoutParams);
                 for(View this_view : buttons_permanent) {
                     if( this_view != view ) {
                         layoutParams = (RelativeLayout.LayoutParams)this_view.getLayoutParams();
-                        layoutParams.setMargins(0, 0, 0, 0);
+                        setMarginsForSystemUI(layoutParams, 0, navigation_gap_reverse_landscape, 0, navigation_gap_landscape);
                         layoutParams.width = button_size;
                         layoutParams.height = button_size;
                         this_view.setLayoutParams(layoutParams);
@@ -688,7 +706,7 @@ public class MainUI {
             layoutParams.addRule(align_parent_top, 0);
             layoutParams.addRule(align_parent_bottom, RelativeLayout.TRUE);
             view.setLayoutParams(layoutParams);
-            setFixedRotation(main_activity.findViewById(R.id.zoom), 0, 0, navigation_gap, 0);
+            setFixedRotation(main_activity.findViewById(R.id.zoom), 0, navigation_gap_reverse_landscape_align_parent_bottom, navigation_gap, navigation_gap_landscape_align_parent_bottom);
             view.setRotation(view.getRotation()+180.0f); // should always match the zoom_seekbar, so that zoom in and out are in the same directions
 
             view = main_activity.findViewById(R.id.zoom_seekbar);
@@ -719,7 +737,13 @@ public class MainUI {
             }
             view.setLayoutParams(layoutParams);
             int margin = (int) (20 * scale + 0.5f); // convert dps to pixels
-            setFixedRotation(main_activity.findViewById(R.id.zoom_seekbar), 0, 0, margin+navigation_gap, 0);
+            if( sharedPreferences.getBoolean(PreferenceKeys.ShowZoomControlsPreferenceKey, false) ) {
+                // if zoom control is being shown, we don't need to offset the zoom seekbar from landscape navigation gaps
+                setFixedRotation(main_activity.findViewById(R.id.zoom_seekbar), 0, 0, margin+navigation_gap, 0);
+            }
+            else {
+                setFixedRotation(main_activity.findViewById(R.id.zoom_seekbar), 0, navigation_gap_reverse_landscape_align_parent_bottom, margin+navigation_gap, navigation_gap_landscape_align_parent_bottom);
+            }
 
             view = main_activity.findViewById(R.id.focus_seekbar);
             layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
@@ -988,7 +1012,8 @@ public class MainUI {
     }
 
     void setFocusSeekbarsRotation() {
-        setFixedRotation(main_activity.findViewById(R.id.focus_seekbar), 0, 0, 0, 0);
+        setFixedRotation(main_activity.findViewById(R.id.focus_seekbar), 0, navigation_gap_reverse_landscape_align_parent_bottom, 0, navigation_gap_landscape_align_parent_bottom);
+        // don't need to set margins for navigation gap landscape for focus_bracketing_target_seekbar, as it sits above the source focus_seekbar
         setFixedRotation(main_activity.findViewById(R.id.focus_bracketing_target_seekbar), 0, 0, 0, 0);
     }
 
@@ -1976,7 +2001,7 @@ public class MainUI {
     int getMaxHeightDp(boolean centred) {
         // ensure we have display for landscape orientation (even if we ever allow Open Camera
         Point display_size = new Point();
-        main_activity.getApplicationInterface().getDisplaySize(display_size);
+        main_activity.getApplicationInterface().getDisplaySize(display_size, true);
 
         // normally we should always have heightPixels < widthPixels, but good not to assume we're running in landscape orientation
         int smaller_dim = Math.min(display_size.x, display_size.y);

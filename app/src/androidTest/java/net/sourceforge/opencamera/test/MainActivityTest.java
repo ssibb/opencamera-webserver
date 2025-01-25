@@ -913,7 +913,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            mActivity.getApplicationInterface().getDisplaySize(display_size);
+            mActivity.getApplicationInterface().getDisplaySize(display_size, false);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         //double targetRatio = mPreview.getTargetRatioForPreview(display_size);
@@ -958,7 +958,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            mActivity.getApplicationInterface().getDisplaySize(display_size);
+            mActivity.getApplicationInterface().getDisplaySize(display_size, false);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         CameraController.Size picture_size = mPreview.getCameraController().getPictureSize();
@@ -4858,6 +4858,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     /** Tests the use of the FLAG_LAYOUT_NO_LIMITS flag introduced in 1.48.
      *  In 1.49 this was replaced with View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION.
      *  In 1.54 this was replaced with WindowCompat.setDecorFitsSystemWindows().
+     *  In 1.54, on Android 15+ we now support always running in edge-to-edge mode (MainActivity.edge_to_edge_mode).
      */
     public void testLayoutNoLimits() throws InterruptedException {
         Log.d(TAG, "testLayoutNoLimits");
@@ -4880,9 +4881,29 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertEquals(0, mActivity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         assertFalse(mActivity.test_set_show_under_navigation);
         assertEquals(0, mActivity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(mActivity.getNavigationGapLandscape(), mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(mActivity.getNavigationGapReverseLandscape(), mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         int initial_navigation_gap = mActivity.getMainUI().test_navigation_gap;
         if( !edge_to_edge_mode ) {
             assertEquals(0, mActivity.getMainUI().test_navigation_gap);
+        }
+        int initial_navigation_gap_landscape = mActivity.getMainUI().test_navigation_gap_landscape;
+        int initial_navigation_gap_reversed_landscape = mActivity.getMainUI().test_navigation_gap_reversed_landscape;
+        if( edge_to_edge_mode ) {
+            // exactly one navigation gap should be non-zero
+            int count = 0;
+            if( initial_navigation_gap > 0 )
+                count++;
+            if( initial_navigation_gap_landscape > 0 )
+                count++;
+            if( initial_navigation_gap_reversed_landscape > 0 )
+                count++;
+            assertEquals(1, count);
+        }
+        else {
+            assertEquals(0, initial_navigation_gap_landscape);
+            assertEquals(0, initial_navigation_gap_reversed_landscape);
         }
 
         // test changing resolution
@@ -4905,10 +4926,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertTrue(mActivity.test_set_show_under_navigation);
         }
         assertEquals(supports_hide_navigation ? View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION : 0, mActivity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(mActivity.getNavigationGapLandscape(), mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(mActivity.getNavigationGapReverseLandscape(), mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         if( edge_to_edge_mode ) {
             assertEquals(initial_navigation_gap, mActivity.getMainUI().test_navigation_gap);
         }
-        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         MainActivity.test_preview_want_no_limits_value = false;
         updateForSettings();
         Thread.sleep(1000);
@@ -4921,6 +4946,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         else {
             assertEquals(0, mActivity.getMainUI().test_navigation_gap);
         }
+        assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
 
         if( mPreview.getCameraControllerManager().getNumberOfCameras() > 1 ) {
             // test switching camera
@@ -4935,10 +4962,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 assertTrue(mActivity.test_set_show_under_navigation);
             }
             assertEquals(supports_hide_navigation ? View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION : 0, mActivity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+            assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+            assertEquals(mActivity.getNavigationGapLandscape(), mActivity.getMainUI().test_navigation_gap_landscape);
+            assertEquals(mActivity.getNavigationGapReverseLandscape(), mActivity.getMainUI().test_navigation_gap_reversed_landscape);
             if( edge_to_edge_mode ) {
                 assertEquals(initial_navigation_gap, mActivity.getMainUI().test_navigation_gap);
             }
-            assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+            assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+            assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
             MainActivity.test_preview_want_no_limits_value = false;
             switchToCamera(0);
             Thread.sleep(1000);
@@ -4951,6 +4982,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             else {
                 assertEquals(0, mActivity.getMainUI().test_navigation_gap);
             }
+            assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+            assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         }
 
         // test switching to video and back
@@ -4968,10 +5001,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertTrue(mActivity.test_set_show_under_navigation);
         }
         assertEquals(supports_hide_navigation ? View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION : 0, mActivity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(mActivity.getNavigationGapLandscape(), mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(mActivity.getNavigationGapReverseLandscape(), mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         if( edge_to_edge_mode ) {
             assertEquals(initial_navigation_gap, mActivity.getMainUI().test_navigation_gap);
         }
-        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         MainActivity.test_preview_want_no_limits_value = false;
         clickView(switchVideoButton);
         waitUntilCameraOpened();
@@ -4986,6 +5023,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         else {
             assertEquals(0, mActivity.getMainUI().test_navigation_gap);
         }
+        assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
 
         // test after restart
         MainActivity.test_preview_want_no_limits_value = true;
@@ -4999,10 +5038,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             assertTrue(mActivity.test_set_show_under_navigation);
         }
         assertEquals(supports_hide_navigation ? View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION : 0, mActivity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(mActivity.getNavigationGapLandscape(), mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(mActivity.getNavigationGapReverseLandscape(), mActivity.getMainUI().test_navigation_gap_reversed_landscape);
         if( edge_to_edge_mode ) {
             assertEquals(initial_navigation_gap, mActivity.getMainUI().test_navigation_gap);
         }
-        assertEquals(mActivity.getNavigationGap(), mActivity.getMainUI().test_navigation_gap);
+        assertEquals(initial_navigation_gap_landscape, mActivity.getMainUI().test_navigation_gap_landscape);
+        assertEquals(initial_navigation_gap_reversed_landscape, mActivity.getMainUI().test_navigation_gap_reversed_landscape);
     }
 
     /** Tests the use of the FLAG_LAYOUT_NO_LIMITS flag introduced in 1.48, with the mode set from startup.
@@ -8207,7 +8250,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         Point display_size = new Point();
         {
-            mActivity.getApplicationInterface().getDisplaySize(display_size);
+            // call with exclude_insets==true, as in this test we're measuring things about the UI
+            mActivity.getApplicationInterface().getDisplaySize(display_size, true);
             Log.d(TAG, "display_size: " + display_size.x + " x " + display_size.y);
         }
         View settingsButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.settings);

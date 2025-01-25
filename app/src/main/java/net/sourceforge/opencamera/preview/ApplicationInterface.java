@@ -193,7 +193,13 @@ public interface ApplicationInterface {
     boolean allowZoom(); // if false, don't allow zoom functionality even if the device supports it - Preview.supportsZoom() will also return false; if true, allow zoom if the device supports it
     boolean optimiseFocusForLatency(); // behaviour for taking photos with continuous focus mode: if true, optimise focus for latency (take photo asap); if false, optimise for quality (don't take photo until scene is focused)
 
-    void getDisplaySize(Point display_size); // get size of default display, e.g., Activity.getWindowManager().getDefaultDisplay().getSize()
+    /** Return size of default display, e.g., Activity.getWindowManager().getDefaultDisplay().getSize().
+     * @param display_size The returned display size.
+     * @param exclude_insets If the activity is running in edge-to-edge mode, then whether to exclude
+     *                       insets. If the activity is not running in edge-to-edge mode, then this should
+     *                       be ignored, and insets should always be excluded.
+     */
+    void getDisplaySize(Point display_size, boolean exclude_insets);
 
     // for testing purposes:
     boolean isTestAlwaysFocus(); // if true, pretend autofocus always successful
