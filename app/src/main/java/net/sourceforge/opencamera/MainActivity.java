@@ -1847,11 +1847,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case Configuration.ORIENTATION_LANDSCAPE:
                 result = SystemOrientation.LANDSCAPE;
                 // now try to distinguish between landscape and reverse landscape
-
-                // check whether the display matches the landscape configuration, in case this is inconsistent?
-                Point display_size = new Point();
-                applicationInterface.getDisplaySize(display_size);
-                if( display_size.x > display_size.y ) {
+                {
                     int rotation = getWindowManager().getDefaultDisplay().getRotation();
                     if( MyDebug.LOG )
                         Log.d(TAG, "rotation: " + rotation);
@@ -1874,10 +1870,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                                 Log.e(TAG, "unknown rotation: " + rotation);
                             break;
                     }
-                }
-                else {
-                    if( MyDebug.LOG )
-                        Log.e(TAG, "display size not landscape: " + display_size);
                 }
                 break;
             case Configuration.ORIENTATION_PORTRAIT:
