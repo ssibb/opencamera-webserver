@@ -6172,10 +6172,12 @@ public class CameraController2 extends CameraController {
             if( cameraIdSPhysical != null ) {
                 config.setPhysicalCameraId(cameraIdSPhysical);
             }
-            // On Galaxy S24+ at least, we seem to get UltraHDR photos even without setting DynamicRangeProfiles.HLG10 - but do this to be safe
-            if( want_jpeg_r && surface == preview_surface && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
+            // On Galaxy S24+ at least, we seem to get UltraHDR photos even without setting DynamicRangeProfiles.HLG10
+            // furthermore, calling setDynamicRangeProfile with HLG10 gives photos with much lower saturation, so have
+            // disabled this
+            /*if( want_jpeg_r && surface == preview_surface && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
                 config.setDynamicRangeProfile(DynamicRangeProfiles.HLG10);
-            }
+            }*/
             outputs.add(config);
         }
         return outputs;
