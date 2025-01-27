@@ -6643,6 +6643,29 @@ public class InstrumentedTest {
 
     }
 
+    @Category(PhotoTests.class)
+    @Test
+    public void testTakePhotoJpegR() throws InterruptedException {
+        Log.d(TAG, "testTakePhotoJpegR");
+
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().supportsJpegR()) ) {
+            Log.d(TAG, "jpeg_r not supported");
+            return;
+        }
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PreferenceKeys.ImageFormatPreferenceKey, "preference_image_format_jpeg_r");
+            editor.apply();
+        });
+        updateForSettings();
+
+        subTestTakePhoto(false, false, true, true, false, false, false, false);
+    }
+
     private int getNFiles() {
         // count initial files in folder
         String [] files = getActivityValue(activity -> TestUtils.filesInSaveFolder(activity));
@@ -6892,5 +6915,127 @@ public class InstrumentedTest {
             Log.d(TAG, "video_quality: " + video_quality);
             assertEquals(chosen_video_quality, video_quality);
         });
+    }
+
+    private void subTestTakeVideoSnapshot() throws InterruptedException {
+        Log.d(TAG, "subTestTakeVideoSnapshot");
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+            assertEquals(takePhotoVideoButton.getVisibility(), View.GONE);
+        });
+
+        subTestTakeVideo(false, false, false, false, new TestUtils.VideoTestCallback() {
+            @Override
+            public int doTest() {
+                Log.d(TAG, "wait before taking photo");
+                try {
+                    Thread.sleep(3000);
+                }
+                catch(InterruptedException e) {
+                    e.printStackTrace();
+                    fail();
+                }
+                mActivityRule.getScenario().onActivity(activity -> {
+                    View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+                    View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+                    assertEquals(takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video));
+                    assertEquals(takePhotoVideoButton.getVisibility(), View.VISIBLE);
+                    assertTrue( activity.getPreview().isVideoRecording() );
+                    assertFalse(activity.getPreview().isVideoRecordingPaused());
+
+                    Log.d(TAG, "about to click take photo snapshot");
+                    clickView(takePhotoVideoButton);
+                    Log.d(TAG, "done clicking take photo snapshot");
+                });
+
+                getInstrumentation().waitForIdleSync();
+                Log.d(TAG, "after idle sync");
+
+                waitForTakePhoto();
+
+                mActivityRule.getScenario().onActivity(activity -> {
+                    View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+                    assertEquals(takePhotoVideoButton.getVisibility(), View.VISIBLE);
+                    assertTrue( activity.getPreview().isVideoRecording() );
+                    assertFalse(activity.getPreview().isVideoRecordingPaused());
+                });
+
+                Log.d(TAG, "wait before stopping");
+                try {
+                    Thread.sleep(3000);
+                }
+                catch(InterruptedException e) {
+                    e.printStackTrace();
+                    fail();
+                }
+                mActivityRule.getScenario().onActivity(activity -> {
+                    View takePhotoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo);
+                    View takePhotoVideoButton = activity.findViewById(net.sourceforge.opencamera.R.id.take_photo_when_video_recording);
+                    assertEquals(takePhotoButton.getContentDescription(), activity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video));
+                    assertEquals(takePhotoVideoButton.getVisibility(), View.VISIBLE);
+                    assertTrue( activity.getPreview().isVideoRecording() );
+
+                    Log.d(TAG, "about to click stop video");
+                    clickView(takePhotoButton);
+                    Log.d(TAG, "done clicking stop video");
+                });
+
+                getInstrumentation().waitForIdleSync();
+                Log.d(TAG, "after idle sync");
+
+                return 2;
+            }
+        }, 5000, false, 1);
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.waitUntilImageQueueEmpty();
+        });
+    }
+
+    /** Test taking photo while recording video.
+     */
+    /*@Category(VideoTests.class)
+    @Test
+    public void testTakeVideoSnapshot() throws InterruptedException {
+        Log.d(TAG, "testTakeVideoSnapshot");
+
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().supportsPhotoVideoRecording()) ) {
+            Log.d(TAG, "video snapshot not supported");
+            return;
+        }
+
+        subTestTakeVideoSnapshot();
+    }*/
+
+    /** Test taking photo while recording video, when JPEG_R is set.
+     */
+    @Category(VideoTests.class)
+    @Test
+    public void testTakeVideoSnapshotJpegR() throws InterruptedException {
+        Log.d(TAG, "testTakeVideoSnapshotJpegR");
+
+        setToDefault();
+
+        if( !getActivityValue(activity -> activity.getPreview().supportsPhotoVideoRecording()) ) {
+            Log.d(TAG, "video snapshot not supported");
+            return;
+        }
+        else if( !getActivityValue(activity -> activity.getPreview().supportsJpegR()) ) {
+            Log.d(TAG, "jpeg_r not supported");
+            return;
+        }
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PreferenceKeys.ImageFormatPreferenceKey, "preference_image_format_jpeg_r");
+            editor.apply();
+        });
+        updateForSettings();
+
+        subTestTakeVideoSnapshot();
     }
 }
