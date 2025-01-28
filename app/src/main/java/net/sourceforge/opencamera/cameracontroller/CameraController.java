@@ -609,7 +609,7 @@ public abstract class CameraController {
      *  additional image will be included at infinite distance.
      */
     public abstract void setFocusBracketingAddInfinity(boolean focus_bracketing_add_infinity);
-    /** Only relevant if setBurstType() is also called with BURSTTYPE_FOCUS. Sets the target focus
+    /** Only relevant if setBurstType() is also called with BURSTTYPE_FOCUS. Sets the source focus
      *  distance for focus bracketing.
      */
     public abstract void setFocusBracketingSourceDistance(float focus_bracketing_source_distance);
