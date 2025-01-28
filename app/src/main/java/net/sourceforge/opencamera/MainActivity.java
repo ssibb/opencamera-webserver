@@ -169,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public static volatile boolean test_preview_want_no_limits; // test flag, if set to true then instead use test_preview_want_no_limits_value; needs to be static, as it needs to be set before activity is created to take effect
     public static volatile boolean test_preview_want_no_limits_value;
     public volatile boolean test_set_show_under_navigation; // test flag, the value of enable for the last call of showUnderNavigation() (or false if not yet called)
+    public static volatile boolean test_force_system_orientation; // test flag, if set to true, that getSystemOrientation() returns test_system_orientation
+    public static volatile SystemOrientation test_system_orientation = SystemOrientation.PORTRAIT;
+    public static volatile boolean test_force_window_insets; // test flag, if set to true, then the OnApplyWindowInsetsListener will read from the following flags
+    public static volatile Insets test_insets; // test insets for WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout()
+    public static volatile Insets test_cutout_insets; // test insets for WindowInsets.Type.displayCutout()
 
     // whether this is a multi-camera device (note, this isn't simply having more than 1 camera, but also having more than one with the same facing)
     // note that in most cases, code should check the MultiCamButtonPreferenceKey preference as well as the is_multi_cam flag,
@@ -1835,6 +1840,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      *  getDefaultDisplay().getRotation() changes after the configuration changes.
      */
     public SystemOrientation getSystemOrientation() {
+        if( test_force_system_orientation ) {
+            return test_system_orientation;
+        }
         if( lock_to_landscape ) {
             return SystemOrientation.LANDSCAPE;
         }
@@ -3825,6 +3833,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         // Open Camera view
                         Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
                         Insets cutout_insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.displayCutout());
+                        if( test_force_window_insets ) {
+                            insets = test_insets;
+                            cutout_insets = test_cutout_insets;
+                        }
                         inset_left = insets.left - cutout_insets.left;
                         inset_top = insets.top - cutout_insets.top;
                         inset_right = insets.right - cutout_insets.right;
@@ -3847,6 +3859,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         // easier to ensure the entire activity avoids display cutouts - for the preview, we still support
                         // it showing under the navigation bar
                         Insets insets = windowInsets.getInsets(WindowInsets.Type.displayCutout());
+                        if( test_force_window_insets ) {
+                            insets = test_cutout_insets;
+                        }
                         v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
 
                         // also handle change of immersive mode (instead of using deprecated setOnSystemUiVisibilityChangeListener below

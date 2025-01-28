@@ -14,6 +14,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Insets;
 import android.hardware.camera2.CameraExtensionCharacteristics;
 import android.media.CamcorderProfile;
 import android.os.Build;
@@ -21,6 +22,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -45,6 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
+
+interface MainTests {}
 
 interface PhotoTests {}
 
@@ -154,6 +158,13 @@ public class InstrumentedTest {
         while( !done ) {
             done = getActivityValue(activity -> !activity.getPreview().isOnTimer());
         }
+    }
+
+    private void restart() {
+        Log.d(TAG, "restart");
+        mActivityRule.getScenario().recreate();
+        waitUntilCameraOpened();
+        Log.d(TAG, "restart done");
     }
 
     private void pauseAndResume() {
@@ -6193,6 +6204,150 @@ public class InstrumentedTest {
         }
 
         Log.d(TAG, "done taking photo");
+    }
+
+    /** Tests behaviour of the MainActivity.OnApplyWindowInsetsListener() for edge-to-edge mode on
+     *  Android 15.
+     */
+    @Category(MainTests.class)
+    @Test
+    public void testWindowInsets() throws InterruptedException {
+        Log.d(TAG, "testTakePhoto");
+        setToDefault();
+
+        if( !getActivityValue(MainActivity::getEdgeToEdgeMode) ) {
+            Log.d(TAG, "test requires edge-to-edge mode");
+            return;
+        }
+
+        MainActivity.test_force_system_orientation = true;
+        MainActivity.test_force_window_insets = true;
+
+        // portrait, typical with navigation at bottom, cutout at top
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.PORTRAIT;
+        MainActivity.test_insets = Insets.of(0, 200, 0, 300);
+        MainActivity.test_cutout_insets = Insets.of(0, 200, 0, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(300, activity.getNavigationGap());
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+        // landscape
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.LANDSCAPE;
+        MainActivity.test_insets = Insets.of(200, 0, 300, 0);
+        MainActivity.test_cutout_insets = Insets.of(200, 0, 0, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(300, activity.getNavigationGap());
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+        // reverse landscape
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.REVERSE_LANDSCAPE;
+        MainActivity.test_insets = Insets.of(300, 0, 200, 0);
+        MainActivity.test_cutout_insets = Insets.of(0, 0, 200, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(300, activity.getNavigationGap());
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+
+        // portrait, navigation at bottom, double cutout at top and bottom
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.PORTRAIT;
+        MainActivity.test_insets = Insets.of(0, 100, 0, 500);
+        MainActivity.test_cutout_insets = Insets.of(0, 100, 0, 300);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(200, activity.getNavigationGap()); // should only include the gap for the navigation, not the bottom cutout
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+        // landscape
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.LANDSCAPE;
+        MainActivity.test_insets = Insets.of(100, 0, 500, 0);
+        MainActivity.test_cutout_insets = Insets.of(100, 0, 300, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(200, activity.getNavigationGap()); // should only include the gap for the navigation, not the bottom cutout
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+        // reverse landscape
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.REVERSE_LANDSCAPE;
+        MainActivity.test_insets = Insets.of(500, 0, 100, 0);
+        MainActivity.test_cutout_insets = Insets.of(300, 0, 100, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(200, activity.getNavigationGap()); // should only include the gap for the navigation, not the bottom cutout
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+
+        // portrait, no navigation bar, waterfall cutout
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.PORTRAIT;
+        MainActivity.test_insets = Insets.of(50, 100, 50, 100);
+        MainActivity.test_cutout_insets = Insets.of(50, 100, 50, 100);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            // navigation gaps should be 0, as shouldn't include cutout
+            assertEquals(0, activity.getNavigationGap());
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+
+        // landscape, navigation along landscape edge
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.LANDSCAPE;
+        MainActivity.test_insets = Insets.of(100, 0, 0, 250);
+        MainActivity.test_cutout_insets = Insets.of(100, 0, 0, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(0, activity.getNavigationGap());
+            assertEquals(250, activity.getNavigationGapLandscape());
+            assertEquals(0, activity.getNavigationGapReverseLandscape());
+        });
+        if( getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            // also test manual focus seekbar
+            mActivityRule.getScenario().onActivity(activity -> {
+                View focus_seekbar = activity.findViewById(R.id.focus_seekbar);
+                assertEquals(focus_seekbar.getVisibility(), View.GONE);
+            });
+            switchToFocusValue("focus_mode_manual2");
+            mActivityRule.getScenario().onActivity(activity -> {
+                View focus_seekbar = activity.findViewById(R.id.focus_seekbar);
+                assertEquals(focus_seekbar.getVisibility(), View.VISIBLE);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)focus_seekbar.getLayoutParams();
+                assertEquals(0, layoutParams.leftMargin);
+                assertEquals(0, layoutParams.topMargin);
+                assertEquals(0, layoutParams.rightMargin);
+                assertEquals(250, layoutParams.bottomMargin);
+            });
+        }
+
+        // reverse landscape, navigation along landscape edge
+        MainActivity.test_system_orientation = MainActivity.SystemOrientation.REVERSE_LANDSCAPE;
+        MainActivity.test_insets = Insets.of(0, 0, 100, 250);
+        MainActivity.test_cutout_insets = Insets.of(0, 0, 100, 0);
+        restart(); // resstart to force OnApplyWindowInsetsListener() to be called with new test values
+        mActivityRule.getScenario().onActivity(activity -> {
+            assertEquals(0, activity.getNavigationGap());
+            assertEquals(0, activity.getNavigationGapLandscape());
+            assertEquals(250, activity.getNavigationGapReverseLandscape());
+        });
+        if( getActivityValue(activity -> activity.getPreview().usingCamera2API()) ) {
+            // also test manual focus seekbar
+            switchToFocusValue("focus_mode_manual2");
+            mActivityRule.getScenario().onActivity(activity -> {
+                View focus_seekbar = activity.findViewById(R.id.focus_seekbar);
+                assertEquals(focus_seekbar.getVisibility(), View.VISIBLE);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)focus_seekbar.getLayoutParams();
+                assertEquals(0, layoutParams.leftMargin);
+                assertEquals(0, layoutParams.topMargin);
+                assertEquals(0, layoutParams.rightMargin);
+                assertEquals(0, layoutParams.bottomMargin);
+            });
+        }
     }
 
     private void subTestTouchToFocus(final boolean wait_after_focus, final boolean single_tap_photo, final boolean double_tap_photo, final boolean manual_can_auto_focus, final boolean can_focus_area, final String focus_value, final String focus_value_ui) throws InterruptedException {
