@@ -494,7 +494,12 @@ public abstract class CameraController {
      *  first image.
      */
     public abstract void setDummyCaptureHack(boolean dummy_capture_hack);
-    public abstract boolean isBurstOrExpo();
+
+    /** Whether the current BurstType is one that requires the camera driver to capture the images
+     *  as a burst at a fast rate. If true, we should not use high resolutions that don't support a
+     *  capture burst (for Camera2 API, see StreamConfigurationMap.getHighResolutionOutputSizes()).
+     */
+    public abstract boolean isCaptureFastBurst();
     /** If true, then the camera controller is currently capturing a burst of images.
      */
     public abstract boolean isCapturingBurst();

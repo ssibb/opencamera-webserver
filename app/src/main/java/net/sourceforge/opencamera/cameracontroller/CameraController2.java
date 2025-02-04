@@ -4887,13 +4887,15 @@ public class CameraController2 extends CameraController {
     }
 
     @Override
-    public boolean isBurstOrExpo() {
-        return this.burst_type != BurstType.BURSTTYPE_NONE;
+    public boolean isCaptureFastBurst() {
+        // BURSTTYPE_FOCUS photos are captured at a slow rate, so fine to return false for that (means
+        // devices can still use highest resolutions)
+        return this.burst_type != BurstType.BURSTTYPE_NONE && this.burst_type != BurstType.BURSTTYPE_FOCUS;
     }
 
     @Override
     public boolean isCapturingBurst() {
-        if( !isBurstOrExpo() )
+        if( this.burst_type == BurstType.BURSTTYPE_NONE )
             return false;
         if( burst_type == BurstType.BURSTTYPE_CONTINUOUS )
             return continuous_burst_in_progress || n_burst > 0 || n_burst_raw > 0;

@@ -2199,7 +2199,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         setupBurstMode();
 
         {
-            boolean is_burst = camera_controller.isBurstOrExpo();
+            boolean is_burst = camera_controller.isCaptureFastBurst();
             int extension = is_extension ? camera_controller.getCameraExtension() : -1;
             if( is_burst || is_extension ) {
                 if( MyDebug.LOG ) {
@@ -7573,7 +7573,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public List<CameraController.Size> getSupportedPictureSizes(boolean check_supported) {
         if( MyDebug.LOG )
             Log.d(TAG, "getSupportedPictureSizes");
-        boolean is_burst = ( camera_controller != null && camera_controller.isBurstOrExpo() );
+        boolean is_burst = ( camera_controller != null && camera_controller.isCaptureFastBurst() );
         boolean is_extension = ( camera_controller != null && camera_controller.isCameraExtension() );
         int extension = is_extension ? camera_controller.getCameraExtension() : -1;
         boolean has_constraints = photo_size_constraints != null && photo_size_constraints.hasConstraints();

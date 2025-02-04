@@ -859,7 +859,7 @@ public class CameraController1 extends CameraController {
     }
 
     @Override
-    public boolean isBurstOrExpo() {
+    public boolean isCaptureFastBurst() {
         // not supported for CameraController1
         return false;
     }
