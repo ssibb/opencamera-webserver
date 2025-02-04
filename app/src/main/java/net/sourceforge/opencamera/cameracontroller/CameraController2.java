@@ -7837,8 +7837,16 @@ public class CameraController2 extends CameraController {
                     test_fake_flash_photo++;
                 }
 
-                if( burst_type == BurstType.BURSTTYPE_NORMAL && burst_for_noise_reduction ) {
-                    // must be done after calling setupBuilder(), so we override the default EDGE_MODE and NOISE_REDUCTION_MODE
+                if( !is_samsung && burst_type == BurstType.BURSTTYPE_NORMAL && burst_for_noise_reduction ) {
+                    // Must be done after calling setupBuilder(), so we override the default EDGE_MODE and NOISE_REDUCTION_MODE.
+                    // We disable noise-reduction etc for photo mode NR because on many devices this smears out detail that we actually
+                    // aim to recover by averaging a stack of multiple images.
+                    // Disabled for Samsung - firstly at least on Galaxy S24+ this has no effect except for unstable situations (e.g.,
+                    // if UltraHDR/JPEG_R is enabled then switching from STD to NR mode means this works for some reason, even though we
+                    // don't enable JPEG_R for NR mode...). We could fix it by also changing for the preview, although this makes the
+                    // code more complicated (we'd need to save the old values, and also avoid interactions with setNoiseReductionMode() and
+                    // setEdgeMode()). But Galaxy S24+ at least seems to have better noise reduction such that detail is less likely to be
+                    // smeared out, and overall quality of photos in NR mode seems better if run noise reduction etc as normal.
                     if( MyDebug.LOG )
                         Log.d(TAG, "optimise settings for burst_for_noise_reduction");
                     stillBuilder.set(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_OFF);
