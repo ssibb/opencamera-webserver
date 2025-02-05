@@ -811,7 +811,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 if( MyDebug.LOG )
                     Log.d(TAG, "onScale: " + scale_factor);
                 // make pinch zoom more sensitive:
-                scale_factor = 1.0f + 2.0f*(scale_factor - 1.0f);
+                if( touch_was_multitouch )
+                    scale_factor = 1.0f + 2.0f*(scale_factor - 1.0f);
                 Preview.this.scaleZoom(scale_factor);
             }
             return true;
@@ -887,8 +888,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             // the application can handle same as if user had pressed shutter button (needed so that this works
             // correctly in Panorama mode).
             applicationInterface.requestTakePhoto();
+            return true;
         }
-        return true;
+        if( applicationInterface.getTouchCapturePref() ) {
+            // return true to disable double-tap-drag zoom gesture, as we don't want this when using single tap to capture either
+            return true;
+        }
+        return false; // important, so that double-tap-drag zoom gesture works
     }
 
     private class DoubleTapListener extends GestureDetector.SimpleOnGestureListener {
