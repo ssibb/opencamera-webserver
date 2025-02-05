@@ -159,7 +159,8 @@ public interface ApplicationInterface {
     int getDisplayRotation(boolean prefer_later);
     // Camera2 only modes:
     long getExposureTimePref(); // only called if getISOPref() is not "default"
-    float getFocusDistancePref(boolean is_target_distance);
+    float getFocusDistancePref(boolean is_target_distance); // if isFocusBracketingPref()==true, returns the source or target focus distance
+    boolean isFocusBracketingSourceAutoPref(); // if isFocusBracketingPref()==true, returns whether the source focus distance should be set by calling CameraController.setFocusBracketingSourceDistanceFromCurrent()
     boolean isExpoBracketingPref(); // whether to enable burst photos with expo bracketing
     int getExpoBracketingNImagesPref(); // how many images to take for exposure bracketing
     double getExpoBracketingStopsPref(); // stops per image for exposure bracketing

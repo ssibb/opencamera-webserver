@@ -440,8 +440,12 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     @Override
     public String getFocusPref(boolean is_video) {
         if( getPhotoMode() == PhotoMode.FocusBracketing && !main_activity.getPreview().isVideo() ) {
-            // alway run in manual focus mode for focus bracketing
-            return "focus_mode_manual2";
+            if( isFocusBracketingSourceAutoPref() ) {
+                return "focus_mode_continuous_picture";
+            }
+            else {
+                return "focus_mode_manual2";
+            }
         }
         return sharedPreferences.getString(PreferenceKeys.getFocusPreferenceKey(cameraId, is_video), "");
     }
@@ -1534,6 +1538,26 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     @Override
     public float getFocusDistancePref(boolean is_target_distance) {
         return sharedPreferences.getFloat(is_target_distance ? PreferenceKeys.FocusBracketingTargetDistancePreferenceKey : PreferenceKeys.FocusDistancePreferenceKey, 0.0f);
+    }
+
+    @Override
+    public boolean isFocusBracketingSourceAutoPref() {
+        if( !main_activity.supportsFocusBracketingSourceAuto() )
+            return false; // not supported
+        return sharedPreferences.getBoolean(PreferenceKeys.FocusBracketingAutoSourceDistancePreferenceKey, false);
+    }
+
+    /** Sets whether in focus bracketing auto focusing mode for source focus distance.
+     *  If enabled==false (i.e. returning to manual mode), the caller should call Preview.setFocusDistance()
+     *  to set the new manual focus distance.
+     */
+    public void setFocusBracketingSourceAutoPref(boolean enabled) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(PreferenceKeys.FocusBracketingAutoSourceDistancePreferenceKey, enabled);
+        editor.apply();
+        if( main_activity.getPreview().getCameraController() != null ) {
+            main_activity.getPreview().setFocusPref(true);
+        }
     }
 
     @Override

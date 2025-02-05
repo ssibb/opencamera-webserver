@@ -1165,6 +1165,11 @@ public class CameraController1 extends CameraController {
     }
 
     @Override
+    public void setFocusBracketingSourceDistanceFromCurrent() {
+        // not supported for CameraController1!
+    }
+
+    @Override
     public void setFocusBracketingTargetDistance(float focus_bracketing_target_distance) {
         // not supported for CameraController1!
     }

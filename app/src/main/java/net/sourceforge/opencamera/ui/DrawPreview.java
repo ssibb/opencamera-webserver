@@ -313,6 +313,8 @@ public class DrawPreview {
 
     private int focus_seekbars_margin_left = -1; // margin left that's been set for the focus seekbars
 
+    private long last_update_focus_seekbar_auto_time;
+
     // OSD extra lines
     private String OSDLine1;
     private String OSDLine2;
@@ -3089,6 +3091,20 @@ public class DrawPreview {
                         canvas.drawBitmap(gyroSensor.isUpright() > 0 ? rotate_left_bitmap : rotate_right_bitmap, null, icon_dest, p);
                         canvas.restore();
                     }
+                }
+            }
+        }
+
+        if( time_ms > last_update_focus_seekbar_auto_time + 100 ) {
+            last_update_focus_seekbar_auto_time = time_ms;
+
+            if( camera_controller != null && photoMode == MyApplicationInterface.PhotoMode.FocusBracketing && applicationInterface.isFocusBracketingSourceAutoPref() ) {
+                // not strictly related to drawing on the preview, but a convenient place to do this
+                // also need to wait some time after getSettingTargetFocusDistanceTime(), as when user stops changing target seekbar, it takes time to return to
+                // continuous focus
+                if( !main_activity.getPreview().isSettingTargetFocusDistance() && time_ms > main_activity.getPreview().getSettingTargetFocusDistanceTime() + 500 &&
+                        camera_controller.captureResultHasFocusDistance() ) {
+                    main_activity.setManualFocusSeekbarProgress(false, camera_controller.captureResultFocusDistance());
                 }
             }
         }

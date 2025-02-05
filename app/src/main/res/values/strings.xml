@@ -1031,6 +1031,8 @@
     <string name="lens">Lens</string>
     <string name="physical_cameras_info">&#9432; By default, a camera uses Auto Lens selection, which means the zoom level controls which lens is used. However this menu also allows you to explicitly choose which lens is being used.</string>
 
+    <string name="focus_bracketing_auto_source_distance">Auto source</string>
+
     <!-- The following strings should not be translated (and shouldn't be included in language-specific strings.xml), in case they need updating -->
 
     <string name="preference_privacy_policy" translatable="false">Privacy policy</string>

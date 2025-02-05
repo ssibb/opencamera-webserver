@@ -111,6 +111,8 @@ public class PreferenceKeys {
 
     public static final String FocusBracketingTargetDistancePreferenceKey = "preference_focus_bracketing_target_distance";
 
+    public static final String FocusBracketingAutoSourceDistancePreferenceKey = "preference_focus_bracketing_auto_source_distance";
+
     public static final String FocusBracketingNImagesPreferenceKey = "preference_focus_bracketing_n_images";
 
     public static final String FocusBracketingAddInfinityPreferenceKey = "preference_focus_bracketing_add_infinity";

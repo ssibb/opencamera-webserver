@@ -414,6 +414,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     private final Handler reset_continuous_focus_handler = new Handler();
     private Runnable reset_continuous_focus_runnable;
     private boolean autofocus_in_continuous_mode;
+    private boolean focus_set_for_target_distance; // if true, then the focus has been set to manual focus distance for the target (for focus bracketing)
+    private long focus_set_for_target_distance_ms; // time when focus_set_for_target_distance last changed
 
     enum FaceLocation {
         FACELOCATION_UNSET,
@@ -2057,6 +2059,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             Log.d(TAG, "take_photo? " + take_photo);
             Log.d(TAG, "do_startup_focus? " + do_startup_focus);
         }
+        this.focus_set_for_target_distance = false; // reset
+        this.focus_set_for_target_distance_ms = System.currentTimeMillis();
         // make sure we're into continuous video mode for reopening
         // workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
         // so to be safe, we always reset to continuous video mode
@@ -4397,7 +4401,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         }
     }
 
-    public void setFocusDistance(float new_focus_distance, boolean is_target_distance) {
+    public void setFocusDistance(float new_focus_distance, boolean is_target_distance, boolean show_toast) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "setFocusDistance: " + new_focus_distance);
             Log.d(TAG, "is_target_distance: " + is_target_distance);
@@ -4413,6 +4417,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                 camera_controller.setFocusBracketingTargetDistance(new_focus_distance);
                 // also set the focus distance, so the user can see what the target distance looks like
                 camera_controller.setFocusDistance(new_focus_distance);
+                this.focus_set_for_target_distance = true;
+                this.focus_set_for_target_distance_ms = System.currentTimeMillis();
+                if( applicationInterface.isFocusBracketingSourceAutoPref() ) {
+                    // first record the current focus distance, in case needed for taking a photo whilst adjusting the target focus distance
+                    camera_controller.setFocusBracketingSourceDistanceFromCurrent();
+                    camera_controller.setFocusValue("focus_mode_manual2");
+                }
             }
             else if( camera_controller.setFocusDistance(new_focus_distance) ) {
                 focus_changed = true;
@@ -4422,6 +4433,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             if( focus_changed ) {
                 // now save
                 applicationInterface.setFocusDistancePref(new_focus_distance, is_target_distance);
+                if( show_toast )
                 {
                     String focus_distance_s;
                     if( new_focus_distance > 0.0f ) {
@@ -4449,7 +4461,25 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             if( MyDebug.LOG )
                 Log.d(TAG, "set manual focus distance back to start");
             camera_controller.setFocusDistance( camera_controller.getFocusBracketingSourceDistance() );
+            this.focus_set_for_target_distance = false;
+            this.focus_set_for_target_distance_ms = System.currentTimeMillis();
+            if( applicationInterface.isFocusBracketingSourceAutoPref() ) {
+                String focus_value = applicationInterface.getFocusPref(is_video);
+                if( !focus_value.isEmpty() ) {
+                    camera_controller.setFocusValue(focus_value); // in case using focus bracketing in auto focus mode
+                }
+            }
         }
+    }
+
+    /** Returns whether the target focus distance is currently being set.
+     */
+    public boolean isSettingTargetFocusDistance() {
+        return this.focus_set_for_target_distance;
+    }
+
+    public long getSettingTargetFocusDistanceTime() {
+        return this.focus_set_for_target_distance_ms;
     }
 
     public void setExposure(int new_exposure) {
@@ -4917,7 +4947,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         return false;
     }
 
-    private void setFocusPref(boolean auto_focus) {
+    public void setFocusPref(boolean auto_focus) {
         if( MyDebug.LOG )
             Log.d(TAG, "setFocusPref()");
         String focus_value = applicationInterface.getFocusPref(is_video);
@@ -6444,6 +6474,12 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         successfully_focused = false; // so next photo taken will require an autofocus
         if( MyDebug.LOG )
             Log.d(TAG, "remaining_repeat_photos: " + remaining_repeat_photos);
+
+        // if focus_set_for_target_distance==true, then we stick with the last set focus bracketing source distance, as the current focus distance will
+        // be set to the target
+        if( applicationInterface.isFocusBracketingPref() && applicationInterface.isFocusBracketingSourceAutoPref() && !focus_set_for_target_distance ) {
+            camera_controller.setFocusBracketingSourceDistanceFromCurrent();
+        }
 
         CameraController.PictureCallback pictureCallback = new CameraController.PictureCallback() {
             private boolean success = false; // whether jpeg callback succeeded

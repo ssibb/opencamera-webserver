@@ -619,6 +619,14 @@ public abstract class CameraController {
      */
     public abstract void setFocusBracketingSourceDistance(float focus_bracketing_source_distance);
     public abstract float getFocusBracketingSourceDistance();
+    /** Only relevant if setBurstType() is also called with BURSTTYPE_FOCUS. Sets the source focus
+     *  distance to match the camera's current focus distance (typically useful if running in a
+     *  non-manual focus mode).
+     */
+    public abstract void setFocusBracketingSourceDistanceFromCurrent();
+    /** Only relevant if setBurstType() is also called with BURSTTYPE_FOCUS. Sets the target focus
+     *  distance for focus bracketing.
+     */
     public abstract void setFocusBracketingTargetDistance(float focus_bracketing_target_distance);
     public abstract float getFocusBracketingTargetDistance();
     public abstract void setFlashValue(String flash_value);
@@ -736,6 +744,12 @@ public abstract class CameraController {
     }
     public long captureResultFrameDuration() {
         return 0;
+    }
+    public boolean captureResultHasFocusDistance() {
+        return false;
+    }
+    public float captureResultFocusDistance() {
+        return 0.0f;
     }
     public boolean captureResultHasAperture() {
         return false;

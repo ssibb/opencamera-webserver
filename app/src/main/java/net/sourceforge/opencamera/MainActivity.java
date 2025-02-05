@@ -5995,22 +5995,38 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
+    public void setManualFocusSeekbarProgress(final boolean is_target_distance, float focus_distance) {
+        final SeekBar focusSeekBar = findViewById(is_target_distance ? R.id.focus_bracketing_target_seekbar : R.id.focus_seekbar);
+        ManualSeekbars.setProgressSeekbarScaled(focusSeekBar, 0.0, preview.getMinimumFocusDistance(), focus_distance);
+    }
+
     private void setManualFocusSeekbar(final boolean is_target_distance) {
         if( MyDebug.LOG )
             Log.d(TAG, "setManualFocusSeekbar");
         final SeekBar focusSeekBar = findViewById(is_target_distance ? R.id.focus_bracketing_target_seekbar : R.id.focus_seekbar);
         focusSeekBar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-        ManualSeekbars.setProgressSeekbarScaled(focusSeekBar, 0.0, preview.getMinimumFocusDistance(), is_target_distance ? preview.getCameraController().getFocusBracketingTargetDistance() : preview.getCameraController().getFocusDistance());
+        setManualFocusSeekbarProgress(is_target_distance, is_target_distance ? preview.getCameraController().getFocusBracketingTargetDistance() : preview.getCameraController().getFocusDistance());
         focusSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             private boolean has_saved_zoom;
             private int saved_zoom_factor;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if( !is_target_distance && applicationInterface.isFocusBracketingSourceAutoPref() ) {
+                    // source is set from continuous focus, not by changing the seekbar
+                    if( fromUser ) {
+                        // but if user has manually changed, then exit auto mode
+                        applicationInterface.setFocusBracketingSourceAutoPref(false);
+                        mainUI.destroyPopup(); // need to recreate popup
+                    }
+                    else {
+                        return;
+                    }
+                }
                 double frac = progress/(double)focusSeekBar.getMax();
                 double scaling = ManualSeekbars.seekbarScaling(frac);
                 float focus_distance = (float)(scaling * preview.getMinimumFocusDistance());
-                preview.setFocusDistance(focus_distance, is_target_distance);
+                preview.setFocusDistance(focus_distance, is_target_distance, true);
             }
 
             @Override
@@ -6047,10 +6063,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     public boolean showManualFocusSeekbar(final boolean is_target_distance) {
-        boolean is_visible = preview.getCurrentFocusValue() != null && this.getPreview().getCurrentFocusValue().equals("focus_mode_manual2");
-        if( is_target_distance ) {
-            is_visible = is_visible && (applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.FocusBracketing) && !preview.isVideo();
+        if( (applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.FocusBracketing) && !preview.isVideo() ) {
+            return true; // both seekbars shown in focus bracketing mode
         }
+        if( is_target_distance ) {
+            return false; // target seekbar only shown in focus bracketing mode
+        }
+        boolean is_visible = preview.getCurrentFocusValue() != null && this.getPreview().getCurrentFocusValue().equals("focus_mode_manual2");
         return is_visible;
     }
 
@@ -6139,6 +6158,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( applicationInterface.isImageCaptureIntent() )
             return false; // don't support focus bracketing mode if called from image capture intent
         return preview.supportsFocusBracketing();
+    }
+
+    /** Whether we support the auto mode for setting source focus distance for focus bracketing mode.
+     *  Note the caller should still separately call supportsFocusBracketing() to see if focus
+     *  bracketing is supported in the first place.
+     */
+    public boolean supportsFocusBracketingSourceAuto() {
+        return preview.supportsFocus() && preview.getSupportedFocusValues().contains("focus_mode_continuous_picture");
     }
 
     public boolean supportsPanorama() {

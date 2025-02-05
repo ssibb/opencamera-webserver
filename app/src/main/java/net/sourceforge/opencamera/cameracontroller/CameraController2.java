@@ -108,6 +108,7 @@ public class CameraController2 extends CameraController {
     private boolean supports_exposure_time;
     private long min_exposure_time;
     private long max_exposure_time;
+    private float minimum_focus_distance; // for manual focus
 
     private boolean supports_tonemap_preset_curve;
     private final static int tonemap_log_max_curve_points_c = 64;
@@ -307,6 +308,8 @@ public class CameraController2 extends CameraController {
     private long capture_result_exposure_time;
     private boolean capture_result_has_frame_duration;
     private long capture_result_frame_duration;
+    private boolean capture_result_has_focus_distance;
+    private float capture_result_focus_distance;
     private boolean capture_result_has_aperture;
     private float capture_result_aperture;
     /*private boolean capture_result_has_focus_distance;
@@ -329,6 +332,7 @@ public class CameraController2 extends CameraController {
         capture_result_has_iso = false;
         capture_result_has_exposure_time = false;
         capture_result_has_frame_duration = false;
+        capture_result_has_focus_distance = false;
         capture_result_has_aperture = false;
     }
 
@@ -2557,7 +2561,7 @@ public class CameraController2 extends CameraController {
         }
     }
 
-    private List<String> convertFocusModesToValues(int [] supported_focus_modes_arr, float minimum_focus_distance) {
+    private List<String> convertFocusModesToValues(int [] supported_focus_modes_arr) {
         if( MyDebug.LOG ) {
             Log.d(TAG, "convertFocusModesToValues()");
             Log.d(TAG, "supported_focus_modes_arr: " + Arrays.toString(supported_focus_modes_arr));
@@ -3405,18 +3409,20 @@ public class CameraController2 extends CameraController {
             camera_features.supported_flash_values.add("flash_frontscreen_torch");
         }
 
-        Float minimum_focus_distance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE); // may be null on some devices
-        if( minimum_focus_distance != null ) {
-            camera_features.minimum_focus_distance = minimum_focus_distance;
+        Float minimum_focus_distance_f = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE); // may be null on some devices
+        if( minimum_focus_distance_f != null ) {
+            camera_features.minimum_focus_distance = minimum_focus_distance_f;
             if( MyDebug.LOG )
                 Log.d(TAG, "minimum_focus_distance: " + camera_features.minimum_focus_distance);
         }
         else {
             camera_features.minimum_focus_distance = 0.0f;
         }
+        // save to local fields:
+        this.minimum_focus_distance = camera_features.minimum_focus_distance;
 
         int [] supported_focus_modes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES); // Android format
-        camera_features.supported_focus_values = convertFocusModesToValues(supported_focus_modes, camera_features.minimum_focus_distance); // convert to our format (also resorts)
+        camera_features.supported_focus_values = convertFocusModesToValues(supported_focus_modes); // convert to our format (also resorts)
         if( camera_features.supported_focus_values != null && camera_features.supported_focus_values.contains("focus_mode_manual2") ) {
             camera_features.supports_focus_bracketing = true;
         }
@@ -5451,6 +5457,8 @@ public class CameraController2 extends CameraController {
             case "focus_mode_manual2":
                 focus_mode = CaptureRequest.CONTROL_AF_MODE_OFF;
                 camera_settings.focus_distance = camera_settings.focus_distance_manual;
+                /*if( capture_result_has_focus_distance ) // test
+                    camera_settings.focus_distance = capture_result_focus_distance;*/
                 break;
             case "focus_mode_macro":
                 focus_mode = CaptureRequest.CONTROL_AF_MODE_MACRO;
@@ -5577,6 +5585,13 @@ public class CameraController2 extends CameraController {
     @Override
     public float getFocusBracketingSourceDistance() {
         return this.focus_bracketing_source_distance;
+    }
+
+    @Override
+    public void setFocusBracketingSourceDistanceFromCurrent() {
+        if( capture_result_has_focus_distance ) {
+            this.focus_bracketing_source_distance = capture_result_focus_distance;
+        }
     }
 
     @Override
@@ -8510,6 +8525,16 @@ public class CameraController2 extends CameraController {
     }
 
     @Override
+    public boolean captureResultHasFocusDistance() {
+        return capture_result_has_focus_distance;
+    }
+
+    @Override
+    public float captureResultFocusDistance() {
+        return capture_result_focus_distance;
+    }
+
+    @Override
     public boolean captureResultHasAperture() {
         return capture_result_has_aperture;
     }
@@ -9292,6 +9317,30 @@ public class CameraController2 extends CameraController {
             else {
                 capture_result_has_focus_distance = false;
             }*/
+
+            if( modified_from_camera_settings ) {
+                // see note above
+            }
+            else if( result.get(CaptureResult.LENS_FOCUS_DISTANCE) != null ) {
+                capture_result_has_focus_distance = true;
+                capture_result_focus_distance = result.get(CaptureResult.LENS_FOCUS_DISTANCE);
+                /*if( MyDebug.LOG ) {
+                    Log.d(TAG, "capture_result_focus_distance: " + capture_result_focus_distance);
+                    if( capture_result_focus_distance > 0.0f ) {
+                        float real_focus_distance = 1.0f / capture_result_focus_distance;
+                        Log.d(TAG, "real_focus_distance: " + real_focus_distance);
+                    }
+                }*/
+                // ensure within the valid range for manual focus, just in case
+                if( capture_result_focus_distance < 0.0f )
+                    capture_result_focus_distance = 0.0f;
+                else if( capture_result_focus_distance > minimum_focus_distance )
+                    capture_result_focus_distance = minimum_focus_distance;
+            }
+            else {
+                capture_result_has_focus_distance = false;
+            }
+
             if( modified_from_camera_settings ) {
                 // see note above
             }
@@ -9452,6 +9501,7 @@ public class CameraController2 extends CameraController {
             if( burst_type == BurstType.BURSTTYPE_FOCUS && previewBuilder != null ) { // make sure camera wasn't released in the meantime
                 if( MyDebug.LOG )
                     Log.d(TAG, "focus bracketing complete, reset manual focus");
+                camera_settings.setFocusMode(previewBuilder); // needed if the preview was running in a non-manual mode
                 camera_settings.setFocusDistance(previewBuilder);
                 try {
                     setRepeatingRequest();

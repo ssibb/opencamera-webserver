@@ -727,28 +727,7 @@ public class PopupView extends LinearLayout {
                     }
                 });
 
-                @SuppressLint("InflateParams")
-                final View switch_view = LayoutInflater.from(context).inflate(R.layout.popupview_switch, null);
-                final SwitchCompat checkBox = switch_view.findViewById(R.id.popupview_switch);
-
-                checkBox.setText(getResources().getString(R.string.focus_bracketing_add_infinity));
-
-                {
-                    // align the checkbox a bit better
-                    checkBox.setGravity(Gravity.RIGHT);
-                    LayoutParams params = new LayoutParams(
-                            LayoutParams.MATCH_PARENT,
-                            LayoutParams.MATCH_PARENT
-                    );
-                    final int right_padding = (int) (20 * scale + 0.5f); // convert dps to pixels
-                    params.setMargins(0, 0, right_padding, 0);
-                    checkBox.setLayoutParams(params);
-                }
-
-                boolean add_infinity = sharedPreferences.getBoolean(PreferenceKeys.FocusBracketingAddInfinityPreferenceKey, false);
-                if( add_infinity )
-                    checkBox.setChecked(add_infinity);
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                addCheckBox(context, scale, getResources().getString(R.string.focus_bracketing_add_infinity), sharedPreferences.getBoolean(PreferenceKeys.FocusBracketingAddInfinityPreferenceKey, false), new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView,
                                                  boolean isChecked) {
                         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
@@ -761,7 +740,17 @@ public class PopupView extends LinearLayout {
                     }
                 });
 
-                this.addView(checkBox);
+                if( main_activity.supportsFocusBracketingSourceAuto() ) {
+                    addCheckBox(context, scale, getResources().getString(R.string.focus_bracketing_auto_source_distance), sharedPreferences.getBoolean(PreferenceKeys.FocusBracketingAutoSourceDistancePreferenceKey, false), new CompoundButton.OnCheckedChangeListener() {
+                        public void onCheckedChanged(CompoundButton buttonView,
+                                                     boolean isChecked) {
+                            main_activity.getApplicationInterface().setFocusBracketingSourceAutoPref(isChecked);
+                            if( !isChecked ) {
+                                preview.setFocusDistance(main_activity.getPreview().getCameraController().captureResultFocusDistance(), false, false);
+                            }
+                        }
+                    });
+                }
             }
 
             if( preview.isVideo() ) {
@@ -1278,6 +1267,28 @@ public class PopupView extends LinearLayout {
 
     static abstract class ButtonOptionsPopupListener {
         public abstract void onClick(String option);
+    }
+
+    private void addCheckBox(Context context, float scale, CharSequence text, boolean checked, CompoundButton.OnCheckedChangeListener listener) {
+        @SuppressLint("InflateParams")
+        final View switch_view = LayoutInflater.from(context).inflate(R.layout.popupview_switch, null);
+        final SwitchCompat checkBox = switch_view.findViewById(R.id.popupview_switch);
+        checkBox.setText(text);
+        {
+            // align the checkbox a bit better
+            checkBox.setGravity(Gravity.RIGHT);
+            LayoutParams params = new LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT
+            );
+            final int right_padding = (int) (20 * scale + 0.5f); // convert dps to pixels
+            params.setMargins(0, 0, right_padding, 0);
+            checkBox.setLayoutParams(params);
+        }
+        if( checked )
+            checkBox.setChecked(checked);
+        checkBox.setOnCheckedChangeListener(listener);
+        this.addView(checkBox);
     }
 
     /** Creates UI for selecting an option for multiple possibilites, by placing buttons in one or
