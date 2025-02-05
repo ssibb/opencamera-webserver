@@ -2117,7 +2117,11 @@ public class DrawPreview {
             if( preview.supportsZoom() && show_zoom_pref ) {
                 float zoom_ratio = preview.getZoomRatio();
                 // only show when actually zoomed in - or out!
-                if( zoom_ratio < 1.0f - 1.0e-5f || zoom_ratio > 1.0f + 1.0e-5f ) {
+                // but only show if zoomed in by at least 1.1x, to avoid showing when only very slightly
+                // zoomed in - otherwise on devices that support zooming out to ultrawide, it's hard to
+                // zoom back to exactly 1.0x
+                //if( zoom_ratio < 1.0f - 1.0e-5f || zoom_ratio > 1.0f + 1.0e-5f ) {
+                if( zoom_ratio < 1.0f - 1.0e-5f || zoom_ratio > 1.1f - 1.0e-5f ) {
                     // Convert the dps to pixels, based on density scale
                     p.setTextSize(14 * scale_font + 0.5f); // convert dps to pixels
                     p.setTextAlign(Paint.Align.CENTER);
