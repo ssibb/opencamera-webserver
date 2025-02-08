@@ -196,8 +196,8 @@ public class ManualSeekbars {
                 seekbar_values.add(exposure);
         }
 
-        // 1/50 to 1/10 (steps of 5)
-        for(int i=50;i>=10;i-=5) {
+        // 1/50 to 1/15 (steps of 5)
+        for(int i=50;i>=15;i-=5) {
             long exposure = 1000000000L/i;
             if( exposure > min_exposure_time && exposure < max_exposure_time )
                 seekbar_values.add(exposure);
