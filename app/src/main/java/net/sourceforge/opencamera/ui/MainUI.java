@@ -1853,7 +1853,9 @@ public class MainUI {
                 changeSeekbar(R.id.exposure_time_seekbar, 5);
                 break;
             case 3:
-                changeSeekbar(R.id.exposure_seekbar, 1);
+                //changeSeekbar(R.id.exposure_seekbar, 1);
+                // call via MainActivity.changeExposure(), to handle repeated zeroes
+                main_activity.changeExposure(1);
                 break;
             case 4:
                 changeSeekbar(R.id.white_balance_seekbar, 3);
@@ -1875,7 +1877,9 @@ public class MainUI {
                 changeSeekbar(R.id.exposure_time_seekbar, -5);
                 break;
             case 3:
-                changeSeekbar(R.id.exposure_seekbar, -1);
+                //changeSeekbar(R.id.exposure_seekbar, -1);
+                // call via MainActivity.changeExposure(), to handle repeated zeroes
+                main_activity.changeExposure(-1);
                 break;
             case 4:
                 changeSeekbar(R.id.white_balance_seekbar, -3);

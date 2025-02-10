@@ -254,6 +254,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private long cached_display_rotation_time_ms;
     private int cached_display_rotation;
 
+    List<Integer> exposure_seekbar_values; // mapping from exposure_seekbar value to preview exposure compensation
+    private int exposure_seekbar_values_zero; // index in exposure_seekbar_values that maps to zero preview exposure compensation
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         long debug_time = 0;
@@ -1479,6 +1482,29 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     public void changeExposure(int change) {
         if( preview.supportsExposures() ) {
+            if( exposure_seekbar_values != null ) {
+                SeekBar seekBar = this.findViewById(R.id.exposure_seekbar);
+                int progress = seekBar.getProgress();
+                int new_progress = progress + change;
+                int current_exposure = exposure_seekbar_values.get(progress);
+                if( exposure_seekbar_values.get(new_progress) == 0 && current_exposure != 0 ) {
+                    // snap to the central repeated zero
+                    new_progress = exposure_seekbar_values_zero;
+                    change = new_progress - progress;
+                }
+                else {
+                    // skip over the repeated zeroes
+                    while( new_progress > 0 && new_progress < exposure_seekbar_values.size()-1 && exposure_seekbar_values.get(new_progress) == current_exposure ) {
+                        if( change > 0 )
+                            change++;
+                        else
+                            change--;
+                        new_progress = progress + change;
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "skip over constant region: " + new_progress);
+                    }
+                }
+            }
             mainUI.changeSeekbar(R.id.exposure_seekbar, change);
         }
     }
@@ -5908,20 +5934,53 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if( MyDebug.LOG )
             Log.d(TAG, "cameraSetup: time after setting up iso: " + (System.currentTimeMillis() - debug_time));
         {
+            exposure_seekbar_values = null;
             if( preview.supportsExposures() ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "set up exposure compensation");
                 final int min_exposure = preview.getMinimumExposure();
                 SeekBar exposure_seek_bar = findViewById(R.id.exposure_seekbar);
                 exposure_seek_bar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-                exposure_seek_bar.setMax( preview.getMaximumExposure() - min_exposure );
-                exposure_seek_bar.setProgress( preview.getCurrentExposure() - min_exposure );
+
+                final int exposure_seekbar_n_repeated_zero = 3; // how many times to repeat 0 for R.id.exposure_seekbar, so that it "sticks" to zero when changing seekbar
+
+                //exposure_seek_bar.setMax( preview.getMaximumExposure() - min_exposure + exposure_seekbar_n_repeated_zero-1 );
+                //exposure_seek_bar.setProgress( preview.getCurrentExposure() - min_exposure );
+
+                exposure_seekbar_values = new ArrayList<>();
+                int current_exposure = preview.getCurrentExposure();
+                int current_progress = 0;
+                for(int i=min_exposure;i<=preview.getMaximumExposure();i++) {
+                    exposure_seekbar_values.add(i);
+                    if( i == 0 ) {
+                        exposure_seekbar_values_zero = exposure_seekbar_values.size()-1;
+                        exposure_seekbar_values_zero += (exposure_seekbar_n_repeated_zero-1)/2; // centre within the region of zeroes
+                        for(int j=0;j<exposure_seekbar_n_repeated_zero-1;j++) {
+                            exposure_seekbar_values.add(i);
+                        }
+                    }
+                    if( i == current_exposure ) {
+                        if( i == 0 ) {
+                            current_progress += exposure_seekbar_values_zero;
+                        }
+                        else {
+                            current_progress = exposure_seekbar_values.size()-1;
+                        }
+                    }
+                }
+                exposure_seek_bar.setMax( exposure_seekbar_values.size()-1 );
+                exposure_seek_bar.setProgress( current_progress );
                 exposure_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if( MyDebug.LOG )
                             Log.d(TAG, "exposure seekbar onProgressChanged: " + progress);
-                        preview.setExposure(min_exposure + progress);
+                        if( exposure_seekbar_values == null ) {
+                            Log.e(TAG, "exposure_seekbar_values is null");
+                            return;
+                        }
+                        int new_exposure = exposure_seekbar_values.get(progress);
+                        preview.setExposure(new_exposure);
                     }
 
                     @Override
