@@ -5805,6 +5805,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 zoomSeekBar.setMax(preview.getMaxZoom());
                 zoomSeekBar.setProgress(preview.getMaxZoom()-preview.getCameraController().getZoom());
                 zoomSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                    private long last_haptic_time;
+
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if( MyDebug.LOG )
@@ -5812,8 +5814,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         // note we zoom even if !fromUser, as various other UI controls (multitouch, volume key zoom, -/+ zoomcontrol)
                         // indirectly set zoom via this method, from setting the zoom slider
                         // if hasSmoothZoom()==true, then the preview already handled zooming to the current value
-                        if( !preview.hasSmoothZoom() )
-                            preview.zoomTo(preview.getMaxZoom() - progress, false);
+                        if( !preview.hasSmoothZoom() ) {
+                            int new_zoom_factor = preview.getMaxZoom() - progress;
+                            if( fromUser && preview.getCameraController() != null ) {
+                                float old_zoom_ratio = preview.getZoomRatio();
+                                float new_zoom_ratio = preview.getZoomRatio(new_zoom_factor);
+                                if( new_zoom_ratio != old_zoom_ratio ) {
+                                    last_haptic_time = performHapticFeedback(seekBar, last_haptic_time);
+                                }
+                            }
+                            preview.zoomTo(new_zoom_factor, false);
+                        }
                     }
 
                     @Override
@@ -5868,6 +5879,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 //setProgressSeekbarExponential(iso_seek_bar, preview.getMinimumISO(), preview.getMaximumISO(), preview.getCameraController().getISO());
                 manualSeekbars.setProgressSeekbarISO(iso_seek_bar, preview.getMinimumISO(), preview.getMaximumISO(), preview.getCameraController().getISO());
                 iso_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                    private long last_haptic_time;
+
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if( MyDebug.LOG )
@@ -5888,6 +5901,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         // the ISO buttons rather than moving the slider directly, see MainUI.setupExposureUI())
                         preview.setISO( manualSeekbars.getISO(progress) );
                         mainUI.updateSelectedISOButton();
+                        if( fromUser ) {
+                            last_haptic_time = performHapticFeedback(seekBar, last_haptic_time);
+                        }
                     }
 
                     @Override
@@ -5906,6 +5922,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     //setProgressSeekbarExponential(exposure_time_seek_bar, preview.getMinimumExposureTime(), preview.getMaximumExposureTime(), preview.getCameraController().getExposureTime());
                     manualSeekbars.setProgressSeekbarShutterSpeed(exposure_time_seek_bar, preview.getMinimumExposureTime(), preview.getMaximumExposureTime(), preview.getCameraController().getExposureTime());
                     exposure_time_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                        private long last_haptic_time;
+
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             if( MyDebug.LOG )
@@ -5917,6 +5935,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 							long max_exposure_time = preview.getMaximumExposureTime();
 							long exposure_time = exponentialScaling(frac, min_exposure_time, max_exposure_time);*/
                             preview.setExposureTime( manualSeekbars.getExposureTime(progress) );
+                            if( fromUser ) {
+                                last_haptic_time = performHapticFeedback(seekBar, last_haptic_time);
+                            }
                         }
 
                         @Override
@@ -5971,6 +5992,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 exposure_seek_bar.setMax( exposure_seekbar_values.size()-1 );
                 exposure_seek_bar.setProgress( current_progress );
                 exposure_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                    private long last_haptic_time;
+
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if( MyDebug.LOG )
@@ -5980,6 +6003,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             return;
                         }
                         int new_exposure = exposure_seekbar_values.get(progress);
+                        if( fromUser ) {
+                            // check if not scrolling past the repeated zeroes
+                            if( preview.getCurrentExposure() != new_exposure ) {
+                                last_haptic_time = performHapticFeedback(seekBar, last_haptic_time);
+                            }
+                        }
                         preview.setExposure(new_exposure);
                     }
 
@@ -6052,6 +6081,24 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             View switchCameraButton = findViewById(R.id.switch_camera);
             switchCameraButton.animate().rotationBy(180).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).start();
         }
+    }
+
+    public static long performHapticFeedback(SeekBar seekBar, long last_haptic_time) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(seekBar.getContext());
+        if( sharedPreferences.getBoolean(PreferenceKeys.AllowHapticFeedbackPreferenceKey, true) ) {
+            long time_ms = System.currentTimeMillis();
+            if( time_ms > last_haptic_time + 16 ) {
+                last_haptic_time = time_ms;
+                // SEGMENT_TICK or SEGMENT_TICK doesn't work on Galaxy S24+ at least, even though on Android 14!
+                /*if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ) {
+                    seekBar.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK);
+                }
+                else*/ {
+                    seekBar.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+                }
+            }
+        }
+        return last_haptic_time;
     }
 
     public void setManualFocusSeekbarProgress(final boolean is_target_distance, float focus_distance) {
@@ -6159,6 +6206,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 			*/
             manualSeekbars.setProgressSeekbarWhiteBalance(white_balance_seek_bar, minimum_temperature, maximum_temperature, preview.getCameraController().getWhiteBalanceTemperature());
             white_balance_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                private long last_haptic_time;
+
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if( MyDebug.LOG )
@@ -6166,6 +6215,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     //int temperature = minimum_temperature + progress;
                     //preview.setWhiteBalanceTemperature(temperature);
                     preview.setWhiteBalanceTemperature( manualSeekbars.getWhiteBalanceTemperature(progress) );
+                    if( fromUser ) {
+                        last_haptic_time = performHapticFeedback(seekBar, last_haptic_time);
+                    }
                 }
 
                 @Override

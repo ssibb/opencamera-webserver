@@ -1033,6 +1033,9 @@
 
     <string name="focus_bracketing_auto_source_distance">Auto source</string>
 
+    <string name="preference_allow_haptic_feedback">Allow vibration feedback</string>
+    <string name="preference_allow_haptic_feedback_summary">Whether to allow haptic vibration feedback, for example when adjusting some controls. Note this also requires touch interactions to be enabled in your device\'s settings.</string>
+
     <!-- The following strings should not be translated (and shouldn't be included in language-specific strings.xml), in case they need updating -->
 
     <string name="preference_privacy_policy" translatable="false">Privacy policy</string>

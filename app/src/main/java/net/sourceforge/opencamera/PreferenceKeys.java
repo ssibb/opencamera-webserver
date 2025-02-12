@@ -207,6 +207,8 @@ public class PreferenceKeys {
 
     public static final String DimWhenDisconnectedPreferenceKey = "preference_remote_disconnect_screen_dim";
 
+    public static final String AllowHapticFeedbackPreferenceKey = "preference_allow_haptic_feedback";
+
     public static final String ShowWhenLockedPreferenceKey = "preference_show_when_locked";
 
     public static final String AllowLongPressPreferenceKey = "preference_allow_long_press";
