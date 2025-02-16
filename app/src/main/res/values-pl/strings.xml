@@ -293,6 +293,9 @@
     <string name="photo_mode_hdr">HDR</string> <!-- keep short, as this shows in the popup menu -->
     <string name="photo_mode_expo_bracketing">Ekspo {}</string>
     <string name="photo_mode_expo_bracketing_full">Bracketing ekspozycji</string>
+    <string name="photo_mode_fast_burst_full">Bracketing</string>
+    <string name="photo_mode_noise_reduction">RSz</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
+    <string name="photo_mode_noise_reduction_full">Redukcja szumów</string>
     <string name="preference_category_stamp">Stempel zdjęcia</string>
     <string name="preference_hdr_save_expo">Zapisz wszystkie zdjęcia dla HDR</string>
     <string name="preference_hdr_save_expo_summary">W trybie HDR zapisuje wszystkie zdjęcia, które posłużyły do powstania obrazu HDR. Może to spowodować wolniejszy zapis, zwłaszcza przy włączonej opcji stemplowania lub autopoziomowania.</string>
@@ -310,6 +313,15 @@
     <string name="preference_expo_bracketing_n_images_summary">Ilość obrazów w trybie bracketingu\n%s</string>
     <string name="preference_expo_bracketing_stops">Stopniowanie Bracketingu</string>
     <string name="preference_expo_bracketing_stops_summary">Ustawia zakres wartości dla jaśniejszej/ciemniejszej ekspozycji\n%s</string>
+
+    <string name="preference_nr_save">Redukcja szumów zdjęć</string>
+    <string name="preference_nr_save_summary">Zapisuje oryginalne zdjęcia w trybie redukcji szumów. Pamiętaj, że może to znacznie spowolnić zapisywanie zdjęć.\n%s</string>
+
+    <string name="preference_nr_save_no">Nie zapisuj oryginalnych zdjęć</string>
+    <string name="preference_nr_save_single">Zapisz jedno oryginalne zdjęcie</string>
+    <string name="preference_nr_save_all">Zapisz wszystkie oryginalne zdjęcia (wolno)</string>
+
+    <string name="seconds_abbreviation">s</string> <!-- short for seconds -->
 
     <string name="video_no_free_space">Brak wystarczającej ilości pamięci, aby nagrać film</string>
     <string name="video_power_critical">Filmowanie zatrzymane\nKrytyczny poziom baterii</string>
@@ -387,6 +399,57 @@
     <string name="audio_listener_failed">Nie udało się uruchomić nasłuchu</string>
     <string name="failed_to_process_hdr">Tworzenie obrazu HDR nie powiodło się</string>
 
+    <string name="white_balance_auto">Automatycznie</string>
+    <string name="white_balance_cloudy">Pochmurno</string>
+    <string name="white_balance_daylight">Światło dzienne</string>
+    <string name="white_balance_fluorescent">Świetlówka</string>
+    <string name="white_balance_incandescent">Żarówka</string>
+    <string name="white_balance_shade">Cień</string>
+    <string name="white_balance_twilight">Zmierzch</string>
+    <string name="white_balance_warm">Ciepły</string>
+    <string name="white_balance_manual">Ręczny</string>
+
+    <string name="scene_mode_action">Ruch</string>
+    <string name="scene_mode_barcode">Kod kreskowy</string>
+    <string name="scene_mode_beach">Plaża</string>
+    <string name="scene_mode_candlelight">Światło świeczki</string>
+    <string name="scene_mode_auto">Automatycznie</string>
+    <string name="scene_mode_fireworks">Sztuczne ognie</string>
+    <string name="scene_mode_landscape">Pejzaż</string>
+    <string name="scene_mode_night">Noc</string>
+    <string name="scene_mode_night_portrait">Portret w nocy</string>
+    <string name="scene_mode_party">Impreza</string>
+    <string name="scene_mode_portrait">Portret</string>
+    <string name="scene_mode_snow">Śnieg</string>
+    <string name="scene_mode_sports">Sport</string>
+    <string name="scene_mode_steady_photo">Statyczne zdjęcie</string>
+    <string name="scene_mode_sunset">Zachód słońca</string>
+    <string name="scene_mode_theatre">Teatr</string>
+
+    <string name="color_effect_aqua">Woda</string>
+    <string name="color_effect_blackboard">Tablica</string>
+    <string name="color_effect_mono">Czarno-białe</string>
+    <string name="color_effect_negative">Negatyw</string>
+    <string name="color_effect_none">Brak</string>
+    <string name="color_effect_posterize">Plakat</string>
+    <string name="color_effect_sepia">Sepia</string>
+    <string name="color_effect_solarize">Nasłonecznianie</string>
+    <string name="color_effect_whiteboard">Tablica magnetyczna</string>
+
+    <string name="whats_new">Co nowego:</string>
+    <string name="donate">Przekaż darowiznę</string>
+
+    <!-- for accessibility, these strings for face detection will typically be spoken, e.g., through Google Talkback -->
+    <string name="face_detected">twarz</string>
+    <string name="faces_detected">twarze</string>
+    <string name="left_of_screen">z lewej strony ekranu</string>
+    <string name="right_of_screen">z prawej strony ekranu</string>
+    <string name="top_of_screen">u góry ekranu</string>
+    <string name="bottom_of_screen">na dole ekranu</string>
+    <string name="centre_of_screen">w środku</string>
+
+    <string name="high_speed">Duża prędkość</string> <!-- in the sense of high speed video frame rates -->
+
     <string name="preference_video_fps_default">Domyślnie</string>
 
     <string name="preference_category_exif_tags">Własne znaczniki EXIF</string>
@@ -404,121 +467,6 @@
     <string name="preference_stamp_dateformat_ddmmyyyy">dd/mm/rrrr</string>
     <string name="preference_stamp_dateformat_mmddyyyy">mm/dd/rrrr</string>
     <string name="preference_stamp_dateformat_none">Brak</string>
-
-    <string name="flash_off">Lampa wyłączona</string>
-    <string name="flash_auto">Lampa automatyczna</string>
-    <string name="flash_on">Lampa włączona</string>
-    <string name="flash_torch">Latarka</string>
-    <string name="flash_red_eye">Redukcja czerwonych oczu</string>
-    <string name="flash_frontscreen_auto">Błysk ekranowy automatyczny</string>
-    <string name="flash_frontscreen_on">Błysk ekranowy włączony</string>
-
-    <string name="preference_video_bitrate_default">Domyślnie</string>
-    <string name="preference_video_bitrate_100000">100kbps</string>
-    <string name="preference_video_bitrate_200000">200kbps</string>
-    <string name="preference_video_bitrate_500000">500kbps</string>
-    <string name="preference_video_bitrate_1000000">1Mbps</string>
-    <string name="preference_video_bitrate_2000000">2Mbps</string>
-    <string name="preference_video_bitrate_3000000">3Mbps</string>
-    <string name="preference_video_bitrate_4000000">4Mbps</string>
-    <string name="preference_video_bitrate_5000000">5Mbps</string>
-    <string name="preference_video_bitrate_6000000">6Mbps</string>
-    <string name="preference_video_bitrate_7000000">7Mbps</string>
-    <string name="preference_video_bitrate_8000000">8Mbps</string>
-    <string name="preference_video_bitrate_9000000">9Mbps</string>
-    <string name="preference_video_bitrate_10000000">10Mbps</string>
-    <string name="preference_video_bitrate_15000000">15Mbps</string>
-    <string name="preference_video_bitrate_20000000">20Mbps</string>
-    <string name="preference_video_bitrate_30000000">30Mbps</string>
-    <string name="preference_video_bitrate_40000000">40Mbps</string>
-    <string name="preference_video_bitrate_50000000">50Mbps</string>
-    <string name="preference_video_bitrate_60000000">60Mbps</string>
-    <string name="preference_video_bitrate_70000000">70Mbps</string>
-    <string name="preference_video_bitrate_80000000">80Mbps</string>
-    <string name="preference_video_bitrate_90000000">90Mbps</string>
-    <string name="preference_video_bitrate_100000000">100Mbps</string>
-    <string name="preference_video_bitrate_150000000">150Mbps</string>
-    <string name="preference_video_bitrate_200000000">200Mbps</string>
-
-    <string name="preference_burst_mode_off">Wyłączono</string>
-    <string name="preference_burst_mode_2x">2x</string>
-    <string name="preference_burst_mode_3x">3x</string>
-    <string name="preference_burst_mode_4x">4x</string>
-    <string name="preference_burst_mode_5x">5x</string>
-    <string name="preference_burst_mode_10x">10x</string>
-    <string name="preference_burst_mode_20x">20x</string>
-    <string name="preference_burst_mode_30x">30x</string>
-    <string name="preference_burst_mode_40x">40x</string>
-    <string name="preference_burst_mode_50x">50x</string>
-    <string name="preference_burst_mode_100x">100x</string>
-    <string name="preference_burst_mode_200x">200x</string>
-    <string name="preference_burst_mode_500x">500x</string>
-    <string name="preference_burst_mode_unlimited">Bez limitu</string>
-
-    <string name="preference_burst_interval_no_delay">Bez opóźnienia</string>
-    <string name="preference_burst_interval_1s">1s</string>
-    <string name="preference_burst_interval_2s">2s</string>
-    <string name="preference_burst_interval_3s">3s</string>
-    <string name="preference_burst_interval_5s">5s</string>
-    <string name="preference_burst_interval_10s">10s</string>
-    <string name="preference_burst_interval_15s">15s</string>
-    <string name="preference_burst_interval_20s">20s</string>
-    <string name="preference_burst_interval_30s">30s</string>
-    <string name="preference_burst_interval_1m">1m</string>
-    <string name="preference_burst_interval_2m">2m</string>
-    <string name="preference_burst_interval_5m">5m</string>
-    <string name="preference_burst_interval_10m">10m</string>
-    <string name="preference_burst_interval_20m">20m</string>
-    <string name="preference_burst_interval_30m">30m</string>
-    <string name="preference_burst_interval_1h">1h</string>
-    <string name="preference_burst_interval_2h">2h</string>
-
-    <string name="preference_video_max_filesize_default">Domyślnie dla urządzenia</string>
-    <string name="preference_video_max_filesize_100mb">100MB</string>
-    <string name="preference_video_max_filesize_200mb">200MB</string>
-    <string name="preference_video_max_filesize_300mb">300MB</string>
-    <string name="preference_video_max_filesize_500mb">500MB</string>
-    <string name="preference_video_max_filesize_1gb">1GB</string>
-    <string name="preference_video_max_filesize_2gb">2GB</string>
-    <string name="preference_video_max_filesize_5gb">5GB</string>
-    <string name="preference_video_max_filesize_9gb">9GB</string>
-
-    <string name="preference_crop_guide_none">Brak</string>
-    <string name="preference_crop_guide_1">1 (1:1)</string>
-    <string name="preference_crop_guide_1_25">1.25 (5:4)</string>
-    <string name="preference_crop_guide_1_33">1.33 (4:3)</string>
-    <string name="preference_crop_guide_1_4">1.4 (7:4)</string>
-    <string name="preference_crop_guide_1_5">1.5 (3:2)</string>
-    <string name="preference_crop_guide_1_78">1.78 (16:9)</string>
-    <string name="preference_crop_guide_1_85">1.85 (37:20)</string>
-    <string name="preference_crop_guide_2">2 (2:1)</string>
-    <string name="preference_crop_guide_2_33">2.33 (21:9)</string>
-    <string name="preference_crop_guide_2_35">2.35 (47:20)</string>
-    <string name="preference_crop_guide_2_4">2.4 (12:5)</string>
-
-    <string name="preference_audio_noise_control_sensitivity_3">+3 (wysoka czułość)</string>
-    <string name="preference_audio_noise_control_sensitivity_2">+2</string>
-    <string name="preference_audio_noise_control_sensitivity_1">+1</string>
-    <string name="preference_audio_noise_control_sensitivity_0">0 (domyślnie)</string>
-    <string name="preference_audio_noise_control_sensitivity_m1">-1</string>
-    <string name="preference_audio_noise_control_sensitivity_m2">-2</string>
-    <string name="preference_audio_noise_control_sensitivity_m3">-3 (niska czułość)</string>
-
-    <string name="preference_ui_placement_left">Interfejs dla leworęcznych</string>
-    <string name="preference_ui_placement_right">Interfejs dla praworęcznych</string>
-    <string name="preference_ui_placement_top">Ikony u góry (portret)</string>
-
-    <string name="photo_mode_fast_burst_full">Bracketing</string>
-    <string name="photo_mode_noise_reduction">RSz</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
-    <string name="photo_mode_noise_reduction_full">Redukcja szumów</string>
-
-    <string name="preference_nr_save">Redukcja szumów zdjęć</string>
-    <string name="preference_nr_save_summary">Zapisuje oryginalne zdjęcia w trybie redukcji szumów. Pamiętaj, że może to znacznie spowolnić zapisywanie zdjęć.\n%s</string>
-    <string name="preference_nr_save_no">Nie zapisuj oryginalnych zdjęć</string>
-    <string name="preference_nr_save_single">Zapisz jedno oryginalne zdjęcie</string>
-    <string name="preference_nr_save_all">Zapisz wszystkie oryginalne zdjęcia (wolno)</string>
-
-    <string name="seconds_abbreviation">s</string> <!-- short for seconds -->
 
     <string name="preference_fast_burst_n_images">Ilość zdjęć</string>
     <string name="preference_fast_burst_n_images_entries_2">2</string>
@@ -556,6 +504,13 @@
     <string name="slow_motion_enabled">Włączono zwolnione tempo</string>
     <string name="slow_motion_disabled">Wyłączono zwolnione tempo</string>
 
+    <string name="flash_off">Lampa wyłączona</string>
+    <string name="flash_auto">Lampa automatyczna</string>
+    <string name="flash_on">Lampa włączona</string>
+    <string name="flash_torch">Latarka</string>
+    <string name="flash_red_eye">Redukcja czerwonych oczu</string>
+    <string name="flash_frontscreen_auto">Błysk ekranowy automatyczny</string>
+    <string name="flash_frontscreen_on">Błysk ekranowy włączony</string>
     <string name="flash_frontscreen_torch">Ekranowa latarka</string>
 
     <string name="preference_antibanding">Redukcja migotania</string>
@@ -593,6 +548,33 @@
     <string name="preference_record_audio_src_voice_communication">Zoptymalizowano dla połączeń głosowych</string>
     <string name="preference_record_audio_src_voice_recognition">Zoptymalizowano dla rozpoznawania mowy</string>
     <string name="preference_record_audio_src_unprocessed">Bez przetwarzania</string>
+
+    <string name="preference_video_bitrate_default">Domyślnie</string>
+    <string name="preference_video_bitrate_100000">100kbps</string>
+    <string name="preference_video_bitrate_200000">200kbps</string>
+    <string name="preference_video_bitrate_500000">500kbps</string>
+    <string name="preference_video_bitrate_1000000">1Mbps</string>
+    <string name="preference_video_bitrate_2000000">2Mbps</string>
+    <string name="preference_video_bitrate_3000000">3Mbps</string>
+    <string name="preference_video_bitrate_4000000">4Mbps</string>
+    <string name="preference_video_bitrate_5000000">5Mbps</string>
+    <string name="preference_video_bitrate_6000000">6Mbps</string>
+    <string name="preference_video_bitrate_7000000">7Mbps</string>
+    <string name="preference_video_bitrate_8000000">8Mbps</string>
+    <string name="preference_video_bitrate_9000000">9Mbps</string>
+    <string name="preference_video_bitrate_10000000">10Mbps</string>
+    <string name="preference_video_bitrate_15000000">15Mbps</string>
+    <string name="preference_video_bitrate_20000000">20Mbps</string>
+    <string name="preference_video_bitrate_30000000">30Mbps</string>
+    <string name="preference_video_bitrate_40000000">40Mbps</string>
+    <string name="preference_video_bitrate_50000000">50Mbps</string>
+    <string name="preference_video_bitrate_60000000">60Mbps</string>
+    <string name="preference_video_bitrate_70000000">70Mbps</string>
+    <string name="preference_video_bitrate_80000000">80Mbps</string>
+    <string name="preference_video_bitrate_90000000">90Mbps</string>
+    <string name="preference_video_bitrate_100000000">100Mbps</string>
+    <string name="preference_video_bitrate_150000000">150Mbps</string>
+    <string name="preference_video_bitrate_200000000">200Mbps</string>
 
     <string name="no_burst">Bez serii</string> <!-- string for burst mode not being supported for a resolution -->
 
@@ -649,7 +631,71 @@
     <string name="previous">Wstecz</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) for "<" button on popup menu -->
     <string name="next">Dalej</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) for ">" button on popup menu -->
 
+    <string name="preference_burst_mode_off">Wyłączono</string>
+    <string name="preference_burst_mode_2x">2x</string>
+    <string name="preference_burst_mode_3x">3x</string>
+    <string name="preference_burst_mode_4x">4x</string>
+    <string name="preference_burst_mode_5x">5x</string>
+    <string name="preference_burst_mode_10x">10x</string>
+    <string name="preference_burst_mode_20x">20x</string>
+    <string name="preference_burst_mode_30x">30x</string>
+    <string name="preference_burst_mode_40x">40x</string>
+    <string name="preference_burst_mode_50x">50x</string>
+    <string name="preference_burst_mode_100x">100x</string>
+    <string name="preference_burst_mode_200x">200x</string>
+    <string name="preference_burst_mode_500x">500x</string>
+    <string name="preference_burst_mode_unlimited">Bez limitu</string>
+
+    <string name="preference_burst_interval_no_delay">Bez opóźnienia</string>
+    <string name="preference_burst_interval_1s">1s</string>
+    <string name="preference_burst_interval_2s">2s</string>
+    <string name="preference_burst_interval_3s">3s</string>
+    <string name="preference_burst_interval_5s">5s</string>
+    <string name="preference_burst_interval_10s">10s</string>
+    <string name="preference_burst_interval_15s">15s</string>
+    <string name="preference_burst_interval_20s">20s</string>
+    <string name="preference_burst_interval_30s">30s</string>
+    <string name="preference_burst_interval_1m">1m</string>
+    <string name="preference_burst_interval_2m">2m</string>
+    <string name="preference_burst_interval_5m">5m</string>
+    <string name="preference_burst_interval_10m">10m</string>
+    <string name="preference_burst_interval_20m">20m</string>
+    <string name="preference_burst_interval_30m">30m</string>
+    <string name="preference_burst_interval_1h">1h</string>
+    <string name="preference_burst_interval_2h">2h</string>
+
+    <string name="preference_video_max_filesize_default">Domyślnie dla urządzenia</string>
+    <string name="preference_video_max_filesize_100mb">100MB</string>
+    <string name="preference_video_max_filesize_200mb">200MB</string>
+    <string name="preference_video_max_filesize_300mb">300MB</string>
+    <string name="preference_video_max_filesize_500mb">500MB</string>
+    <string name="preference_video_max_filesize_1gb">1GB</string>
+    <string name="preference_video_max_filesize_2gb">2GB</string>
+    <string name="preference_video_max_filesize_5gb">5GB</string>
+    <string name="preference_video_max_filesize_9gb">9GB</string>
+
     <string name="cancelled_focus_bracketing">Anulowano braketing ostrości</string>
+
+    <string name="preference_crop_guide_none">Brak</string>
+    <string name="preference_crop_guide_1">1 (1:1)</string>
+    <string name="preference_crop_guide_1_25">1.25 (5:4)</string>
+    <string name="preference_crop_guide_1_33">1.33 (4:3)</string>
+    <string name="preference_crop_guide_1_4">1.4 (7:4)</string>
+    <string name="preference_crop_guide_1_5">1.5 (3:2)</string>
+    <string name="preference_crop_guide_1_78">1.78 (16:9)</string>
+    <string name="preference_crop_guide_1_85">1.85 (37:20)</string>
+    <string name="preference_crop_guide_2">2 (2:1)</string>
+    <string name="preference_crop_guide_2_33">2.33 (21:9)</string>
+    <string name="preference_crop_guide_2_35">2.35 (47:20)</string>
+    <string name="preference_crop_guide_2_4">2.4 (12:5)</string>
+
+    <string name="preference_audio_noise_control_sensitivity_3">+3 (wysoka czułość)</string>
+    <string name="preference_audio_noise_control_sensitivity_2">+2</string>
+    <string name="preference_audio_noise_control_sensitivity_1">+1</string>
+    <string name="preference_audio_noise_control_sensitivity_0">0 (domyślnie)</string>
+    <string name="preference_audio_noise_control_sensitivity_m1">-1</string>
+    <string name="preference_audio_noise_control_sensitivity_m2">-2</string>
+    <string name="preference_audio_noise_control_sensitivity_m3">-3 (niska czułość)</string>
 
     <string name="preference_hdr_contrast_enhancement">Poprawa kontrastu HDR</string>
     <string name="preference_hdr_contrast_enhancement_summary">Może poprawić wygląd w przypadkach, gdy w scenie występuje bardzo duży zakres dynamiki, a także nadać wynikom „wygląd HDR”.\n%s</string>
@@ -690,6 +736,10 @@
     <string name="preference_nr_mode">Tryb RSz</string>
     <string name="preference_nr_mode_normal">Normalny</string>
     <string name="preference_nr_mode_low_light">Słabe oświetlenie</string>
+
+    <string name="preference_ui_placement_left">Interfejs dla leworęcznych</string>
+    <string name="preference_ui_placement_right">Interfejs dla praworęcznych</string>
+    <string name="preference_ui_placement_top">Ikony u góry (portret)</string>
 
     <string name="preference_show_face_detection">Wykrywanie twarzy</string>
     <string name="preference_show_face_detection_summary">Wyświetla ikonę na ekranie do włączania lub wyłączania wykrywania twarzy</string>
@@ -912,56 +962,6 @@
     <string name="preference_comment_ypr_summary">Zapisuje odchylenie, nachylenie i przechylenie urządzenia w komentarzu użytkownika Exif do zdjęcia (tylko format JPEG)</string>
 
     <string name="array_seekbar_preference_seekbar">Pasek do zmiany bieżącej wartości preferencji</string>
-
-    <string name="white_balance_auto">Automatycznie</string>
-    <string name="white_balance_cloudy">Pochmurno</string>
-    <string name="white_balance_daylight">Światło dzienne</string>
-    <string name="white_balance_fluorescent">Świetlówka</string>
-    <string name="white_balance_incandescent">Żarówka</string>
-    <string name="white_balance_shade">Cień</string>
-    <string name="white_balance_twilight">Zmierzch</string>
-    <string name="white_balance_warm">Ciepły</string>
-    <string name="white_balance_manual">Ręczny</string>
-    <string name="scene_mode_action">Ruch</string>
-    <string name="scene_mode_barcode">Kod kreskowy</string>
-    <string name="scene_mode_beach">Plaża</string>
-    <string name="scene_mode_candlelight">Światło świeczki</string>
-    <string name="scene_mode_auto">Automatycznie</string>
-    <string name="scene_mode_fireworks">Sztuczne ognie</string>
-    <string name="scene_mode_landscape">Pejzaż</string>
-    <string name="scene_mode_night">Noc</string>
-    <string name="scene_mode_night_portrait">Portret w nocy</string>
-    <string name="scene_mode_party">Impreza</string>
-    <string name="scene_mode_portrait">Portret</string>
-    <string name="scene_mode_snow">Śnieg</string>
-    <string name="scene_mode_sports">Sport</string>
-    <string name="scene_mode_steady_photo">Statyczne zdjęcie</string>
-    <string name="scene_mode_sunset">Zachód słońca</string>
-    <string name="scene_mode_theatre">Teatr</string>
-
-    <string name="color_effect_aqua">Woda</string>
-    <string name="color_effect_blackboard">Tablica</string>
-    <string name="color_effect_mono">Czarno-białe</string>
-    <string name="color_effect_negative">Negatyw</string>
-    <string name="color_effect_none">Brak</string>
-    <string name="color_effect_posterize">Plakat</string>
-    <string name="color_effect_sepia">Sepia</string>
-    <string name="color_effect_solarize">Nasłonecznianie</string>
-    <string name="color_effect_whiteboard">Tablica magnetyczna</string>
-
-    <string name="whats_new">Co nowego:</string>
-    <string name="donate">Przekaż darowiznę</string>
-
-    <!-- for accessibility, these strings for face detection will typically be spoken, e.g., through Google Talkback -->
-    <string name="face_detected">twarz</string>
-    <string name="faces_detected">twarze</string>
-    <string name="left_of_screen">z lewej strony ekranu</string>
-    <string name="right_of_screen">z prawej strony ekranu</string>
-    <string name="top_of_screen">u góry ekranu</string>
-    <string name="bottom_of_screen">na dole ekranu</string>
-    <string name="centre_of_screen">w środku</string>
-
-    <string name="high_speed">Duża prędkość</string> <!-- in the sense of high speed video frame rates -->
 
     <string name="preference_audio_control_none">Wyłączono</string>
     <string name="preference_audio_control_noise">Głośny dźwięk</string>
