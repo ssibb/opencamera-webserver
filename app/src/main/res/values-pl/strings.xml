@@ -173,7 +173,7 @@
     <string name="preference_screen_location_settings">Ustawienia lokalizacji…</string>
     <string name="preference_resolution">Rozdzielczość aparatu</string>
     <string name="preference_quality">Jakość obrazu</string>
-    <string name="preference_quality_summary">Ustaw jakość zapisywanych plików JPEG (domyślna wartość to 90%%)\n%s</string>
+    <string name="preference_quality_summary">Ustaw jakość zapisywanych plików JPEG lub WebP (domyślna wartość to 90%%). Nie wpływa to na format PNG.\n%s</string>
     <!-- '%' is encoded as '%%' - a single % can crash devices, and this isn't picked up by Android Lint! -->
     <string name="preference_raw">RAW</string>
     <string name="preference_location">Zapisuj dane lokalizacji (Geolokalizacja)</string>
@@ -303,6 +303,9 @@
     <string name="no_permission">POZWOLENIA NIEDOSTĘPNE</string>
     <string name="permission_rationale_title">Wymagane pozwolenie</string>
     <string name="permission_rationale_camera">Wymagane pozwolenie na dostęp do aparatu</string>
+    <string name="permission_rationale_storage">Do zapisywania plików wynikowych, takich jak zdjęcia lub filmy, wymagane jest uprawnienie do odczytu/zapisu pamięci masowej</string>
+    <string name="permission_rationale_record_audio">Zezwolenie na korzystanie z mikrofonu jest wymagane do nagrywania wideo z dźwiękiem, a także do korzystania z opcji \"Aktywacja za pomocą dźwięków\"</string>
+    <string name="permission_rationale_location">Zezwolenie na lokalizację jest wymagane do geotagowania (przechowywania danych o lokalizacji na zdjęciach i filmach, w tym opcji znaczników i napisów). Zezwolenie na lokalizację jest również wymagane (przynajmniej w systemie Android 11 i wcześniejszych) do łączenia się z urządzeniami zdalnego sterowania Bluetooth LE</string>
 
     <string name="preference_category_photo_debugging">Opcje debugowania</string>
     <string name="preference_category_video_debugging">Opcje debugowania</string>
@@ -457,6 +460,8 @@
     <string name="preference_exif_artist_summary">Tekst do zapisania w metadanych obrazu dla znacznika artysty (tylko format JPEG). (Pozostaw puste dla żadnego)</string>
     <string name="preference_exif_copyright">Prawa autorskie</string>
     <string name="preference_exif_copyright_summary">Tekst do przechowywania w metadanych obrazu dla znacznika praw autorskich (tylko format JPEG). (Pozostaw puste dla żadnego)</string>
+
+    <string name="processing">Przetwarzanie…</string>
 
     <string name="preference_raw_no">Tylko JPEG</string>
     <string name="preference_raw_yes">JPEG i DNG (RAW)</string>
@@ -647,6 +652,7 @@
     <string name="preference_burst_mode_unlimited">Bez limitu</string>
 
     <string name="preference_burst_interval_no_delay">Bez opóźnienia</string>
+    <string name="preference_burst_interval_0_5s">0.5s</string>
     <string name="preference_burst_interval_1s">1s</string>
     <string name="preference_burst_interval_2s">2s</string>
     <string name="preference_burst_interval_3s">3s</string>
@@ -776,7 +782,7 @@
 
     <string name="preference_nr_mode_low_light_message">Tryb słabego oświetlenia: trzymaj aparat stabilnie</string>
 
-    <string name="photo_mode_panorama">Pano</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
+    <string name="photo_mode_panorama">Pan</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
     <string name="photo_mode_panorama_full">Panorama</string>
 
     <string name="preference_screen_remote_control">Zdalne sterowanie poprzez Bluetooth LE…</string>
@@ -995,4 +1001,11 @@
     <string name="preference_remove_device_exif_off">Nie usuwaj danych EXIF urządzenia</string>
     <string name="preference_remove_device_exif_on">Usuń dane EXIF urządzenia</string>
     <string name="preference_remove_device_exif_keep_datetime">Usuń z wyjątkiem daty/godziny</string>
+    
+    <string name="choose_camera">Wybierz aparat:</string>
+    
+    <string name="preference_show_focus_peaking">Pokaż ikonę ostrości szczytowej</string>
+    <string name="preference_show_focus_peaking_summary">Określa, czy na ekranie ma być wyświetlana ikona włączania lub wyłączania funkcji ostrości szczytowej. Gdy funkcja ostrości sztywoej jest włączona, podświetlenia będą wyświetlane na krawędziach (konturach), na których ustawiona jest ostrość. Patrz Ustawienia/Podgląd aparatu/"Ostrość szczytowa".</string>
+    <string name="focus_peaking_enable">Włącz ostrość szczytową</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+    <string name="focus_peaking_disable">Wyłącz ostrość szczytową</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
 </resources>
