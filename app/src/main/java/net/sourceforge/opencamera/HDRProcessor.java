@@ -35,8 +35,8 @@ public class HDRProcessor {
 
     // flag to control migration away from renderscript!
     // if use_renderscript==false, then use Java instead of Renderscript
-    //public final static boolean use_renderscript = false;
-    public final static boolean use_renderscript = true;
+    public final static boolean use_renderscript = false;
+    //public final static boolean use_renderscript = true;
 
     private RenderScript rs; // lazily created, so we don't take up resources if application isn't using HDR
 
