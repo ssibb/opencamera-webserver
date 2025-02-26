@@ -10,9 +10,9 @@
     <string name="off">Wyłączono</string> <!-- whether a setting is turned off, e.g., "Auto-level: Off" -->
 
     <string name="choose_save_location">Wybierz miejsce zapisywania:</string>
-    <string name="clear_folder_history">Wyczyść historię folderów</string>
-    <string name="clear_folder_history_question">Wyczyścić historię folderów?</string>
-    <string name="choose_another_folder">Wybierz inny folder</string>
+    <string name="clear_folder_history">Wyczyść historię katalogów</string>
+    <string name="clear_folder_history_question">Wyczyścić historię katalogów?</string>
+    <string name="choose_another_folder">Wybierz inny katalog</string>
     <string name="changed_save_location">Zmieniono miejsce zapisywania na:</string>
     <string name="stopped_recording_video">Zatrzymano nagrywanie filmu</string>
     <string name="repeats_to_go">pozostało powtórzeń</string> <!--    intentionally starts lower case -->
@@ -111,7 +111,7 @@
     <string name="preference_audio_noise_control_sensitivity">Czułość sterowania dźwiękiem</string>
     <string name="preference_audio_noise_control_sensitivity_summary">Poziom czułości na głośne dźwięki aktywujące aparat</string>
     <string name="preference_save_location">Lokalizacja zapisu</string>
-    <string name="preference_save_location_summary">Folder, do którego będą zapisywane pliki</string>
+    <string name="preference_save_location_summary">Katalog, do którego będą zapisywane pliki</string>
     <string name="preference_using_saf_summary">Używa Storage Access Framework do zapisu plików zdjęć i filmów</string>
     <string name="preference_save_photo_prefix">Przedrostek nazw zdjęć</string>
     <string name="preference_save_photo_prefix_summary">Przedrostek używany w nazwach plików zdjęć</string>
@@ -253,17 +253,17 @@
     <string name="trash">Usuń ostatnie zdjęcie</string>
     <string name="share">Udostępnij zdjęcie</string>
     
-    <string name="parent_folder">Nadrzędny folder</string>
-    <string name="new_folder">Nowy folder</string>
-    <string name="cant_write_folder">Nie można zapisywać w tym folderze</string>
-    <string name="cant_access_folder">Brak dostępu do tego folderu</string>
-    <string name="enter_new_folder">Wpisz nazwę nowego folderu</string>
-    <string name="failed_create_folder">Nie można utworzyć folderu</string>
-    <string name="folder_exists">Folder już istnieje</string>
+    <string name="parent_folder">Nadrzędny katalog</string>
+    <string name="new_folder">Nowy katalog</string>
+    <string name="cant_write_folder">Nie można zapisywać w tym katalogu</string>
+    <string name="cant_access_folder">Brak dostępu do tego katalogu</string>
+    <string name="enter_new_folder">Wpisz nazwę nowego katalogu</string>
+    <string name="failed_create_folder">Nie można utworzyć katalogu</string>
+    <string name="folder_exists">Katalog już istnieje</string>
     
     <string name="saf_select_save_location">Wybierz miejsce zapisu</string>
-    <string name="saf_cancelled">SAF(Storage Access Framework) anulowano</string>
-    <string name="saf_permission_failed">Nie można zapisać w tym folderze</string>
+    <string name="saf_cancelled">Storage Access Framework anulowano</string>
+    <string name="saf_permission_failed">Nie można zapisać w tym katalogu</string>
 
     <!-- the permission names such as Microphone should match what Android calls them in the App permission settings -->
     <string name="permission_record_audio_not_available">Brak pozwolenia na dostęp do mikrofonu</string>
@@ -293,7 +293,7 @@
     <string name="photo_mode_hdr">HDR</string> <!-- keep short, as this shows in the popup menu -->
     <string name="photo_mode_expo_bracketing">Ekspo {}</string>
     <string name="photo_mode_expo_bracketing_full">Bracketing ekspozycji</string>
-    <string name="photo_mode_fast_burst_full">Bracketing</string>
+    <string name="photo_mode_fast_burst_full">Szybka seria</string>
     <string name="photo_mode_noise_reduction">RSz</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
     <string name="photo_mode_noise_reduction_full">Redukcja szumów</string>
     <string name="preference_category_stamp">Stempel zdjęcia</string>
@@ -314,8 +314,8 @@
     
     <string name="preference_expo_bracketing_n_images">Bracketing ekspozycji</string>
     <string name="preference_expo_bracketing_n_images_summary">Ilość obrazów w trybie bracketingu\n%s</string>
-    <string name="preference_expo_bracketing_stops">Stopniowanie Bracketingu</string>
-    <string name="preference_expo_bracketing_stops_summary">Ustawia zakres wartości dla jaśniejszej/ciemniejszej ekspozycji\n%s</string>
+    <string name="preference_expo_bracketing_stops">Stopniowanie ekspozycji Bracketingu</string>
+    <string name="preference_expo_bracketing_stops_summary">Ile przejść odjąć/dodać do najciemniejszego/najjaśniejszego obrazu?\n%s</string>
 
     <string name="preference_nr_save">Redukcja szumów zdjęć</string>
     <string name="preference_nr_save_summary">Zapisuje oryginalne zdjęcia w trybie redukcji szumów. Pamiętaj, że może to znacznie spowolnić zapisywanie zdjęć.\n%s</string>
@@ -456,7 +456,7 @@
     <string name="preference_video_fps_default">Domyślnie</string>
 
     <string name="preference_category_exif_tags">Własne znaczniki EXIF</string>
-    <string name="preference_exif_artist">Artysta</string>
+    <string name="preference_exif_artist">Autor</string>
     <string name="preference_exif_artist_summary">Tekst do zapisania w metadanych obrazu dla znacznika artysty (tylko format JPEG). (Pozostaw puste dla żadnego)</string>
     <string name="preference_exif_copyright">Prawa autorskie</string>
     <string name="preference_exif_copyright_summary">Tekst do przechowywania w metadanych obrazu dla znacznika praw autorskich (tylko format JPEG). (Pozostaw puste dla żadnego)</string>
@@ -735,6 +735,7 @@
 
     <string name="preference_image_format">Format zdjęć</string>
     <string name="preference_image_format_jpeg">JPEG</string>
+    <string name="preference_image_format_jpeg_r">UltraHDR JPEG</string>
     <string name="preference_image_format_webp">WebP</string>
     <string name="preference_image_format_png">PNG</string>
 
@@ -844,15 +845,15 @@
 
     <string name="preference_preview">Podgląd aparatu…</string>
 
-    <string name="cycle_flash">Tryby flashowania</string>
-    <string name="preference_show_cycle_flash">Lampa błyskowa</string>
-    <string name="preference_show_cycle_flash_summary">Wyświetla ikonę na ekranie do przełączania opcji flash, zamiast wyświetlać opcje flash w menu podręcznym. Pamiętaj, że latarka nie jest dostępna, jeśli używasz tej ikony.</string>
+    <string name="cycle_flash">Tryby lampy błyskowej</string>
+    <string name="preference_show_cycle_flash">Pokazuje ikonkę lampy błyskowej</string>
+    <string name="preference_show_cycle_flash_summary">Wyświetla ikonę na ekranie do przełączania opcji lampy błyskowej, zamiast wyświetlać opcje lampy błyskowej w menu podręcznym. Pamiętaj, że latarka nie jest dostępna, jeśli używasz tej ikony.</string>
 
     <string name="preference_raw_expo_bracketing">Zezwalaj na format RAW dla braketingu ekspozycji</string>
-    <string name="preference_raw_expo_bracketing_summary">Określa, czy opcja RAW powinna mieć zastosowanie również w trybie zdjęć z braketingiem ekspozycji (lub w trybie HDR, gdy włączona jest opcja „Zapisz wszystkie obrazy w trybie HDR”). Jeśli ta opcja jest wyłączona w tych trybach zdjęć, będą zapisywane tylko pliki JPEG.</string>
+    <string name="preference_raw_expo_bracketing_summary">Określa, czy opcja RAW powinna mieć zastosowanie również w trybie zdjęć z braketingiem ekspozycji (lub w trybie HDR, gdy włączona jest opcja „Zapisz wszystkie obrazy w trybie HDR”). Jeśli ta opcja jest wyłączona, w tych trybach zdjęć zapisywane będą tylko obrazy inne niż DNG (JPEG/etc).</string>
 
     <string name="preference_raw_focus_bracketing">Zezwalaj na format RAW dla braketingu ostrości</string>
-    <string name="preference_raw_focus_bracketing_summary">Określa, czy opcja RAW powinna mieć zastosowanie również w trybie zdjęć z braketingiem ostrości. Jeśli ta opcja jest wyłączona, tylko pliki JPEG będą zapisywane w trybach zdjęć z braketingiem ostrości.</string>
+    <string name="preference_raw_focus_bracketing_summary">Określa, czy opcja RAW powinna mieć zastosowanie również w trybie zdjęć z braketingiem ostrości. Jeśli ta opcja jest wyłączona, w trybach zdjęć z bracketingiem ostrości zapisywane będą tylko zdjęcia w formacie innym niż DNG (JPEG/etc).</string>
 
     <string name="cycle_raw">Tryby RAW</string>
     <string name="preference_show_cycle_raw">Ikona RAW</string>
@@ -888,7 +889,7 @@
 
     <string name="exposure_compensation_seekbar">Pasek do zmiany kompensacji ekspozycji</string>
 
-    <string name="preference_image_format_summary">Wybierz format pliku używany do zapisywania zdjęć. Dotyczy to zdjęć „standardowych” (nie RAW). Tylko JPEG obsługuje zapisywanie metadanych Exif. Zauważ, że format PNG nie jest naprawdę bezstratny, zamiast tego jest konwertowany z JPEG z jakością 100 %%.\n%s</string>
+    <string name="preference_image_format_summary">Wybierz format pliku używany do zapisywania zdjęć. Dotyczy to zdjęć „standardowych” (nie RAW). Tylko JPEG obsługuje zapisywanie metadanych Exif. UltraHDR nie jest obsługiwany dla trybów RSz, HDR, Pan, X-. Należy pamiętać, że format PNG nie jest naprawdę bezstratny, zamiast tego jest konwertowany z JPEG przy 100% jakości.\n%s</string>
 
     <string name="preference_camera_api">Interfejs aparatu (Camera API)</string>
     <string name="preference_camera_api_summary">Wybierz interfejs (Camera2 API), aby włączyć dodatkowe funkcje, takie jak ręczne tryby ekspozycji, ostrości, balansu bieli oraz RAW (jeśli jest obsługiwany przez urządzenie). Zmiana interfejsu API spowoduje ponowne uruchomienie aplikacji.\n%s</string>
@@ -899,7 +900,7 @@
         Po włączeniu użyj przycisku mikrofonu na ekranie, aby rozpocząć/zatrzymać nasłuchiwanie.
         \n%s</string>
 
-    <string name="intro_text">Dotknij, aby ustawić ostrość, i dotknij niebieski przycisk aparatu, aby robić zdjęcia.
+    <string name="intro_text">Dotknij, aby ustawić ostrość, następnie dotknij niebieski przycisk aparatu, aby robić zdjęcia.
         \n\nWyłącza maksymalną jasność ekranu, zobacz Ustawienia -> "Interfejs fotografowania" -> "Wymuś maksymalną jasność".
         Aby zapisać na kartach SD w Androidzie 5+, zobacz Ustawienia -> "Więcej ustawień aparatu" -> "Storage Access Framework".
         Więcej na temat w Ustawieniach, w sekcji "Pomoc on-line".
@@ -965,7 +966,7 @@
     <string name="error_features_slow_motion">Zwolnione tempo</string>
 
     <string name="preference_comment_ypr">Przechowuj odchylenie, nachylenie i przechylenie</string>
-    <string name="preference_comment_ypr_summary">Zapisuje odchylenie, nachylenie i przechylenie urządzenia w komentarzu użytkownika Exif do zdjęcia (tylko format JPEG)</string>
+    <string name="preference_comment_ypr_summary">Przechowuje odchylenie, pochylenie i przechylenie urządzenia w komentarzu Exif zdjęcia (tylko formaty JPEG).</string>
 
     <string name="array_seekbar_preference_seekbar">Pasek do zmiany bieżącej wartości preferencji</string>
 
@@ -1008,4 +1009,22 @@
     <string name="preference_show_focus_peaking_summary">Określa, czy na ekranie ma być wyświetlana ikona włączania lub wyłączania funkcji ostrości szczytowej. Gdy funkcja ostrości sztywoej jest włączona, podświetlenia będą wyświetlane na krawędziach (konturach), na których ustawiona jest ostrość. Patrz Ustawienia/Podgląd aparatu/"Ostrość szczytowa".</string>
     <string name="focus_peaking_enable">Włącz ostrość szczytową</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
     <string name="focus_peaking_disable">Wyłącz ostrość szczytową</string> <!-- for "ContentDescription" (used for accessibility, e.g., Google Talkback) -->
+
+    <string name="preference_photo_optimise_focus">Zoptymalizuj ostrość dla…</string>
+    <string name="preference_photo_optimise_focus_summary">Optymalizuje opóźnienia lub jakość podczas robienia zdjęć. Ma znaczenie tylko w przypadku korzystania z trybu ciągłej ostrości. Optymalizacja pod kątem jakości zapewnia ostrość sceny, ale może spowodować opóźnienie robienia zdjęć.\n%s</string>
+    <string name="preference_photo_optimise_focus_latency">Opóźnienie</string>
+    <string name="preference_photo_optimise_focus_quality">Jakość</string>
+
+    <string name="preference_save_preshots">Zapisuj podgląd zdjęć</string>
+    <string name="preference_save_preshots_summary">Po włączeniu tej funkcji wraz z każdym zdjęciem zostanie zapisany krótki film zawierający ujęcia z momentu poprzedzającego wykonanie zdjęcia. Nieobsługiwane w trybach ekspozycji, bracketingu ostrości i panoramy.\n%s</string>
+
+    <string name="telephoto">Teleobiektyw</string>
+    <string name="auto_lens">Automatyczny obiektyw</string>
+    <string name="lens">Obiektyw</string>
+    <string name="physical_cameras_info">&#9432; Domyślnie kamera korzysta z automatycznego wyboru obiektywu, co oznacza, że poziom przybliżenia kontroluje, który obiektyw jest używany. Jednak to menu pozwala również wyraźnie wybrać, który obiektyw jest używany.</string>
+
+    <string name="focus_bracketing_auto_source_distance">Automatyczne źródło</string>
+
+    <string name="preference_allow_haptic_feedback">Zezwalaj na wibracje</string>
+    <string name="preference_allow_haptic_feedback_summary">Czy zezwalać na wibracje dotykowe, na przykład podczas dostosowywania niektórych elementów sterujących. Należy pamiętać, że wymaga to również włączenia interakcji dotykowych w ustawieniach urządzenia.</string>
 </resources>
