@@ -961,7 +961,7 @@ public class StorageUtils {
         return filename_without_ext;
     }
 
-    /** If the filename is for a "special" type HDR, NR or PANO, then return the filename with the
+    /** If the filename is for a "special" type HDR, NR or PANO, then return the filename without the
      *  part of the filename e.g. "_HDR" onwards; else return null.
      *  Received filename should not include an extension.
      */
@@ -1572,6 +1572,31 @@ public class StorageUtils {
                 if( MyDebug.LOG )
                     Log.d(TAG, "latest video is newer");
                 media = video_media;
+
+                // but in cases of using preview shots, sometimes the video ends up with a new date (even if only by 1s), so
+                // to be sure check filenames, and prefer image if so
+                String image_filename_without_ext = filenameWithoutExtension(image_media.filename).toUpperCase(Locale.US);
+                String video_filename_without_ext = filenameWithoutExtension(video_media.filename).toUpperCase(Locale.US);
+                // exclude _HDR extension etc, as these are only used for the image, not the preview video
+                {
+                    String filename_special_base = filenameIsSpecial(image_filename_without_ext);
+                    if( filename_special_base != null )
+                        image_filename_without_ext = filename_special_base;
+                }
+                {
+                    String filename_special_base = filenameIsSpecial(video_filename_without_ext);
+                    if( filename_special_base != null )
+                        video_filename_without_ext = filename_special_base;
+                }
+                if( MyDebug.LOG ) {
+                    Log.d(TAG, "image_filename_without_ext: " + image_filename_without_ext);
+                    Log.d(TAG, "video_filename_without_ext: " + video_filename_without_ext);
+                }
+                if( image_filename_without_ext.equals(video_filename_without_ext) ) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "but prefer image due to identical filenames");
+                    media = image_media;
+                }
             }
         }
         if( MyDebug.LOG )
