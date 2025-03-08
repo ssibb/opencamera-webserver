@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private long cached_display_rotation_time_ms;
     private int cached_display_rotation;
 
-    List<Integer> exposure_seekbar_values; // mapping from exposure_seekbar value to preview exposure compensation
+    List<Integer> exposure_seekbar_values; // mapping from exposure_seekbar progress value to preview exposure compensation
     private int exposure_seekbar_values_zero; // index in exposure_seekbar_values that maps to zero preview exposure compensation
 
     @Override
@@ -1487,15 +1487,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 SeekBar seekBar = this.findViewById(R.id.exposure_seekbar);
                 int progress = seekBar.getProgress();
                 int new_progress = progress + change;
-                int current_exposure = exposure_seekbar_values.get(progress);
-                if( exposure_seekbar_values.get(new_progress) == 0 && current_exposure != 0 ) {
+                int current_exposure = getExposureSeekbarValue(progress);
+                if( getExposureSeekbarValue(new_progress) == 0 && current_exposure != 0 ) {
                     // snap to the central repeated zero
                     new_progress = exposure_seekbar_values_zero;
                     change = new_progress - progress;
                 }
                 else {
                     // skip over the repeated zeroes
-                    while( new_progress > 0 && new_progress < exposure_seekbar_values.size()-1 && exposure_seekbar_values.get(new_progress) == current_exposure ) {
+                    while( new_progress > 0 && new_progress < exposure_seekbar_values.size()-1 && getExposureSeekbarValue(new_progress) == current_exposure ) {
                         if( change > 0 )
                             change++;
                         else
@@ -1508,6 +1508,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
             mainUI.changeSeekbar(R.id.exposure_seekbar, change);
         }
+    }
+
+    public int getExposureSeekbarProgressZero() {
+        return exposure_seekbar_values_zero;
+    }
+
+    /** Returns the exposure compensation corresponding to a progress on the seekbar.
+     *  Caller is responsible for checking that progress is within valid range.
+     */
+    public int getExposureSeekbarValue(int progress) {
+        return exposure_seekbar_values.get(progress);
     }
 
     public void changeISO(int change) {
@@ -6003,7 +6014,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             Log.e(TAG, "exposure_seekbar_values is null");
                             return;
                         }
-                        int new_exposure = exposure_seekbar_values.get(progress);
+                        int new_exposure = getExposureSeekbarValue(progress);
                         if( fromUser ) {
                             // check if not scrolling past the repeated zeroes
                             if( preview.getCurrentExposure() != new_exposure ) {

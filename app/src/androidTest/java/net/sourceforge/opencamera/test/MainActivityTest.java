@@ -2805,20 +2805,27 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         subTestISOButtonAvailability();
 
-        assertEquals(mPreview.getMaximumExposure() - mPreview.getMinimumExposure(), seekBar.getMax());
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        //assertEquals(mPreview.getMaximumExposure() - mPreview.getMinimumExposure(), seekBar.getMax());
+        //assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        // need to allow for repeated zero values in seekbar:
+        assertTrue(seekBar.getMax() > mPreview.getMaximumExposure() - mPreview.getMinimumExposure());
+        assertEquals(mActivity.getExposureSeekbarProgressZero(), seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
         Log.d(TAG, "change exposure to 1");
         mActivity.changeExposure(1);
         this.getInstrumentation().waitForIdleSync();
         assertEquals(1, mPreview.getCurrentExposure());
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        //assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
         Log.d(TAG, "set exposure to min");
         seekBar.setProgress(0);
         this.getInstrumentation().waitForIdleSync();
         Log.d(TAG, "actual exposure is now " + mPreview.getCurrentExposure());
         Log.d(TAG, "expected exposure to be " + mPreview.getMinimumExposure());
         assertEquals(mPreview.getCurrentExposure(), mPreview.getMinimumExposure());
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        //assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        assertEquals(0, seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
 
         // test the exposure button clears and reopens without changing exposure level
         clickView(exposureButton);
@@ -2828,7 +2835,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertEquals(exposureButton.getVisibility(), View.VISIBLE);
         assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
         assertEquals(mPreview.getCurrentExposure(), mPreview.getMinimumExposure());
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        //assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        assertEquals(0, seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
 
         // test touch to focus clears the exposure controls
         int [] gui_location = new int[2];
@@ -2843,13 +2852,16 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertEquals(exposureButton.getVisibility(), View.VISIBLE);
         assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
         assertEquals(mPreview.getCurrentExposure(), mPreview.getMinimumExposure());
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        //assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        assertEquals(0, seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
 
         Log.d(TAG, "set exposure to -1");
         seekBar.setProgress(-1 - mPreview.getMinimumExposure());
         this.getInstrumentation().waitForIdleSync();
         assertEquals(mPreview.getCurrentExposure(), -1);
-        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+        assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress()); // fine as -1 is below the repeated zeroes
+        assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
 
         // clear again so as to not interfere with take photo routine
         TouchUtils.drag(MainActivityTest.this, gui_location[0]+large_step_dist_c, gui_location[0], gui_location[1]+large_step_dist_c, gui_location[1], step_count_c);
@@ -2915,13 +2927,15 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
             if( mPreview.supportsExposures() ) {
                 assertEquals(mPreview.getCurrentExposure(), -1);
-                assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+                assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress()); // fine as -1 is below the repeated zeroes
+                assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
 
                 clickView(exposureButton);
                 assertEquals(exposureButton.getVisibility(), View.VISIBLE);
                 assertEquals(exposureContainer.getVisibility(), View.VISIBLE);
                 assertEquals(mPreview.getCurrentExposure(), -1);
-                assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress());
+                assertEquals(mPreview.getCurrentExposure() - mPreview.getMinimumExposure(), seekBar.getProgress()); // fine as -1 is below the repeated zeroes
+                assertEquals(mPreview.getCurrentExposure(), mActivity.getExposureSeekbarValue(seekBar.getProgress()));
             }
         }
     }
