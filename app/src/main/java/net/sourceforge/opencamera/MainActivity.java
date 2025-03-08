@@ -160,8 +160,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     //private boolean ui_placement_right = true;
 
-    private boolean edge_to_edge_mode = false; // whether running always in edge-to-edge mode
-    //private boolean edge_to_edge_mode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM; // whether running always in edge-to-edge mode
+    //private final boolean edge_to_edge_mode = false; // whether running always in edge-to-edge mode
+    //private final boolean edge_to_edge_mode = true; // whether running always in edge-to-edge mode
+    private final boolean edge_to_edge_mode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM; // whether running always in edge-to-edge mode
     private boolean want_no_limits; // whether we want to run with FLAG_LAYOUT_NO_LIMITS
     private boolean set_window_insets_listener; // whether we've enabled a setOnApplyWindowInsetsListener()
     private int navigation_gap; // gap for navigation bar along bottom (portrait) or right (landscape)
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         activity_count++;
         if( MyDebug.LOG )
             Log.d(TAG, "activity_count: " + activity_count);
+        //EdgeToEdge.enable(this, SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT)); // test edge-to-edge on pre-Android 15
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -1567,6 +1569,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // Set black window background; also needed if we hide the virtual buttons in immersive mode
         // Note that we do it here rather than customising the theme's android:windowBackground, so this doesn't affect other views - in particular, the MyPreferenceFragment settings
         getWindow().getDecorView().getRootView().setBackgroundColor(Color.BLACK);
+
+        if( edge_to_edge_mode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM ) {
+            // needed on Android 15, otherwise the navigation bar is not transparent
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
 
         registerDisplayListener();
 
