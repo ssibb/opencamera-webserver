@@ -237,6 +237,8 @@ public class PreferenceKeys {
 
     public static final String SaveZuluTimePreferenceKey = "preference_save_zulu_time";
 
+    public static final String SaveIncludeMillisecondsPreferenceKey = "preference_save_include_milliseconds";
+
     public static final String ShowZoomControlsPreferenceKey = "preference_show_zoom_controls";
 
     public static final String ShowZoomSliderControlsPreferenceKey = "preference_show_zoom_slider_controls";
