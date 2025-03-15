@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Serienbild-Intervall</string>
     <string name="preference_screen_camera_controls_more">Mehr Kamera-Einstellungen…</string>
     <string name="preference_touch_capture">Aufnahme bei Berührung</string>
-    <string name="preference_touch_capture_summary">Fotoaufnahme durch Berührung oder Doppelklick der Vorschau starten</string>
+    <string name="preference_touch_capture_summary">Fotoaufnahme durch Berührung oder Doppelklick der Vorschau starten\n%s</string>
     <string name="preference_pause_preview">Pause nach der Fotoaufnahme</string>
     <string name="preference_pause_preview_summary">Nach der Aufnahme pausieren mit der Möglichkeit, das Foto zu teilen oder zu löschen</string>
     <string name="preference_shutter_sound">Auslöseton</string>

@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Razmik zaporednega načina</string>
     <string name="preference_screen_camera_controls_more">Več nastavitev fotoaparata …</string>
     <string name="preference_touch_capture">Dotik za zajem</string>
-    <string name="preference_touch_capture_summary">Posnemi fotografijo z dotikom ali dvojnim dotikom predogleda</string>
+    <string name="preference_touch_capture_summary">Posnemi fotografijo z dotikom ali dvojnim dotikom predogleda\n%s</string>
     <string name="preference_pause_preview">Premor po slikanju fotografije</string>
     <string name="preference_pause_preview_summary">Premor zaslona po slikanju fotografje z možnostjo deljenja ali izbrisa fotografije</string>
     <string name="preference_shutter_sound">Zvok zaklopa</string>

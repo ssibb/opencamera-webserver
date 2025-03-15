@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Intervalo do modo disparo contínuo</string>
     <string name="preference_screen_camera_controls_more">Mais controlos da câmara…</string>
     <string name="preference_touch_capture">Tocar para capturar</string>
-    <string name="preference_touch_capture_summary">Tirar uma fotografia com apenas um toque ou com um toque duplo na pré-visualização</string>
+    <string name="preference_touch_capture_summary">Tirar uma fotografia com apenas um toque ou com um toque duplo na pré-visualização\n%s</string>
     <string name="preference_pause_preview">Pausar após tirar fotografia</string>
     <string name="preference_pause_preview_summary">Pausar o ecrã após tirar uma fotografia, com a opção de partilhar ou eliminar a fotografia.</string>
     <string name="preference_shutter_sound">Som do obturador</string>

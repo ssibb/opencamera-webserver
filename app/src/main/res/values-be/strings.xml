@@ -99,7 +99,7 @@
     <string name="preference_burst_interval">Інтэрвал пры пакетнай здымцы</string>
     <string name="preference_screen_camera_controls_more">Больш налад камеры…</string>
     <string name="preference_touch_capture">Націсніце, каб захапіць</string>
-    <string name="preference_touch_capture_summary">Фатаграфаваць дакранаючыся або двойчы націснуўшы прагляд</string>
+    <string name="preference_touch_capture_summary">Фатаграфаваць дакранаючыся або двойчы націснуўшы прагляд\n%s</string>
     <string name="preference_pause_preview">Паўза пасля фатаграфавання</string>
     <string name="preference_pause_preview_summary">Паўза  пасля фатаграфавання, падчас якой магчыма падзяліцца або выдаліць фота</string>
     <string name="preference_shutter_sound">Гук засаўкі</string>

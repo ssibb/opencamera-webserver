@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Khoảng thời gian chụp liên tục</string>
     <string name="preference_screen_camera_controls_more">Thêm tùy chọn điều khiển máy ảnh</string>
     <string name="preference_touch_capture">Chạm để chụp</string>
-    <string name="preference_touch_capture_summary">Chụp ảnh bằng cách chạm đơn hoặc chạm đúp vào bản xem trước</string>
+    <string name="preference_touch_capture_summary">Chụp ảnh bằng cách chạm đơn hoặc chạm đúp vào bản xem trước\n%s</string>
     <string name="preference_pause_preview">Tạm dừng sau khi chụp</string>
     <string name="preference_pause_preview_summary">Dừng màn hình sau khi chụp, hiện tùy chọn chia sẻ hoặc xóa ảnh</string>
     <string name="preference_shutter_sound">Âm chụp</string>

@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Interwał Serii</string>
     <string name="preference_screen_camera_controls_more">Więcej ustawień aparatu…</string>
     <string name="preference_touch_capture">Dotknij, aby zrobić zdjęcie</string>
-    <string name="preference_touch_capture_summary">Robi zdjęcie poprzez pojedyncze lub podwójne dotknięcie</string>
+    <string name="preference_touch_capture_summary">Robi zdjęcie poprzez pojedyncze lub podwójne dotknięcie\n%s</string>
     <string name="preference_pause_preview">Pauza po zrobieniu zdjęcia</string>
     <string name="preference_pause_preview_summary">Wstrzymuje podgląd po zrobieniu zdjęcia, z możliwością udostępnienia lub usunięcia</string>
     <string name="preference_shutter_sound">Dźwięk migawki</string>

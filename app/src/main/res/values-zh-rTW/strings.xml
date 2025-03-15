@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">連拍模式間隔</string>
     <string name="preference_screen_camera_controls_more">更多相機控制…</string>
     <string name="preference_touch_capture">點擊拍照</string>
-    <string name="preference_touch_capture_summary">在預覽畫面按一次或兩次來拍照</string>
+    <string name="preference_touch_capture_summary">在預覽畫面按一次或兩次來拍照\n%s</string>
     <string name="preference_pause_preview">拍照後暫停</string>
     <string name="preference_pause_preview_summary">拍照後暫停螢幕，顯示分享或刪除照片選項</string>
     <string name="preference_shutter_sound">快門聲音</string>

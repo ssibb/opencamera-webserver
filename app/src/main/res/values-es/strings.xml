@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Intervalo de modo de ráfaga</string>
     <string name="preference_screen_camera_controls_more">Más controles de cámara…</string>
     <string name="preference_touch_capture">Tocar para capturar</string>
-    <string name="preference_touch_capture_summary">Toma una foto simplemente tocando o tocando dos veces la pantalla</string>
+    <string name="preference_touch_capture_summary">Toma una foto simplemente tocando o tocando dos veces la pantalla\n%s</string>
     <string name="preference_pause_preview">Pausar después de tomar la foto</string>
     <string name="preference_pause_preview_summary">Pause la pantalla después de tomar una foto, con la opción de compartir o eliminar la foto</string>
     <string name="preference_shutter_sound">Sonido del obturador</string>

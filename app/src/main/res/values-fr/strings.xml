@@ -99,7 +99,7 @@
     <string name="preference_burst_interval">Intervale du mode rafale</string>
     <string name="preference_screen_camera_controls_more">Plus de paramètres…</string>
     <string name="preference_touch_capture">Toucher pour capturer</string>
-    <string name="preference_touch_capture_summary">Prendre une photo en touchant 1 ou 2 fois l\'aperçu</string>
+    <string name="preference_touch_capture_summary">Prendre une photo en touchant 1 ou 2 fois l\'aperçu\n%s</string>
     <string name="preference_pause_preview">Mettre en pause après la prise de photo</string>
     <string name="preference_pause_preview_summary">Mettre en pause l\'écran après avoir pris une photo, avec la possibilité de partager ou supprimer la photo</string>
     <string name="preference_shutter_sound">Son de l\'obturateur</string>

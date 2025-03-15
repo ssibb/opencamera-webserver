@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Інтервал в пакетному режимі</string>
     <string name="preference_screen_camera_controls_more">Додаткові налаштування</string>
     <string name="preference_touch_capture">Дотик для зйомки</string>
-    <string name="preference_touch_capture_summary">Робити знімок по одному чи подвійному дотику по області перегляду</string>
+    <string name="preference_touch_capture_summary">Робити знімок по одному чи подвійному дотику по області перегляду\n%s</string>
     <string name="preference_pause_preview">Пауза після знімку</string>
     <string name="preference_pause_preview_summary">Пауза після зняття фото, з можливістю поділитися чи видалити фотографію</string>
     <string name="preference_shutter_sound">Звук затвору</string>

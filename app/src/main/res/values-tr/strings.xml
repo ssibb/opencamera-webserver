@@ -99,7 +99,7 @@
     <string name="preference_burst_interval">Patlama modu süresi</string>
     <string name="preference_screen_camera_controls_more">Daha fazla kamera kontrol ayarı…</string>
     <string name="preference_touch_capture">Yakalamak için dokunun</string>
-    <string name="preference_touch_capture_summary">Sadece dokunarak fotoğraf çekin ya da önizlemek için ardarda dokunun</string>
+    <string name="preference_touch_capture_summary">Sadece dokunarak fotoğraf çekin ya da önizlemek için ardarda dokunun\n%s</string>
     <string name="preference_pause_preview">Fotoğraf çektikten sonra beklet</string>
     <string name="preference_pause_preview_summary">Fotoğraf çektikten sonra fotoğrafı paylaşma ya da silme seçeneği için ekranı duraklat</string>
     <string name="preference_shutter_sound">Fotoğraf çekme sesi</string>

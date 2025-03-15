@@ -99,7 +99,7 @@
     <string name="preference_burst_interval">连拍间隔时长</string>
     <string name="preference_screen_camera_controls_more">更多相机控制…</string>
     <string name="preference_touch_capture">触摸快门</string>
-    <string name="preference_touch_capture_summary">拍照只需通过触摸预览</string>
+    <string name="preference_touch_capture_summary">拍照只需通过触摸预览\n%s</string>
     <string name="preference_pause_preview">拍照后暂停</string>
     <string name="preference_pause_preview_summary">拍照后暂停屏幕，带有选项分享或删除照片</string>
     <string name="preference_shutter_sound">快门声音</string>

@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Seriefotograferingsintervall</string>
     <string name="preference_screen_camera_controls_more">Flere kamerakontrollere…</string>
     <string name="preference_touch_capture">Trykk for å ta bilde</string>
-    <string name="preference_touch_capture_summary">Ta et foto kun ved å trykke på dobbelt-tappe på forhåndsvisningen.</string>
+    <string name="preference_touch_capture_summary">Ta et foto kun ved å trykke på dobbelt-tappe på forhåndsvisningen\n%s</string>
     <string name="preference_pause_preview">Pause etter å ha tatt et bilde</string>
     <string name="preference_pause_preview_summary">Sett skjermen på pause etter å ha tatt et bilde, med valgene om å dele eller slette bildet.</string>
     <string name="preference_shutter_sound">Lukkerlyd</string>

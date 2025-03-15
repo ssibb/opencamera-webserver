@@ -99,7 +99,7 @@
     <string name="preference_burst_interval">Mezidobí sekvenčního snímání</string>
     <string name="preference_screen_camera_controls_more">Více nastavení fotoaparátu…</string>
     <string name="preference_touch_capture">Vyfotit dotykem</string>
-    <string name="preference_touch_capture_summary">Pořídit fotografii pouze dotykem nebo poklepáním na náhled</string>
+    <string name="preference_touch_capture_summary">Pořídit fotografii pouze dotykem nebo poklepáním na náhled\n%s</string>
     <string name="preference_pause_preview">Pauza po pořízení fotografie</string>
     <string name="preference_pause_preview_summary">Zobrazit fotografii po pořízení s možností sdílení nebo vymazání fotografie</string>
     <string name="preference_shutter_sound">Zvuk závěrky</string>

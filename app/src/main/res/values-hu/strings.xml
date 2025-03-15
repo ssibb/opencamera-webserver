@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">Sorozatfelvétel intervallum</string>
     <string name="preference_screen_camera_controls_more">További kamera beállítások…</string>
     <string name="preference_touch_capture">Exponálás érintéssel</string>
-    <string name="preference_touch_capture_summary">Fénykép készítése az előnézet érintésével, vagy dupla koppintással</string>
+    <string name="preference_touch_capture_summary">Fénykép készítése az előnézet érintésével, vagy dupla koppintással\n%s</string>
     <string name="preference_pause_preview">Fotózás utáni szünet</string>
     <string name="preference_pause_preview_summary">Kép kimerevítése a fotó elkészítése után, a fotó megosztásának és törlésének lehetőségével</string>
     <string name="preference_shutter_sound">Zárhang</string>

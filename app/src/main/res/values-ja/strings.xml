@@ -100,7 +100,7 @@
     <string name="preference_burst_interval">インターバル</string>
     <string name="preference_screen_camera_controls_more">カメラ制御の詳細設定…</string>
     <string name="preference_touch_capture">画面タッチで撮影する</string>
-    <string name="preference_touch_capture_summary">画面をタッチまたはダブルタップして写真を撮影します</string>
+    <string name="preference_touch_capture_summary">画面をタッチまたはダブルタップして写真を撮影します\n%s</string>
     <string name="preference_pause_preview">撮影の後に一時停止する</string>
     <string name="preference_pause_preview_summary">一時停止した画面上で写真の共有もしくは削除ができます</string>
     <string name="preference_shutter_sound">シャッター音</string>
