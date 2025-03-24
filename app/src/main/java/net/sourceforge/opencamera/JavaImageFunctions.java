@@ -4318,7 +4318,7 @@ public class JavaImageFunctions {
         // bitmaps in ARGB format
         private final byte [] bitmap_in;
         private final byte [] bitmap_out;
-        private final int width, height; // dimensions of bitmap_out (bitmap_in should be half the width and half the height)
+        private final int width, /** @noinspection FieldCanBeLocal*/ height; // dimensions of bitmap_out (bitmap_in should be half the width and half the height)
 
         ExpandBitmapFullFunction(byte [] bitmap_in, byte [] bitmap_out, int width, int height) {
             this.bitmap_in = bitmap_in;
@@ -4401,7 +4401,7 @@ public class JavaImageFunctions {
         // bitmaps in ARGB format
         private final byte [] bitmap_in;
         private final byte [] bitmap_out;
-        private final int width, height;
+        private final int width, /** @noinspection FieldCanBeLocal*/ height;
 
         Blur1dXFullFunction(byte [] bitmap_in, byte [] bitmap_out, int width, int height) {
             this.bitmap_in = bitmap_in;
