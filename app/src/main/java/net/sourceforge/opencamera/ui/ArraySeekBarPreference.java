@@ -229,7 +229,7 @@ public class ArraySeekBarPreference extends DialogPreference {
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
+                new Parcelable.Creator<>() {
                     public SavedState createFromParcel(Parcel in) {
                         return new SavedState(in);
                     }

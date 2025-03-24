@@ -2082,7 +2082,7 @@ public class HDRProcessor {
                     Log.d(TAG, "    " + i + ": " + luminanceInfos[i]);
                 }
             }
-            Collections.sort(bitmapInfos, new Comparator<BitmapInfo>() {
+            Collections.sort(bitmapInfos, new Comparator<>() {
                 @Override
                 public int compare(BitmapInfo o1, BitmapInfo o2) {
                     // important to use the code in LuminanceInfo.compareTo(), as that's also tested via the unit test

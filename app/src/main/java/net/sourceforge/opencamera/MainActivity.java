@@ -2585,7 +2585,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             Log.d(TAG, "clickedSwitchMultiCamera: time after getDescription: " + (System.currentTimeMillis() - debug_time));
                     }
                     {
-                        Collections.sort(physical_cameras, new Comparator<PhysicalCamera>() {
+                        Collections.sort(physical_cameras, new Comparator<>() {
                             @Override
                             public int compare(PhysicalCamera o1, PhysicalCamera o2) {
                                 float diff = o2.view_angle.getWidth() - o1.view_angle.getWidth();
