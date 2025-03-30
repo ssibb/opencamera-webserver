@@ -7357,13 +7357,17 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     /** Take video with timelapse mode.
-     *  Fails on Android emulator (at least for Android 7.1 on VirtualScene camera).
      *  Fails on Pixel 6 Pro with old camera API.
      */
     public void testTakeVideoTimeLapse() throws InterruptedException {
         Log.d(TAG, "testTakeVideoTimeLapse");
 
         setToDefault();
+
+        if( TestUtils.isEmulator() ) {
+            // fails on Android emulator (at least for Android 7.1 on VirtualScene camera) - and can also leave camera in a state that can't be opened for subsequent tests
+            return;
+        }
 
         List<Float> supported_capture_rates = mActivity.getApplicationInterface().getSupportedVideoCaptureRates();
         if( supported_capture_rates.size() <= 1 ) {
