@@ -1135,7 +1135,7 @@ public class ImageSaver extends Thread {
         }
     }
 
-    /** Converts the array of jpegs to Bitmaps. The bitmap with index mutable_id will be marked as mutable (or set to -1 to have no mutable bitmaps).
+    /** Converts the array of jpegs to Bitmaps. The bitmap with index mutable_id will be marked as mutable (or set to -1 to have no mutable bitmaps, or -2 to have all be mutable bitmaps).
      */
     private List<Bitmap> loadBitmaps(List<byte []> jpeg_images, int mutable_id, int inSampleSize) {
         if( MyDebug.LOG ) {
@@ -1150,7 +1150,7 @@ public class ImageSaver extends Thread {
         setBitmapOptionsSampleSize(options, inSampleSize);
         LoadBitmapThread [] threads = new LoadBitmapThread[jpeg_images.size()];
         for(int i=0;i<jpeg_images.size();i++) {
-            threads[i] = new LoadBitmapThread( i==mutable_id ? mutable_options : options, jpeg_images.get(i) );
+            threads[i] = new LoadBitmapThread( (i==mutable_id || mutable_id==-2) ? mutable_options : options, jpeg_images.get(i) );
         }
         // start threads
         if( MyDebug.LOG )
@@ -1813,7 +1813,10 @@ public class ImageSaver extends Thread {
                 Collections.reverse(request.gyro_rotation_matrix);
             }
 
-            List<Bitmap> bitmaps = loadBitmaps(request.jpeg_images, -1, 1);
+            // need all to be mutable for use_renderscript==false - n.b., in practice setting to -1
+            // doesn't cause a problem on some devices e.g. Galaxy S24+ because the bitmaps may be made
+            // mutable in rotateForExif, but this can be reproduced on on emulator at least
+            List<Bitmap> bitmaps = loadBitmaps(request.jpeg_images, -2, 1);
             if( bitmaps == null ) {
                 if( MyDebug.LOG )
                     Log.e(TAG, "failed to load bitmaps");
