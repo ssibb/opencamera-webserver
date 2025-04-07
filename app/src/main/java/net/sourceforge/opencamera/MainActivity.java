@@ -3802,9 +3802,18 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 getWindow().getDecorView().setSystemUiVisibility(flags & ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
             }*/
             test_set_show_under_navigation = enable;
-            WindowCompat.setDecorFitsSystemWindows(getWindow(), !enable);
+            // in theory the VANILLA_ICE_CREAM is redundant as we shouldn't be here on Android 15+ anyway (since edge_to_edge_mode==true), but
+            // wrapping in case this helps Google Play recommendation to avoid deprecated APIs for edge-to-edge
+            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM ) {
+                WindowCompat.setDecorFitsSystemWindows(getWindow(), !enable);
+            }
         }
-        getWindow().setNavigationBarColor(enable ? Color.TRANSPARENT : Color.BLACK);
+
+        // in theory the VANILLA_ICE_CREAM is redundant as we shouldn't be here on Android 15+ anyway (since edge_to_edge_mode==true), but
+        // wrapping in case this helps Google Play recommendation to avoid deprecated APIs for edge-to-edge
+        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM ) {
+            getWindow().setNavigationBarColor(enable ? Color.TRANSPARENT : Color.BLACK);
+        }
     }
 
     public int getNavigationGap() {
