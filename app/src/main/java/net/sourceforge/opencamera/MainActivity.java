@@ -1490,7 +1490,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 int progress = seekBar.getProgress();
                 int new_progress = progress + change;
                 int current_exposure = getExposureSeekbarValue(progress);
-                if( getExposureSeekbarValue(new_progress) == 0 && current_exposure != 0 ) {
+                if( new_progress < 0 || new_progress > exposure_seekbar_values.size()-1 ) {
+                    // skip
+                }
+                else if( getExposureSeekbarValue(new_progress) == 0 && current_exposure != 0 ) {
                     // snap to the central repeated zero
                     new_progress = exposure_seekbar_values_zero;
                     change = new_progress - progress;
