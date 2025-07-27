@@ -1,13 +1,16 @@
 {
-  "name": "Open Camera Build Environment (Manual SDK)",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "vscjava.vscode-java-pack"
+  "name": "Open Camera Build Environment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17"
+    },
+    "ghcr.io/devcontainers/features/android-sdk:0": {
+      "install": [
+        "platforms;android-34",
+        "build-tools;34.0.0"
       ]
     }
-  }
+  },
+  "onCreateCommand": "echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin"
 }
