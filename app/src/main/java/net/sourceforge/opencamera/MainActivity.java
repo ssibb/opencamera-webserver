@@ -115,6 +115,23 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class MainActivity extends AppCompatActivity implements PreferenceFragment.OnPreferenceStartFragmentCallback {
     private static final String TAG = "MainActivity";
+    private static MainActivity instance;
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
+
+    public void setISO(int iso) {
+        if( preview != null ) {
+            preview.setISO(iso);
+        }
+    }
+
+    public void setExposureTime(long exposure_time) {
+        if( preview != null ) {
+            preview.setExposureTime(exposure_time);
+        }
+    }
 
     private static int activity_count = 0;
 
@@ -272,6 +289,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         //EdgeToEdge.enable(this, SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT)); // test edge-to-edge on pre-Android 15
         super.onCreate(savedInstanceState);
 
+        instance = this; // Salva l'istanza corrente per l'accesso statico
+        Intent serviceIntent = new Intent(this, CameraWebServerService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        
         setContentView(R.layout.activity_main);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false); // initialise any unset preferences to their default values
         if( MyDebug.LOG )
@@ -297,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             if( MyDebug.LOG )
                 Log.d(TAG, "shortcut: " + getIntent().getAction());
         }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // determine whether we should support "auto stabilise" feature
         // risk of running out of memory on lower end devices, due to manipulation of large bitmaps

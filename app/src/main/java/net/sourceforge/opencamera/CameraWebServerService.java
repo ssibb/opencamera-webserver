@@ -1,0 +1,174 @@
+package net.sourceforge.opencamera;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Service;
+import android.content.Intent;
+import android.os.Build;
+import android.os.IBinder;
+import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import android.util.Log;
+import fi.iki.elonen.NanoHTTPD;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit; 
+
+public class CameraWebServerService extends Service {
+    private static final String TAG = "CameraWebServerService";
+    private WebServer server;
+    private File latest_saved_image = null; 
+    private CountDownLatch image_saved_latch = null;
+
+    // La classe interna che implementa il server
+    private class WebServer extends NanoHTTPD {
+        public WebServer() { 
+            super(8080);
+        }
+
+        @Override
+        public Response serve(IHTTPSession session) {
+            String uri = session.getUri();
+            Log.d(TAG, "Richiesta ricevuta per URI: " + uri);
+
+
+     if (uri.equals("/capture")) {
+         Log.d(TAG, "opencameralog: /capture request received");
+         // Ottieni i parametri dalla query
+         Map<String, List<String>> params = session.getParameters();
+         final MainActivity main_activity = MainActivity.getInstance();
+         if (main_activity == null) {
+             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "MainActivity non è attiva.");
+         }
+         // Imposta i parametri sulla fotocamera (eseguito sul thread UI)
+
+        main_activity.runOnUiThread(() -> {
+            if (params.containsKey("iso")) {
+                try {
+                    int iso = Integer.parseInt(params.get("iso").get(0));
+                    main_activity.setISO(iso); 
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Valore ISO non valido", e);
+                }
+            }
+            if (params.containsKey("shutter_speed")) {
+                try {
+                    long shutter_speed_value = Long.parseLong(params.get("shutter_speed").get(0));
+                    main_activity.setExposureTime(shutter_speed_value); 
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Valore Shutter speed non valido", e);
+                }
+            }
+        });
+
+
+        // Resetta lo stato per la nuova cattura
+        CameraWebServerService.this.latest_saved_image = null;
+        CameraWebServerService.this.image_saved_latch = new CountDownLatch(1);
+
+         // Scatta la foto e attendi che sia salvata
+         main_activity.takePicture(false);
+
+         // Attendi che l'immagine sia salvata (fino a 10 secondi)
+         Log.d(TAG, "opencameralog: Waiting for image to be saved...");
+         File imageFile = null;
+        try {
+            // Attendi il callback per un massimo di 30 secondi
+            if (CameraWebServerService.this.image_saved_latch.await(30, TimeUnit.SECONDS)) {
+                imageFile = CameraWebServerService.this.latest_saved_image;
+                Log.d(TAG, "opencameralog: Image saved latch successful.");
+            } else {
+                Log.e(TAG, "opencameralog: Timeout waiting for image to be saved.");
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Interrupted while waiting for image.", e);
+        }
+        main_activity.getApplicationInterface().clearLastImageFile();
+
+         if (imageFile != null && imageFile.exists()) {
+             try {
+                 FileInputStream fis = new FileInputStream(imageFile);
+                 return newChunkedResponse(Response.Status.OK, "image/jpeg", fis);
+             } catch (IOException e) {
+                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Errore nel leggere il file.");
+             }
+         } else {
+             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Timeout o errore nel salvataggio foto.");
+         }
+     }
+
+
+
+
+            return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Endpoint non trovato.");
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "opencameralog: CameraWebServerService onCreate");
+        server = new WebServer();
+        try {
+            server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+            Log.d(TAG, "Server avviato su porta 8080");
+        } catch (IOException e) {
+            Log.e(TAG, "Errore avvio server", e);
+        }
+
+        // Imposta il riferimento al servizio in ImageSaver
+        MainActivity main_activity = MainActivity.getInstance();
+        if (main_activity != null && main_activity.getApplicationInterface() != null) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "Setting web server service on ImageSaver");
+            main_activity.getApplicationInterface().getImageSaver().setWebServerService(this);
+        }
+
+        // Crea una notifica per il Foreground Service (obbligatoria da Android 8+)
+        final String CHANNEL_ID = "OpenCameraWebServerChannel";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "WebServer Status", NotificationManager.IMPORTANCE_LOW);
+            getSystemService(NotificationManager.class).createNotificationChannel(channel);
+        }
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Open Camera Web Server")
+                .setContentText("Il server è attivo.")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)  // Usa l'icona dell'app
+                .build();
+        startForeground(1, notification);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "opencameralog: CameraWebServerService onDestroy");
+        if (server != null) {
+            server.stop();
+            Log.d(TAG, "Server fermato.");
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "opencameralog: CameraWebServerService onBind");
+        return null;
+    }
+
+
+    public void onImageSaved(File file) { // <<< AGGIUNGI QUESTO METODO
+    Log.d(TAG, "Image saved callback received: " + file.getAbsolutePath());
+    this.latest_saved_image = file;
+    if( this.image_saved_latch != null ) {
+        this.image_saved_latch.countDown(); 
+    }
+}
+}

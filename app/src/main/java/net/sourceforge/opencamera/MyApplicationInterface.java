@@ -3620,7 +3620,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                 }
             }
             String preference_hdr_contrast_enhancement = sharedPreferences.getString(PreferenceKeys.HDRContrastEnhancementPreferenceKey, "preference_hdr_contrast_enhancement_smart");
-
+            Log.d(TAG, "opencameralog: Calling imageSaver.saveImageJpeg");
             success = imageSaver.saveImageJpeg(do_in_background, processType,
                     force_suffix,
                     // N.B., n_capture_images will be 1 for first image, not 0, so subtract 1 so we start off from _0.
@@ -3961,4 +3961,13 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     public boolean test_set_available_memory = false;
     public long test_available_memory = 0;
+
+    public File getLastImageFile() {
+    return this.imageSaver.getLastImageFile();
+    }
+
+    public void clearLastImageFile() {
+        this.imageSaver.clearLastImageFile();
+    }
+
 }

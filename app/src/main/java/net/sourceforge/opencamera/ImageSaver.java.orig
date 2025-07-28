@@ -82,8 +82,8 @@ public class ImageSaver extends Thread {
 
     private final MainActivity main_activity;
     private final HDRProcessor hdrProcessor;
-    private CameraWebServerService web_server_service = null;
     private File last_image_file = null;
+    private CameraWebServerService web_server_service = null;
     private final PanoramaProcessor panoramaProcessor;
 
     /* We use a separate count n_images_to_save, rather than just relying on the queue size, so we can take() an image from queue,
@@ -332,14 +332,6 @@ public class ImageSaver extends Thread {
         p.setAntiAlias(true);
     }
 
-    public void setWebServerService(CameraWebServerService web_server_service) {
-        this.web_server_service = web_server_service;
-        if( MyDebug.LOG )
-            Log.d(TAG, "opencameralog: ImageSaver setWebServerService called");
-        if( MyDebug.LOG )
-            Log.d(TAG, "setWebServerService");
-    }
-
     /** Returns the length of the image saver queue. In practice, the number of images that can be taken at once before the UI
      *  blocks is 1 more than this, as 1 image will be taken off the queue to process straight away.
      */
@@ -560,7 +552,7 @@ public class ImageSaver extends Thread {
     @Override
     public void run() {
         if( MyDebug.LOG )
-            Log.d(TAG, "opencameralog: ImageSaver thread starting...");
+            Log.d(TAG, "starting ImageSaver thread...");
         while( true ) {
             try {
                 if( MyDebug.LOG )
@@ -570,10 +562,6 @@ public class ImageSaver extends Thread {
                 // even though we still have a last image to be saved.
                 if( MyDebug.LOG )
                     Log.d(TAG, "ImageSaver thread found new request from queue, size is now: " + queue.size());
-
-                // set last_image_file to null, so we can check if it's been set by the request
-                if( request.type == Request.Type.JPEG || request.type == Request.Type.RAW )
-                    this.last_image_file = null;
                 boolean success;
                 boolean on_destroy = false;
                 switch (request.type) {
@@ -619,18 +607,6 @@ public class ImageSaver extends Thread {
                     n_images_to_save--;
                     if( request.type != Request.Type.DUMMY && request.type != Request.Type.ON_DESTROY )
                         n_real_images_to_save--;
-
-                    if( MyDebug.LOG ) {
-                        Log.d(TAG, "opencameralog: Checking conditions for onImageSaved:");
-                        Log.d(TAG, "opencameralog: success = " + success);
-                        Log.d(TAG, "opencameralog: last_image_file = " + (last_image_file != null ? last_image_file.getAbsolutePath() : "null"));
-                        Log.d(TAG, "opencameralog: web_server_service = " + (web_server_service != null ? "not null" : "null"));
-                        Log.d(TAG, "opencameralog: request.type = " + request.type);
-                    }
-                    if( success && last_image_file != null && web_server_service != null && ( request.type == Request.Type.JPEG || request.type == Request.Type.RAW ) ) {
-                        Log.d(TAG, "opencameralog: Calling web_server_service.onImageSaved");
-                        web_server_service.onImageSaved(last_image_file);
-                    }
                     if( MyDebug.LOG )
                         Log.d(TAG, "ImageSaver thread processed new request from queue, images to save is now: " + n_images_to_save);
                     if( MyDebug.LOG && n_images_to_save < 0 ) {
@@ -3297,7 +3273,6 @@ public class ImageSaver extends Thread {
                     // broadcast for SAF is done later, when we've actually written out the file
                     storageUtils.broadcastFile(picFile, true, false, update_thumbnail, hasnoexifdatetime, null);
                     main_activity.test_last_saved_image = picFile.getAbsolutePath();
-                    this.last_image_file = picFile; // Set last_image_file for local file
                 }
 
                 if( request.image_capture_intent ) {
@@ -3336,25 +3311,6 @@ public class ImageSaver extends Thread {
                     }
 
                     main_activity.test_last_saved_imageuri = saveUri;
-                    // For SAF/MediaStore, we need to convert the URI to a File if possible, or store the URI itself
-                    // For simplicity, we'll store the URI as a string representation of the path if it's a content URI
-                    // or the actual file if it's a file URI.
-                    // Given the current setup, it's safer to just store the URI and let CameraWebServerService handle it.
-                    // However, CameraWebServerService expects a File object. This means we need to resolve the URI to a File.
-                    // This can be complex and might require additional permissions or logic.
-                    // For now, let's assume that if saveUri is not null, it represents a successful save.
-                    // We will need to revisit this if CameraWebServerService truly needs a File object from a content URI.
-                    // For the purpose of this debug, we'll just set it to a dummy file or null if it's a content URI.
-                    // A better solution would be to pass the URI directly to CameraWebServerService and let it handle the stream.
-                    // For now, let's try to get a file path from the URI if it's a file URI.
-                    if (saveUri.getScheme() != null && saveUri.getScheme().equals("file")) {
-                        this.last_image_file = new File(saveUri.getPath());
-                    } else { // content URI
-                        // This is a simplification. In a real app, you'd need to query the MediaStore
-                        // to get the actual file path from a content URI.
-                        // For now, we'll just set it to null or a placeholder.
-                        this.last_image_file = null; // Or a dummy file if needed for testing
-                    }
                 }
             }
         }
@@ -4207,7 +4163,6 @@ public class ImageSaver extends Thread {
 
             if( saveUri == null ) {
                 storageUtils.broadcastFile(picFile, true, false, raw_only, hasnoexifdatetime, null);
-                this.last_image_file = picFile; // Set last_image_file for local file
             }
             else if( use_media_store ) {
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ) {
@@ -4227,25 +4182,9 @@ public class ImageSaver extends Thread {
                     // we also want to save the uri - we can use the media uri directly, rather than having to scan it
                     storageUtils.setLastMediaScanned(saveUri, true, hasnoexifdatetime, saveUri);
                 }
-                // For SAF/MediaStore, we need to convert the URI to a File if possible, or store the URI itself.
-                // For simplicity, we'll store the URI as a string representation of the path if it's a content URI
-                // or the actual file if it's a file URI.
-                if (saveUri.getScheme() != null && saveUri.getScheme().equals("file")) {
-                    this.last_image_file = new File(saveUri.getPath());
-                } else { // content URI
-                    this.last_image_file = null; // Or a dummy file if needed for testing
-                }
             }
             else {
                 storageUtils.broadcastUri(saveUri, true, false, raw_only, hasnoexifdatetime, false);
-                // For SAF/MediaStore, we need to convert the URI to a File if possible, or store the URI itself.
-                // For simplicity, we'll store the URI as a string representation of the path if it's a content URI
-                // or the actual file if it's a file URI.
-                if (saveUri.getScheme() != null && saveUri.getScheme().equals("file")) {
-                    this.last_image_file = new File(saveUri.getPath());
-                } else { // content URI
-                    this.last_image_file = null; // Or a dummy file if needed for testing
-                }
             }
         }
         catch(FileNotFoundException e) {
@@ -4698,12 +4637,8 @@ public class ImageSaver extends Thread {
         this.last_image_file = null;
     }
 
-    public void onImageSaved(File file) {
-        Log.d(TAG, "opencameralog: onImageSaved called with file: " + file.getAbsolutePath());
-        this.last_image_file = file;
-        if( this.web_server_service != null ) {
-            this.web_server_service.onImageSaved(file);
-        }
+    public void setWebServerService(CameraWebServerService service) {
+        this.web_server_service = service;
     }
 
 }

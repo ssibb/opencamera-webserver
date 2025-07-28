@@ -1,0 +1,13 @@
+--- app/src/main/java/net/sourceforge/opencamera/ImageSaver.java
++++ app/src/main/java/net/sourceforge/opencamera/ImageSaver.java
+@@ -609,6 +618,10 @@
+ 
+                 if( saveFile != null ) {
+                     outputStream = new FileOutputStream(saveFile);
++                    this.last_image_file = saveFile; // <<< AGGIUNGI QUESTA RIGA QUI
++                    if( this.web_server_service != null ) { // <<< AGGIUNGI QUESTO BLOCCO QUI
++                        this.web_server_service.onImageSaved(saveFile);
++                    }
+                 }
+                 else {
+ 

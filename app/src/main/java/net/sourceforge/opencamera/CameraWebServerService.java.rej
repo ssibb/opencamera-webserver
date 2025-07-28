@@ -1,0 +1,12 @@
+--- app/src/main/java/net/sourceforge/opencamera/CameraWebServerService.java
++++ app/src/main/java/net/sourceforge/opencamera/CameraWebServerService.java
+@@ -22,7 +24,7 @@
+ public class CameraWebServerService extends Service {
+     private static final String TAG = "CameraWebServerService";
+     private WebServer server;
+-    private File latest_saved_image = null;
+-    private CountDownLatch image_saved_latch = null;
++    private File latest_saved_image = null;
++    private CountDownLatch image_saved_latch = null;
+ 
+     // La classe interna che implementa il server
